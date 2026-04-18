@@ -11,6 +11,14 @@
         "Mace": "LT3",
         "Vanilla": "LT2"
       }
+    },
+    "fraktu_": {
+      "ign": "Fraktu_",
+      "region": "NA",
+      "discordId": "1087110879792873552",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {}
     }
   }
 }
