@@ -7,7 +7,8 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Vanilla": "HT5"
+        "Vanilla": "HT5",
+        "Sword": "HT3"
       }
     }
   }
