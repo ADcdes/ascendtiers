@@ -1,0 +1,16 @@
+{
+  "players": {
+    "Fraktu_": {
+      "ign": "Fraktu_",
+      "region": "NA",
+      "discordId": "",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Sword": "HT3",
+        "Mace": "LT3",
+        "Vanilla": "LT2"
+      }
+    }
+  }
+}
