@@ -6,7 +6,9 @@
       "discordId": "1087110879792873552",
       "restricted": false,
       "restrictReason": null,
-      "tiers": {}
+      "tiers": {
+        "Vanilla": "HT5"
+      }
     }
   }
 }
