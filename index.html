@@ -134,25 +134,35 @@
         }
         .lb-table thead th.right { text-align: right; }
         .lb-row {
-            border-bottom: 1px solid var(--border);
-            transition: background 0.12s, border-color 0.12s; cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            transition: background 0.12s, border-color 0.12s, transform 0.12s; cursor: pointer;
             animation: rowIn 0.3s both;
         }
-        .lb-row:hover { background: #0f1526; border-bottom-color: var(--border2); }
+        .lb-row:hover { background: #0f1a33; border-bottom-color: rgba(87,144,255,0.25); transform: translateY(-1px); }
         .lb-row td { padding: 0; vertical-align: middle; }
         @keyframes rowIn { from{opacity:0;transform:translateX(-6px)} to{opacity:1;transform:translateX(0)} }
 
-        .td-rank { width: 80px; padding: 20px 0 20px 20px; }
-        .rank-num { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; line-height: 1; color: var(--muted); }
+        .td-rank {
+            width: 140px; padding: 0;
+            background: linear-gradient(90deg, #12264d, #0e1d3c 70%, transparent);
+            clip-path: polygon(0 0, 88% 0, 74% 100%, 0 100%);
+        }
+        .rank-wrap { padding: 18px 0 18px 18px; display:flex; align-items:center; }
+        .rank-num { font-family: 'Bebas Neue', sans-serif; font-size: 2.1rem; line-height: 1; color: #82a9ff; }
         .rank-num.r1 { color: var(--gold); text-shadow: 0 0 16px rgba(240,165,0,0.4); }
         .rank-num.r2 { color: var(--silver); }
         .rank-num.r3 { color: var(--bronze); }
 
         .td-player { padding: 14px 12px; }
         .player-inner { display: flex; align-items: center; gap: 12px; }
-        .player-skin { width: 44px; height: 44px; border-radius: 8px; image-rendering: pixelated; flex-shrink: 0; box-shadow: 0 2px 10px rgba(0,0,0,0.5); border: 1px solid var(--border2); }
+        .player-skin {
+            width: 48px; height: 48px; border-radius: 10px; object-fit: cover;
+            flex-shrink: 0; box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+            border: 1px solid rgba(94,149,255,0.35);
+            background: #0c1530;
+        }
         .player-name { font-size: 1.05rem; font-weight: 700; color: var(--text); }
-        .player-pts { font-size: 0.72rem; color: var(--muted2); font-weight: 600; margin-top: 2px; }
+        .player-pts { font-size: 0.72rem; color: #6f86bb; font-weight: 600; margin-top: 2px; }
         .pts-accent { color: var(--teal); font-weight: 700; }
 
         .td-region { width: 70px; padding: 0 8px; }
@@ -192,7 +202,7 @@
 
         /* ── TIER GRID (MODE VIEW) ── */
         .tier-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 4px; }
-        .tier-col { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: border-color 0.2s; }
+        .tier-col { background: linear-gradient(180deg, #0d1730, #0a1226); border: 1px solid rgba(104,140,208,0.16); border-radius: 10px; overflow: hidden; transition: border-color 0.2s; }
         .tier-col:hover { border-color: var(--border2); }
         .tier-col-head {
             display: flex; align-items: center; justify-content: space-between;
@@ -232,7 +242,7 @@
         }
         .modal-overlay.open { opacity: 1; pointer-events: all; }
         .modal-card {
-            background: var(--surface); border: 1px solid var(--border2);
+            background: linear-gradient(180deg, #0b1630, #091126); border: 1px solid rgba(106,147,222,0.28);
             border-radius: 16px; width: 440px; max-width: 95vw;
             padding: 32px 28px 28px; position: relative;
             box-shadow: 0 24px 80px rgba(0,0,0,0.6);
@@ -250,8 +260,9 @@
         .modal-top { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 20px; }
         .modal-avatar-wrap { position: relative; }
         .modal-avatar {
-            width: 80px; height: 80px; border-radius: 50%; image-rendering: pixelated;
-            border: 3px solid var(--teal); box-shadow: 0 0 20px rgba(16,212,176,0.3);
+            width: 110px; height: 110px; border-radius: 50%; object-fit: cover;
+            border: 3px solid #2f7bff; box-shadow: 0 0 25px rgba(35,104,255,0.4);
+            background: #0b1430;
         }
         .modal-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: 2px; text-align: center; }
         .modal-badge {
@@ -269,7 +280,7 @@
         .modal-namemc:hover { background: rgba(255,255,255,0.1); color: var(--text); }
         .modal-section { margin-top: 16px; }
         .modal-section-title { font-size: 0.6rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
-        .modal-position { display: flex; align-items: center; gap: 12px; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; }
+        .modal-position { display: flex; align-items: center; gap: 12px; background: linear-gradient(90deg, #102244, #0a1530); border: 1px solid rgba(100,138,203,0.28); border-radius: 10px; padding: 12px 16px; }
         .modal-pos-num { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; line-height: 1; min-width: 44px; }
         .modal-pos-num.p1 { color: var(--gold); text-shadow: 0 0 12px rgba(240,165,0,0.4); }
         .modal-pos-num.p2 { color: var(--silver); }
@@ -388,6 +399,9 @@ function tierIsHigh(tier) { return tier.startsWith('HT'); }
 function playerPoints(p) {
     return Object.values(p.tiers||{}).reduce((s,t)=>s+(TIER_POINTS[t]||0),0);
 }
+function bustUrl(ign) {
+    return `https://render.crafty.gg/3d/bust/${encodeURIComponent(ign)}`;
+}
 function bestTier(p) {
     const ts = Object.values(p.tiers||{});
     if(!ts.length) return 'LT5';
@@ -461,9 +475,9 @@ function renderOverall(el, list) {
         const rnCls=i===0?'r1':i===1?'r2':i===2?'r3':'';
         const tierCircles = GAME_MODES.map(m=>p.tiers&&p.tiers[m]?tierCircle(m,p.tiers[m]):'').join('');
         return `<tr class="lb-row" style="animation-delay:${i*0.04}s" onclick="showPlayerByIgn('${ign}')">
-            <td class="td-rank"><span class="rank-num ${rnCls}">${i+1}</span></td>
+            <td class="td-rank"><div class="rank-wrap"><span class="rank-num ${rnCls}">${i+1}.</span></div></td>
             <td class="td-player"><div class="player-inner">
-                <img class="player-skin" src="https://mc-heads.net/avatar/${ign}/44" loading="lazy">
+                <img class="player-skin" src="${bustUrl(ign)}" loading="lazy" onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/${ign}/44'">
                 <div>
                     <div class="player-name">${ign}</div>
                     <div class="player-pts">Best: <span style="color:${TIER_CLR[best]||'#5a6880'};font-weight:800">${best}</span></div>
@@ -512,7 +526,7 @@ function renderMode(el, list) {
             const ign=p.ign||p.name;
             return `<div class="tier-player fade-in" onclick="showPlayerByIgn('${ign}')">
                 <div class="tier-player-left">
-                    <img class="tier-avatar" src="https://mc-heads.net/avatar/${ign}/22" loading="lazy">
+                    <img class="tier-avatar" src="${bustUrl(ign)}" loading="lazy" onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/${ign}/22'">
                     <span class="tier-player-name">${ign}</span>
                 </div>
                 <div class="tier-player-right">
@@ -564,7 +578,7 @@ function showModal(p) {
 
     document.getElementById('modal-body').innerHTML = `
         <div class="modal-top">
-            <img class="modal-avatar" src="https://mc-heads.net/avatar/${ign}/160" loading="lazy" style="border-color:${TIER_CLR[best]||'#10d4b0'}">
+            <img class="modal-avatar" src="${bustUrl(ign)}" loading="lazy" onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/${ign}/160'" style="border-color:${TIER_CLR[best]||'#2f7bff'}">
             <div class="modal-name">${ign}</div>
             <div class="modal-badge" style="background:${rank.color}20;border-color:${rank.color};color:${rank.color}">${rank.title}</div>
             <div class="modal-meta">
