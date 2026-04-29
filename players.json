@@ -8,7 +8,8 @@
       "restrictReason": null,
       "tiers": {
         "Vanilla": "LT4",
-        "Sword": "LT4"
+        "Sword": "LT4",
+        "UHC": "HT5"
       }
     }
   }
