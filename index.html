@@ -114,6 +114,15 @@
             background: var(--surface); border: 1px solid var(--border);
             padding: 4px 10px; border-radius: 20px; letter-spacing: 0.5px;
         }
+        .info-btn {
+            margin-left: 10px;
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+            color: var(--text); border-radius: 6px; padding: 6px 10px;
+            font-size: 0.72rem; font-weight: 700; letter-spacing: 0.4px;
+            cursor: pointer; transition: border-color 0.15s, background 0.15s;
+        }
+        .info-btn:hover { border-color: var(--border2); background: rgba(255,255,255,0.08); }
 
         /* ── LEADERBOARD TABLE ── */
         .lb-table { width: 100%; border-collapse: collapse; }
@@ -281,6 +290,29 @@
             display: flex; align-items: center; gap: 6px;
         }
 
+        /* ── INFO MODAL ── */
+        .info-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
+        .info-tab {
+            flex: 1; text-align: center; padding: 10px 8px; cursor: pointer;
+            font-size: 0.9rem; font-weight: 700; color: var(--muted2);
+            border-bottom: 2px solid transparent;
+        }
+        .info-tab.active { color: var(--text); border-bottom-color: var(--teal); }
+        .info-list { display: flex; flex-direction: column; gap: 10px; }
+        .info-row {
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--bg2); border: 1px solid var(--border);
+            border-radius: 8px; padding: 10px 12px;
+        }
+        .info-row-left { display: flex; flex-direction: column; gap: 2px; }
+        .info-row-title { font-size: 0.86rem; font-weight: 700; }
+        .info-row-sub { font-size: 0.72rem; color: var(--muted2); font-weight: 600; }
+        .info-chip {
+            border: 1px solid var(--border2); border-radius: 8px;
+            padding: 5px 8px; font-size: 0.75rem; font-weight: 800;
+            min-width: 74px; text-align: center;
+        }
+
         @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
         .fade-in { animation: fadeUp 0.3s both; }
     </style>
@@ -314,6 +346,14 @@
     </div>
 </div>
 
+<!-- Info Modal -->
+<div class="modal-overlay" id="info-overlay" onclick="closeInfoModal(event)">
+    <div class="modal-card" id="info-card" style="max-width:620px;width:620px;">
+        <button class="modal-close" onclick="closeInfoModal()">✕</button>
+        <div id="info-body"></div>
+    </div>
+</div>
+
 <script>
 // ── SVG ICONS (from existing code) ──────────────────────────
 const ICONS = {
@@ -334,7 +374,7 @@ const MODES      = ["Overall","Vanilla","LTMs","UHC","Pot","NethOP","SMP","Sword
 const GAME_MODES = ["LTMs","Vanilla","UHC","Pot","NethOP","SMP","Sword","Axe","Mace"];
 // Tier order: best (HT1) to worst (LT5)
 const TIER_ORDER = ['HT1','LT1','HT2','LT2','HT3','LT3','HT4','LT4','HT5','LT5'];
-const TIER_POINTS = {HT1:100,LT1:80,HT2:60,LT2:48,HT3:36,LT3:26,HT4:18,LT4:12,HT5:8,LT5:4};
+const TIER_POINTS = {HT1:60,LT1:45,HT2:30,LT2:20,HT3:10,LT3:6,HT4:4,LT4:3,HT5:2,LT5:1};
 const TIER_CLR   = {HT1:'#e84040',LT1:'#e86060',HT2:'#e87820',LT2:'#e89840',HT3:'#d4a800',LT3:'#d4bc40',HT4:'#3aaa50',LT4:'#60c070',HT5:'#4a70e8',LT5:'#7090e0'};
 const COL_CLR    = ['#e84040','#e87820','#d4a800','#3aaa50','#4a70e8'];
 
@@ -353,12 +393,13 @@ function bestTier(p) {
     return ts.sort((a,b)=>TIER_ORDER.indexOf(a)-TIER_ORDER.indexOf(b))[0];
 }
 function getTitle(pts) {
-    if(pts>=280) return {title:'Combat Legend',   color:'#e84040'};
-    if(pts>=200) return {title:'Combat Master',   color:'#e87820'};
-    if(pts>=130) return {title:'Combat Ace',      color:'#d4a800'};
-    if(pts>=70)  return {title:'Combat Apprentice',color:'#3aaa50'};
-    if(pts>=20)  return {title:'Combat Cadet',    color:'#4a70e8'};
-    return          {title:'Newcomer',             color:'#5a6880'};
+    if(pts>=450) return {title:'Combat Grandmaster', color:'#f0b000'};
+    if(pts>=300) return {title:'Combat Master',      color:'#e8c340'};
+    if(pts>=180) return {title:'Combat Ace',         color:'#df5bab'};
+    if(pts>=90)  return {title:'Combat Specialist',  color:'#ad62ff'};
+    if(pts>=30)  return {title:'Combat Cadet',       color:'#5aa3ff'};
+    if(pts>=10)  return {title:'Combat Novice',      color:'#8ba0d6'};
+    return          {title:'Rookie',                 color:'#6e778a'};
 }
 function sortedPlayers() {
     return Object.values(players).sort((a,b)=>playerPoints(b)-playerPoints(a));
@@ -407,6 +448,7 @@ function renderOverall(el, list) {
         <div class="mode-icon-lg">${ICONS.Overall(28)}</div>
         <div><div class="mode-title">Overall Rankings</div><div class="mode-sub">Sorted by total tier points across all modes</div></div>
         <div class="mode-count">${list.length} PLAYER${list.length!==1?'S':''}</div>
+        <button class="info-btn" onclick="openInfoModal()">ⓘ Information</button>
     </div>`;
 
     if(!list.length){ el.innerHTML=header+`<div class="empty-state"><h3>No players yet</h3><p>Players will appear here after their first test.</p></div>`; return; }
@@ -453,6 +495,7 @@ function renderMode(el, list) {
         <div class="mode-icon-lg">${ICONS[mode](28)}</div>
         <div><div class="mode-title">${mode}</div><div class="mode-sub">Players ranked by tier</div></div>
         <div class="mode-count">${total} PLAYER${total!==1?'S':''}</div>
+        <button class="info-btn" onclick="openInfoModal()">ⓘ Information</button>
     </div>`;
 
     if(!total){ el.innerHTML=header+`<div class="empty-state"><h3>No players in ${mode} yet</h3><p>Be the first to get tested!</p></div>`; return; }
@@ -552,7 +595,70 @@ function closeModal(e) {
     if(e&&e.target!==document.getElementById('modal-overlay')&&e.target!==document.querySelector('.modal-close'))return;
     document.getElementById('modal-overlay').classList.remove('open');
 }
-document.addEventListener('keydown', e=>{ if(e.key==='Escape') document.getElementById('modal-overlay').classList.remove('open'); });
+
+let infoTab = 'titles';
+function openInfoModal() {
+    renderInfoModal();
+    document.getElementById('info-overlay').classList.add('open');
+}
+function closeInfoModal(e) {
+    if (e && e.target !== document.getElementById('info-overlay') && e.target !== document.querySelector('#info-card .modal-close')) return;
+    document.getElementById('info-overlay').classList.remove('open');
+}
+function setInfoTab(tab) {
+    infoTab = tab;
+    renderInfoModal();
+}
+function renderInfoModal() {
+    const titleRows = [
+        ['Combat Grandmaster','Obtained 450+ total points.','#f0b000'],
+        ['Combat Master','Obtained 300+ total points.','#e8c340'],
+        ['Combat Ace','Obtained 180+ total points.','#df5bab'],
+        ['Combat Specialist','Obtained 90+ total points.','#ad62ff'],
+        ['Combat Cadet','Obtained 30+ total points.','#5aa3ff'],
+        ['Combat Novice','Obtained 10+ total points.','#8ba0d6'],
+        ['Rookie','Less than 10 total points.','#6e778a'],
+    ];
+    const pointsRows = [
+        ['Tier 1', [['HT1','+60 pts','var(--ht1)'], ['LT1','+45 pts','var(--lt1)']]],
+        ['Tier 2', [['HT2','+30 pts','var(--ht2)'], ['LT2','+20 pts','var(--lt2)']]],
+        ['Tier 3', [['HT3','+10 pts','var(--ht3)'], ['LT3','+6 pts','var(--lt3)']]],
+        ['Tier 4', [['HT4','+4 pts','var(--ht4)'], ['LT4','+3 pts','var(--lt4)']]],
+        ['Tier 5', [['HT5','+2 pts','var(--ht5)'], ['LT5','+1 pt','var(--lt5)']]],
+    ];
+
+    const titlesHtml = titleRows.map(([name, desc, color]) => `
+        <div class="info-row">
+            <div class="info-row-left">
+                <div class="info-row-title" style="color:${color}">${name}</div>
+                <div class="info-row-sub">${desc}</div>
+            </div>
+        </div>
+    `).join('');
+
+    const pointsHtml = pointsRows.map(([tier, chips]) => `
+        <div class="info-row">
+            <div class="info-row-left"><div class="info-row-title">${tier}</div></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                ${chips.map(([label, pts, color])=>`<span class="info-chip" style="border-color:${color};color:${color};">${label} ${pts}</span>`).join('')}
+            </div>
+        </div>
+    `).join('');
+
+    document.getElementById('info-body').innerHTML = `
+        <div class="info-tabs">
+            <div class="info-tab ${infoTab==='titles'?'active':''}" onclick="setInfoTab('titles')">Titles</div>
+            <div class="info-tab ${infoTab==='points'?'active':''}" onclick="setInfoTab('points')">Points</div>
+        </div>
+        <div class="info-list">${infoTab==='titles' ? titlesHtml : pointsHtml}</div>
+    `;
+}
+document.addEventListener('keydown', e=>{
+    if(e.key==='Escape') {
+        document.getElementById('modal-overlay').classList.remove('open');
+        document.getElementById('info-overlay').classList.remove('open');
+    }
+});
 
 // ── DATA REFRESH ──────────────────────────────────────────────
 async function refresh() {
