@@ -329,6 +329,36 @@
 
         @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
         .fade-in { animation: fadeUp 0.3s both; }
+        .featured-grid { display:grid; grid-template-columns:1fr 1.18fr 1fr; gap:14px; align-items:end; margin:0 0 22px; }
+        .podium-card { position:relative; overflow:hidden; min-height:158px; border:1px solid #1c2741; border-radius:16px; background:linear-gradient(135deg,#101827,#0b1223); padding:18px; cursor:pointer; box-shadow:0 18px 44px rgba(0,0,0,.28); transition:transform .16s,border-color .16s; }
+        .podium-card:hover { transform:translateY(-3px); border-color:rgba(129,162,225,.42); }
+        .podium-card.p1 { min-height:188px; background:linear-gradient(135deg,#f4c425,#7d5b04 72%,#101827); color:#06080d; }
+        .podium-card.p2 { background:linear-gradient(135deg,#cfe2f3,#516474 72%,#101827); color:#06080d; }
+        .podium-card.p3 { background:linear-gradient(135deg,#ff6848,#6f160a 72%,#101827); }
+        .podium-rank { font-family:'Bebas Neue',sans-serif; font-size:3rem; line-height:.9; text-shadow:0 4px 7px rgba(0,0,0,.35); }
+        .podium-name { font-size:1.35rem; font-weight:900; margin-top:10px; position:relative; z-index:2; }
+        .podium-meta { font-size:.86rem; font-weight:800; opacity:.78; margin-top:3px; position:relative; z-index:2; }
+        .podium-skin { position:absolute; right:12px; bottom:-2px; width:118px; height:118px; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(0 14px 12px rgba(0,0,0,.5)); }
+        .podium-card.p1 .podium-skin { width:142px; height:142px; }
+        .side-panels { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:18px; }
+        .feed-card { background:#0d1324; border:1px solid #1c2741; border-radius:14px; padding:16px; }
+        .feed-title { font-size:.72rem; color:var(--muted2); font-weight:900; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:10px; }
+        .feed-row { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 0; border-top:1px solid rgba(98,121,170,.12); cursor:pointer; }
+        .feed-row:first-of-type { border-top:0; }
+        .feed-left { display:flex; align-items:center; gap:9px; min-width:0; }
+        .feed-avatar { width:28px; height:28px; border-radius:6px; object-fit:cover; image-rendering:pixelated; }
+        .feed-name { font-weight:900; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .feed-sub { font-size:.72rem; color:var(--muted2); font-weight:700; }
+        .latest-tier { flex-shrink:0; font-size:.7rem; font-weight:900; border:1px solid; border-radius:7px; padding:5px 8px; }
+        .latest-date { color:var(--muted); }
+        .profile-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:4px; }
+        .profile-action { border:1px solid var(--border2); background:rgba(255,255,255,.05); color:var(--text); border-radius:8px; padding:7px 10px; font-family:'Rajdhani',sans-serif; font-size:.76rem; font-weight:900; text-decoration:none; cursor:pointer; }
+        .profile-action:hover { background:rgba(255,255,255,.1); }
+        .modal-stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:14px; }
+        .modal-stat { background:rgba(255,255,255,.05); border:1px solid var(--border); border-radius:10px; padding:10px; text-align:center; }
+        .modal-stat-value { font-family:'Bebas Neue',sans-serif; font-size:1.45rem; color:var(--text); line-height:1; }
+        .modal-stat-label { font-size:.62rem; color:var(--muted2); font-weight:900; text-transform:uppercase; letter-spacing:1px; margin-top:4px; }
+        .profile-hero-skin { width:128px; height:128px; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(0 16px 14px rgba(0,0,0,.48)); }
 
         /* ── MOBILE VIEW ── */
         @media (max-width: 900px) {
@@ -336,6 +366,7 @@
             .navbar {
                 height: auto; min-height: 76px; padding: 14px 16px;
                 flex-direction: column; align-items: stretch; gap: 12px;
+                position: sticky; top: 0;
             }
             .logo { text-align: center; font-size: 1.85rem; letter-spacing: 3px; }
             .nav-right { width: 100%; gap: 8px; }
@@ -343,9 +374,9 @@
             .search-wrap input { width: 100%; font-size: 0.95rem; }
             .discord-btn { height: 40px; padding: 0 12px; flex-shrink: 0; }
 
-            .tabs-bar { padding: 0 10px; }
-            .tabs-inner { justify-content: flex-start; gap: 8px; padding: 0 2px; }
-            .tab { padding: 12px 13px 9px; gap: 4px; }
+            .tabs-bar { padding: 0 10px; position: sticky; top: 104px; z-index: 90; background: rgba(13,16,34,.96); backdrop-filter: blur(12px); }
+            .tabs-inner { justify-content: flex-start; gap: 8px; padding: 0 2px; scroll-snap-type:x mandatory; }
+            .tab { padding: 10px 12px 8px; gap: 4px; scroll-snap-align:start; }
             .tab-icon { width: 28px; height: 28px; }
             .tab-label { font-size: 0.58rem; }
 
@@ -364,6 +395,7 @@
                 height: auto; margin-bottom: 14px; overflow: hidden;
                 background: #0d1324; border: 1px solid #1c2741; border-radius: 14px;
                 box-shadow: 0 14px 34px rgba(0,0,0,0.24);
+                scroll-snap-align:start;
             }
             .lb-row:hover { transform: none; background: #0f172a; }
             .td-rank {
@@ -407,6 +439,14 @@
                 border-radius: 18px 18px 0 0; padding: 28px 18px 22px;
             }
             .info-row { align-items: flex-start; flex-direction: column; gap: 8px; }
+            .featured-grid { display:flex; overflow-x:auto; gap:10px; scroll-snap-type:x mandatory; padding-bottom:4px; }
+            .featured-grid::-webkit-scrollbar { display:none; }
+            .podium-card { min-width:82vw; scroll-snap-align:center; }
+            .podium-card, .podium-card.p1 { min-height:132px; }
+            .podium-card.p1 { order:-1; }
+            .podium-skin, .podium-card.p1 .podium-skin { width:104px; height:104px; }
+            .side-panels { grid-template-columns:1fr; gap:10px; }
+            .modal-stat-grid { grid-template-columns:1fr 1fr 1fr; }
         }
 
         @media (max-width: 430px) {
@@ -414,6 +454,10 @@
             .discord-btn { font-size: 0.78rem; padding: 0 9px; }
             .rank-skin { right: 20px; }
             .tier-pill { min-width: 62px; }
+            .page { padding-left:8px; padding-right:8px; }
+            .modal-stat-grid { gap:6px; }
+            .modal-stat { padding:8px 5px; }
+            .modal-stat-value { font-size:1.22rem; }
         }
     </style>
 </head>
@@ -480,6 +524,8 @@ const COL_CLR    = ['#e84040','#e87820','#ff8a18','#3aaa50','#4a70e8'];
 
 let currentMode = "Overall";
 let players = {};
+let recentResults = [];
+let openedFromUrl = false;
 
 // ── TIER UTILITIES ────────────────────────────────────────────
 function tierNum(tier) { return parseInt(tier.replace(/[^\d]/g,'')) || 5; }
@@ -506,6 +552,31 @@ function getTitle(pts) {
 }
 function sortedPlayers() {
     return Object.values(players).sort((a,b)=>playerPoints(b)-playerPoints(a));
+}
+function playerIgn(p) { return p.ign || p.name || ''; }
+function findPlayer(ign) {
+    const q = decodeURIComponent(ign || '').toLowerCase().trim();
+    return Object.values(players).find(p=>playerIgn(p).toLowerCase()===q);
+}
+function profileUrl(ign) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('player', ign);
+    return url.toString();
+}
+function setPlayerUrl(ign) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('player', ign);
+    history.pushState({player: ign}, '', url);
+}
+function clearPlayerUrl() {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('player');
+    history.pushState({}, '', url.pathname + (url.search ? url.search : '') + url.hash);
+}
+async function copyProfileLink(ign) {
+    const link = profileUrl(ign);
+    try { await navigator.clipboard.writeText(link); alert('Profile link copied!'); }
+    catch(e) { prompt('Copy profile link:', link); }
 }
 
 // ── TABS ──────────────────────────────────────────────────────
@@ -558,6 +629,9 @@ function renderOverall(el, list) {
 
     if(!list.length){ el.innerHTML=header+`<div class="empty-state"><h3>No players yet</h3><p>Players will appear here after their first test.</p></div>`; return; }
 
+    const podium = renderPodium(list.slice(0,3));
+    const latest = renderLatestResults();
+
     const rows = list.map((p,i)=>{
         const ign=p.ign||p.name, pts=playerPoints(p), best=bestTier(p);
         const rnCls=i===0?'r1':i===1?'r2':i===2?'r3':'';
@@ -577,10 +651,45 @@ function renderOverall(el, list) {
         </tr>`;
     }).join('');
 
-    el.innerHTML = header + `<table class="lb-table">
+    el.innerHTML = header + podium + latest + `<table class="lb-table">
         <thead><tr><th>#</th><th>PLAYER</th><th>REGION</th><th>TIERS</th><th class="right">POINTS</th></tr></thead>
         <tbody>${rows}</tbody>
     </table>`;
+}
+
+function renderPodium(top) {
+    if(!top.length) return '';
+    const order = [top[1], top[0], top[2]].filter(Boolean);
+    return `<div class="featured-grid">${order.map(p=>{
+        const ign = playerIgn(p), pos = sortedPlayers().findIndex(pl=>playerIgn(pl)===ign)+1, pts = playerPoints(p), best = bestTier(p);
+        return `<div class="podium-card p${pos}" onclick="showPlayerByIgn('${ign}')">
+            <div class="podium-rank">#${pos}</div><div class="podium-name">${ign}</div>
+            <div class="podium-meta">${pts} pts • Best ${best} • ${p.region||'NA'}</div>
+            <img class="podium-skin" src="${bustUrl(ign)}" loading="lazy" onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/${ign}/128'">
+        </div>`;
+    }).join('')}</div>`;
+}
+
+function buildFallbackRecentResults() {
+    return Object.values(players).flatMap(p => Object.entries(p.tiers||{}).map(([mode,tier]) => ({
+        player: playerIgn(p), tester: 'AscendTiers', mode, tier, date: p.updatedAt || p.lastUpdated || null
+    }))).slice(-8).reverse();
+}
+function formatResultDate(value) {
+    if(!value) return 'recently';
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? value : d.toLocaleDateString(undefined, { month:'short', day:'numeric' });
+}
+function renderLatestResults() {
+    const results = (recentResults && recentResults.length ? recentResults : buildFallbackRecentResults()).slice(0,5);
+    if(!results.length) return '';
+    return `<div class="side-panels"><div class="feed-card"><div class="feed-title">Latest Results</div>${results.map(r=>{
+        const ign = r.player || r.ign || r.username || '', tier = r.tier || '';
+        return `<div class="feed-row" onclick="showPlayerByIgn('${ign}')"><div class="feed-left">
+            <img class="feed-avatar" src="${bustUrl(ign)}" loading="lazy" onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/${ign}/28'">
+            <div><div class="feed-name">${ign}</div><div class="feed-sub">${r.tester||'Tester'} • ${r.mode||'Mode'} • <span class="latest-date">${formatResultDate(r.date||r.createdAt)}</span></div></div>
+        </div><span class="latest-tier tag-${tier.toLowerCase()}" style="border-color:${TIER_CLR[tier]||'var(--border2)'}">${tier}</span></div>`;
+    }).join('')}</div><div class="feed-card"><div class="feed-title">Share Player Profiles</div><div class="feed-sub" style="line-height:1.5;font-size:.86rem;">Click any player to open their profile, then copy a direct link like <span style="color:var(--teal);font-weight:900">?player=Klyrax</span>.</div></div></div>`;
 }
 
 function renderMode(el, list) {
@@ -643,7 +752,7 @@ function showPlayerByIgn(ign) {
     if(p) showModal(p);
 }
 
-function showModal(p) {
+function showModal(p, updateUrl = true) {
     const ign  = p.ign||p.name;
     const pts  = playerPoints(p);
     const rank = getTitle(pts);
@@ -664,9 +773,10 @@ function showModal(p) {
     const restrictedBanner = p.restricted?`<div class="modal-restricted">
         ⛔ RESTRICTED${p.restrictReason?' — '+p.restrictReason:''}</div>`:'' ;
 
+    if(updateUrl) setPlayerUrl(ign);
     document.getElementById('modal-body').innerHTML = `
         <div class="modal-top">
-            <img class="modal-avatar" src="${bustUrl(ign)}" loading="lazy" onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/${ign}/160'" style="border-color:${TIER_CLR[best]||'#2f7bff'}">
+            <img class="profile-hero-skin" src="${bustUrl(ign)}" loading="lazy" onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/${ign}/160'">
             <div class="modal-name">${ign}</div>
             <div class="modal-badge" style="background:${rank.color}20;border-color:${rank.color};color:${rank.color}">${rank.title}</div>
             <div class="modal-meta">
@@ -676,6 +786,15 @@ function showModal(p) {
                     NameMC
                 </a>
             </div>
+            <div class="profile-actions">
+                <button class="profile-action" onclick="copyProfileLink('${ign}')">Copy Profile Link</button>
+                <a class="profile-action" href="${profileUrl(ign)}">Open Direct Link</a>
+            </div>
+        </div>
+        <div class="modal-stat-grid">
+            <div class="modal-stat"><div class="modal-stat-value">#${pos}</div><div class="modal-stat-label">Overall</div></div>
+            <div class="modal-stat"><div class="modal-stat-value" style="color:${TIER_CLR[best]||'var(--text)'}">${best}</div><div class="modal-stat-label">Best Tier</div></div>
+            <div class="modal-stat"><div class="modal-stat-value">${pts}</div><div class="modal-stat-label">Points</div></div>
         </div>
         <div class="modal-section">
             <div class="modal-section-title">Position</div>
@@ -699,6 +818,7 @@ function showModal(p) {
 function closeModal(e) {
     if(e&&e.target!==document.getElementById('modal-overlay')&&e.target!==document.querySelector('.modal-close'))return;
     document.getElementById('modal-overlay').classList.remove('open');
+    clearPlayerUrl();
 }
 
 let infoTab = 'titles';
@@ -760,10 +880,18 @@ function renderInfoModal() {
 }
 document.addEventListener('keydown', e=>{
     if(e.key==='Escape') {
-        document.getElementById('modal-overlay').classList.remove('open');
+        if(document.getElementById('modal-overlay').classList.contains('open')) closeModal();
         document.getElementById('info-overlay').classList.remove('open');
     }
 });
+
+window.addEventListener('popstate', () => openProfileFromUrl());
+function openProfileFromUrl() {
+    const ign = new URLSearchParams(window.location.search).get('player');
+    if(!ign) { document.getElementById('modal-overlay').classList.remove('open'); return; }
+    const p = findPlayer(ign);
+    if(p) showModal(p, false);
+}
 
 // ── DATA REFRESH ──────────────────────────────────────────────
 async function refresh() {
@@ -771,7 +899,9 @@ async function refresh() {
         const res  = await fetch('players.json?t='+Date.now());
         const data = await res.json();
         players = data.players || {};
+        recentResults = data.recentResults || data.latestResults || [];
         renderTabs(); render();
+        if(!openedFromUrl) { openedFromUrl = true; openProfileFromUrl(); }
     } catch(e) { console.log("Waiting for players.json..."); renderTabs(); render(); }
 }
 refresh();
