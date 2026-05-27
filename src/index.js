@@ -97,8 +97,12 @@ const commands = [
 
 const rest = new REST({ version: '10' }).setToken(token);
 for (const guildId of new Set(Object.values(modes).map((mode) => mode.guildId).filter(Boolean))) {
-  await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands });
-  console.log(`Registered commands for guild ${guildId}`);
+  try {
+    await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands });
+    console.log(`Registered commands for guild ${guildId}`);
+  } catch (error) {
+    console.error(`Could not register commands for guild ${guildId}: ${error.message}`);
+  }
 }
 
 client.once(Events.ClientReady, (readyClient) => {
