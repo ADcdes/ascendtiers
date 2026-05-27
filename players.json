@@ -19,7 +19,10 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Vanilla": "LT3"
+        "Vanilla": "LT3",
+        "Sword": "LT3",
+        "Mace": "LT3",
+        "UHC": "LT3"
       }
     }
   }
