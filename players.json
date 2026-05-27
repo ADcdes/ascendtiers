@@ -11,6 +11,16 @@
         "Sword": "LT4",
         "UHC": "HT5"
       }
+    },
+    "itzwraps": {
+      "ign": "itzwraps",
+      "region": "NA",
+      "discordId": "1465852264479461464",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Crystal": "LT3"
+      }
     }
   }
 }
