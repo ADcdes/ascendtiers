@@ -30,7 +30,7 @@ if (!token || !clientId) {
 let state = await loadState();
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers]
+  intents: [GatewayIntentBits.Guilds]
 });
 
 const modeChoices = Object.entries(modes).map(([value, mode]) => ({ name: mode.label, value }));
