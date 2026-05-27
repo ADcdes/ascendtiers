@@ -10,13 +10,14 @@ import {
   GatewayIntentBits,
   ModalBuilder,
   PermissionFlagsBits,
+  PermissionsBitField,
   REST,
   Routes,
   SlashCommandBuilder,
   TextInputBuilder,
   TextInputStyle
 } from 'discord.js';
-import { highResultTiers, modes, tierChoices } from './config.js';
+import { highResultTiers, highTestTiers, modes, testerCommandRoleIds, tierChoices } from './config.js';
 import { crystalRules, maceRules } from './rules.js';
 import { ensureWaitlist, loadState, profileKey, saveState } from './state.js';
 
@@ -195,8 +196,8 @@ async function handleTesterStatus(interaction, modeKey, status) {
   const region = interaction.options.getString('region', true);
   const mode = modes[modeKey];
 
-  if (!memberHasRole(interaction.member, mode.testerRoles[region])) {
-    await interaction.reply({ content: `Only the ${mode.label} ${region} waitlist role can use this command.`, ephemeral: true });
+  if (!canUseTesterCommands(interaction.member)) {
+    await interaction.reply({ content: 'Only tester staff roles can use this command.', ephemeral: true });
     return;
   }
 
@@ -209,12 +210,10 @@ async function handleTesterStatus(interaction, modeKey, status) {
   }
 
   if (status === 'offline') {
-    const removedQueue = [...waitlist.queue];
     waitlist.activeTesterIds = waitlist.activeTesterIds.filter((id) => id !== testerId);
     waitlist.lastTestingSession = new Date().toISOString();
     if (waitlist.activeTesterIds.length === 0) {
       waitlist.queue = [];
-      await revokeWaitlistAccess(interaction.guild, waitlist, removedQueue);
     }
   }
 
@@ -232,8 +231,8 @@ async function handleResult(interaction, modeKey) {
   const tier = interaction.options.getString('tier', true);
   const details = interaction.options.getString('details') ?? '';
 
-  if (!canManageResults(interaction.member, mode)) {
-    await interaction.reply({ content: `Only ${mode.label} tester waitlist roles can post ${mode.label} results.`, ephemeral: true });
+  if (!canUseTesterCommands(interaction.member)) {
+    await interaction.reply({ content: `Only tester staff roles can post ${mode.label} results.`, ephemeral: true });
     return;
   }
 
@@ -322,6 +321,11 @@ async function handleButton(interaction) {
 
   if (action === 'leaveQueue') {
     await leaveQueue(interaction, modeKey, interaction.customId.split(':')[3]);
+    return;
+  }
+
+  if (action === 'acceptHighTest') {
+    await acceptHighTest(interaction, modeKey, interaction.customId.split(':')[3]);
   }
 }
 
@@ -350,7 +354,7 @@ async function handleModal(interaction) {
   await saveState(state);
 
   await interaction.reply({
-    content: `Verified as **${ign}** for **${mode.label} ${region}**. You can now enter the waitlist when a tester is online.`,
+    content: `Verified as **${ign}** for **${mode.label} ${region}**. You can now enter the waitlist.`,
     ephemeral: true
   });
 }
@@ -362,7 +366,24 @@ async function enterWaitlistFromRequest(interaction, modeKey) {
     return;
   }
 
-  await joinQueue(interaction, modeKey, profile.region);
+  const mode = modes[modeKey];
+  const member = await interaction.guild.members.fetch(interaction.user.id);
+  const highTier = getHighestHighTier(member, mode);
+
+  if (highTier) {
+    await createHighTestTicket(interaction, modeKey, profile, highTier);
+    return;
+  }
+
+  await member.roles.add(mode.waitlistRoles[profile.region]);
+  const waitlist = ensureWaitlist(state, modeKey, profile.region);
+  await updateWaitlistMessage(interaction.guild, waitlist);
+  await saveState(state);
+
+  await interaction.reply({
+    content: `You now have access to the ${profile.region} ${mode.label} waitlist channel. Join the queue there when testers are online.`,
+    ephemeral: true
+  });
 }
 
 async function joinQueue(interaction, modeKey, region) {
@@ -377,12 +398,7 @@ async function joinQueue(interaction, modeKey, region) {
     waitlist.queue.push(interaction.user.id);
   }
 
-  const channel = await updateWaitlistMessage(interaction.guild, waitlist);
-  await channel.permissionOverwrites.edit(interaction.user.id, {
-    ViewChannel: true,
-    SendMessages: true,
-    ReadMessageHistory: true
-  });
+  await updateWaitlistMessage(interaction.guild, waitlist);
   await saveState(state);
 
   await interaction.reply({ content: `You are in the ${region} ${modes[modeKey].label} queue.`, ephemeral: true });
@@ -393,7 +409,6 @@ async function leaveQueue(interaction, modeKey, region) {
   waitlist.queue = waitlist.queue.filter((id) => id !== interaction.user.id);
 
   await updateWaitlistMessage(interaction.guild, waitlist);
-  await revokeWaitlistAccess(interaction.guild, waitlist, [interaction.user.id]);
   await saveState(state);
 
   await interaction.reply({ content: `You left the ${region} ${modes[modeKey].label} queue.`, ephemeral: true });
@@ -426,14 +441,97 @@ async function updateWaitlistMessage(guild, waitlist, options = {}) {
   return channel;
 }
 
-async function revokeWaitlistAccess(guild, waitlist, userIds) {
-  if (userIds.length === 0) return;
-  const channel = await findWaitlistChannel(guild, waitlist.mode, waitlist.region);
-  if (!channel?.permissionOverwrites) return;
+async function createHighTestTicket(interaction, modeKey, profile, currentTier) {
+  const mode = modes[modeKey];
+  await interaction.deferReply({ ephemeral: true });
+  await interaction.guild.roles.fetch();
 
-  for (const userId of userIds) {
-    await channel.permissionOverwrites.delete(userId).catch(() => {});
+  const existing = await findExistingHighTestTicket(interaction.guild, interaction.user.id, modeKey);
+  if (existing) {
+    await interaction.editReply(`You already have a high-test ticket: <#${existing.id}>.`);
+    return;
   }
+
+  const channelName = `high-test-${profile.ign}-${interaction.user.username}`
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 90);
+
+  const permissionOverwrites = [
+    {
+      id: interaction.guild.roles.everyone.id,
+      deny: [PermissionsBitField.Flags.ViewChannel]
+    },
+    {
+      id: interaction.user.id,
+      allow: [
+        PermissionsBitField.Flags.ViewChannel,
+        PermissionsBitField.Flags.SendMessages,
+        PermissionsBitField.Flags.ReadMessageHistory
+      ]
+    },
+    {
+      id: client.user.id,
+      allow: [
+        PermissionsBitField.Flags.ViewChannel,
+        PermissionsBitField.Flags.SendMessages,
+        PermissionsBitField.Flags.ReadMessageHistory,
+        PermissionsBitField.Flags.ManageChannels
+      ]
+    },
+    ...testerCommandRoleIds
+      .filter((roleId) => interaction.guild.roles.cache.has(roleId))
+      .map((roleId) => ({
+        id: roleId,
+        allow: [
+          PermissionsBitField.Flags.ViewChannel,
+          PermissionsBitField.Flags.ReadMessageHistory
+        ]
+      }))
+  ];
+
+  const channel = await interaction.guild.channels.create({
+    name: channelName,
+    type: ChannelType.GuildText,
+    topic: `high-test:${modeKey}:${interaction.user.id}`,
+    permissionOverwrites
+  });
+
+  await channel.send({
+    content: `<@${interaction.user.id}>`,
+    embeds: [buildHighTestEmbed(modeKey, interaction.user.id, profile.ign, profile.region, currentTier)],
+    components: [buildHighTestButtons(modeKey, interaction.user.id)]
+  });
+
+  await interaction.editReply(`Created your private high-test ticket: <#${channel.id}>.`);
+}
+
+async function acceptHighTest(interaction, modeKey, playerId) {
+  if (!canUseTesterCommands(interaction.member)) {
+    await interaction.reply({ content: 'Only tester staff roles can accept high tests.', ephemeral: true });
+    return;
+  }
+
+  const channel = interaction.channel;
+  await channel.permissionOverwrites.edit(interaction.user.id, {
+    ViewChannel: true,
+    SendMessages: true,
+    ReadMessageHistory: true
+  });
+
+  await interaction.reply({
+    content: `<@${interaction.user.id}> accepted this high test for <@${playerId}>.`,
+    allowedMentions: { users: [interaction.user.id, playerId] }
+  });
+}
+
+async function findExistingHighTestTicket(guild, userId, modeKey) {
+  await guild.channels.fetch();
+  return [...guild.channels.cache.values()].find((channel) =>
+    channel.type === ChannelType.GuildText
+    && channel.topic === `high-test:${modeKey}:${userId}`
+  );
 }
 
 async function findWaitlistChannel(guild, modeKey, region) {
@@ -526,6 +624,44 @@ function buildQueueButtons(modeKey, region) {
   );
 }
 
+function buildHighTestEmbed(modeKey, userId, ign, region, currentTier) {
+  const mode = modes[modeKey];
+  const rulesSummary = modeKey === 'crystal'
+    ? [
+        'High tests follow the Crystal ranked ruleset.',
+        'HT3+ players should test through this private ticket.',
+        'A tester must accept this ticket before the test proceeds.'
+      ]
+    : [
+        'High tests follow the Mace ranked ruleset.',
+        'HT3+ players should test through this private ticket.',
+        'A tester must accept this ticket before the test proceeds.'
+      ];
+
+  return new EmbedBuilder()
+    .setColor(0xffd166)
+    .setTitle(`${mode.label} High Test Ticket`)
+    .setDescription([
+      `Player: <@${userId}>`,
+      `IGN: **${ign}**`,
+      `Region: **${region}**`,
+      `Current tier: **${currentTier}**`,
+      '',
+      ...rulesSummary,
+      '',
+      'Tester staff: press **Accept High Test** if you agree to run this test.'
+    ].join('\n'));
+}
+
+function buildHighTestButtons(modeKey, userId) {
+  return new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`ascend:acceptHighTest:${modeKey}:${userId}`)
+      .setLabel('Accept High Test')
+      .setStyle(ButtonStyle.Success)
+  );
+}
+
 function buildResultEmbed(modeKey, userId, ign, outcome, tier, details, testerId) {
   const mode = modes[modeKey];
   const action = {
@@ -563,12 +699,12 @@ async function assignTierRole(guild, userId, mode, tier) {
   await member.roles.add(mode.tierRoles[tier]);
 }
 
-function memberHasRole(member, roleId) {
-  return member.roles.cache.has(roleId);
+function canUseTesterCommands(member) {
+  return testerCommandRoleIds.some((roleId) => member.roles.cache.has(roleId));
 }
 
-function canManageResults(member, mode) {
-  return Object.values(mode.testerRoles).some((roleId) => member.roles.cache.has(roleId));
+function getHighestHighTier(member, mode) {
+  return highTestTiers.find((tier) => member.roles.cache.has(mode.tierRoles[tier]));
 }
 
 async function assertModeGuild(interaction, modeKey) {

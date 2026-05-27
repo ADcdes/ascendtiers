@@ -8,9 +8,9 @@ export const modes = {
     highResultsChannelId: '1508638929731977366',
     normalResultsChannelId: '1508638952351858892',
     verifiedRoleId: '1508647631172276274',
-    testerRoles: {
-      NA: '1508947437681774773',
-      EU: '1508948222968856616'
+    waitlistRoles: {
+      NA: '1508993557065760768',
+      EU: '1508994693386735687'
     },
     tierRoles: {
       HT1: '1508646801664901140',
@@ -34,9 +34,9 @@ export const modes = {
     highResultsChannelId: '1508920599395963100',
     normalResultsChannelId: '1508920653481513081',
     verifiedRoleId: '1508980097540161687',
-    testerRoles: {
-      NA: '1508985255154028745',
-      EU: '1508985272019456010'
+    waitlistRoles: {
+      NA: '1508994781475508264',
+      EU: '1508994831102246932'
     },
     tierRoles: {
       HT1: '1508979742555246782',
@@ -55,3 +55,10 @@ export const modes = {
 
 export const tierChoices = ['HT1', 'LT1', 'HT2', 'LT2', 'HT3', 'LT3', 'HT4', 'LT4', 'HT5', 'LT5'];
 export const highResultTiers = new Set(['HT1', 'LT1', 'HT2', 'LT2', 'HT3']);
+export const highTestTiers = ['HT1', 'LT1', 'HT2', 'LT2', 'HT3'];
+export const testerCommandRoleIds = [
+  '1508646169683955754',
+  '1508646454229471272',
+  '1508646596466835486',
+  '1508994896554627185'
+];
