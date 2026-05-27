@@ -24,6 +24,16 @@
         "Mace": "LT3",
         "UHC": "LT3"
       }
+    },
+    "xxvoidfallxx": {
+      "ign": "XxvoidfallxX",
+      "region": "NA",
+      "discordId": "1508917134405669045",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT5"
+      }
     }
   }
 }
