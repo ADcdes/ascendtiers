@@ -1,4 +1,7 @@
 import 'dotenv/config';
+import { execFile } from 'node:child_process';
+import { readFile, writeFile } from 'node:fs/promises';
+import { promisify } from 'node:util';
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -23,6 +26,9 @@ import { ensureWaitlist, loadState, profileKey, saveState } from './state.js';
 
 const token = process.env.DISCORD_TOKEN;
 const clientId = process.env.CLIENT_ID;
+const execFileAsync = promisify(execFile);
+const gitPath = process.env.GIT_PATH ?? 'C:\\Program Files\\Git\\cmd\\git.exe';
+let githubSyncQueue = Promise.resolve();
 
 if (!token || !clientId) {
   throw new Error('Missing DISCORD_TOKEN or CLIENT_ID. Copy .env.example to .env and fill it in.');
@@ -253,6 +259,15 @@ async function handleResult(interaction, modeKey) {
     await assignTierRole(interaction.guild, player.id, mode, tier);
   }
 
+  const syncResult = await updateWebsitePlayer({
+    guildId: interaction.guildId,
+    modeKey,
+    userId: player.id,
+    ign,
+    tier,
+    outcome
+  });
+
   state.resultLog.push({
     mode: modeKey,
     userId: player.id,
@@ -262,11 +277,16 @@ async function handleResult(interaction, modeKey) {
     details,
     channelId: channel.id,
     createdAt: new Date().toISOString(),
-    createdBy: interaction.user.id
+    createdBy: interaction.user.id,
+    websiteSynced: syncResult.updated,
+    githubSynced: syncResult.pushed
   });
   await saveState(state);
 
-  await interaction.editReply(`Posted ${mode.label} ${tier} result in <#${channel.id}>.`);
+  const syncText = syncResult.updated
+    ? syncResult.pushed ? ' Website data was synced to GitHub.' : ' Website data changed, but GitHub push failed; check bot logs.'
+    : ' Website tier data was unchanged.';
+  await interaction.editReply(`Posted ${mode.label} ${tier} result in <#${channel.id}>.${syncText}`);
 }
 
 async function handleButton(interaction) {
@@ -697,6 +717,80 @@ async function assignTierRole(guild, userId, mode, tier) {
   }
 
   await member.roles.add(mode.tierRoles[tier]);
+}
+
+async function updateWebsitePlayer({ guildId, modeKey, userId, ign, tier, outcome }) {
+  const playersPath = 'players.json';
+  const raw = await readFile(playersPath, 'utf8');
+  const data = JSON.parse(raw);
+  data.players ??= {};
+
+  const key = normalizePlayerKey(ign);
+  const existingKey = Object.entries(data.players).find(([, player]) =>
+    player.discordId === userId || normalizePlayerKey(player.ign ?? player.name ?? '') === key
+  )?.[0] ?? key;
+
+  const profile = state.profiles[profileKey(guildId, userId, modeKey)];
+  const player = data.players[existingKey] ?? {};
+  const previous = JSON.stringify(player);
+
+  player.ign = ign;
+  player.region = profile?.region ?? player.region ?? 'NA';
+  player.discordId = userId;
+  player.restricted ??= false;
+  player.restrictReason ??= null;
+  player.tiers ??= {};
+
+  if (outcome === 'promoted' || outcome === 'demoted') {
+    player.tiers[modes[modeKey].label] = tier;
+  }
+
+  if (existingKey !== key) {
+    delete data.players[existingKey];
+  }
+  data.players[key] = player;
+
+  const next = `${JSON.stringify(data, null, 2)}\n`;
+  const changed = previous !== JSON.stringify(player) || existingKey !== key;
+  if (!changed) {
+    return { updated: false, pushed: false };
+  }
+
+  await writeFile(playersPath, next, 'utf8');
+
+  const pushed = await queueGithubSync(`Update ${ign} ${modes[modeKey].label} result`);
+  return { updated: true, pushed };
+}
+
+function normalizePlayerKey(value) {
+  return value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
+}
+
+async function queueGithubSync(message) {
+  githubSyncQueue = githubSyncQueue
+    .catch(() => {})
+    .then(() => syncGithub(message));
+
+  return githubSyncQueue;
+}
+
+async function syncGithub(message) {
+  try {
+    await runGit(['add', 'players.json']);
+    const status = await runGit(['status', '--porcelain', 'players.json']);
+    if (!status.stdout.trim()) return true;
+
+    await runGit(['commit', '-m', message]);
+    await runGit(['push', 'origin', 'main']);
+    return true;
+  } catch (error) {
+    console.error(`GitHub sync failed: ${error.message}`);
+    return false;
+  }
+}
+
+async function runGit(args) {
+  return execFileAsync(gitPath, args, { cwd: process.cwd(), windowsHide: true });
 }
 
 function canUseTesterCommands(member) {
