@@ -20,7 +20,7 @@ import {
   TextInputBuilder,
   TextInputStyle
 } from 'discord.js';
-import { highResultTiers, highTestTiers, modes, testerCommandRoleIds, tierChoices } from './config.js';
+import { highResultTiers, highTestTiers, migrationChannelId, modes, testerCommandRoleIds, tierChoices } from './config.js';
 import { crystalRules, maceRules } from './rules.js';
 import { ensureWaitlist, loadState, profileKey, saveState } from './state.js';
 
@@ -55,6 +55,10 @@ const commands = [
   new SlashCommandBuilder()
     .setName('setup-mace-request')
     .setDescription('Post the Mace test request panel.')
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
+  new SlashCommandBuilder()
+    .setName('setup-migration-panel')
+    .setDescription('Post the tier migration request panel.')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
   new SlashCommandBuilder()
     .setName('crystal-tester-online')
@@ -157,6 +161,11 @@ async function handleCommand(interaction) {
     return;
   }
 
+  if (commandName === 'setup-migration-panel') {
+    await postMigrationPanel(interaction);
+    return;
+  }
+
   if (commandName === 'rules') {
     const mode = interaction.options.getString('mode', true);
     await sendLongEphemeral(interaction, mode === 'crystal' ? crystalRules : maceRules);
@@ -196,6 +205,21 @@ async function postRequestPanel(interaction, modeKey) {
   });
 
   await interaction.reply({ content: `${mode.label} request panel posted in <#${mode.requestChannelId}>.`, ephemeral: true });
+}
+
+async function postMigrationPanel(interaction) {
+  const channel = await interaction.guild.channels.fetch(migrationChannelId).catch(() => null);
+  if (!channel?.isTextBased()) {
+    await interaction.reply({ content: 'I could not find the migrations channel in this server.', ephemeral: true });
+    return;
+  }
+
+  await channel.send({
+    embeds: [buildMigrationPanelEmbed()],
+    components: [buildMigrationButton()]
+  });
+
+  await interaction.reply({ content: `Migration panel posted in <#${migrationChannelId}>.`, ephemeral: true });
 }
 
 async function handleTesterStatus(interaction, modeKey, status) {
@@ -292,6 +316,12 @@ async function handleResult(interaction, modeKey) {
 async function handleButton(interaction) {
   const [prefix, action, modeKey] = interaction.customId.split(':');
   if (prefix !== 'ascend') return;
+
+  if (action === 'migration') {
+    await showMigrationModal(interaction);
+    return;
+  }
+
   if (!(await assertModeGuild(interaction, modeKey))) return;
 
   if (action === 'verify') {
@@ -351,6 +381,12 @@ async function handleButton(interaction) {
 
 async function handleModal(interaction) {
   const [, action, modeKey] = interaction.customId.split(':');
+
+  if (action === 'migrationModal') {
+    await handleMigrationModal(interaction);
+    return;
+  }
+
   if (action !== 'verifyModal') return;
   if (!(await assertModeGuild(interaction, modeKey))) return;
 
@@ -377,6 +413,78 @@ async function handleModal(interaction) {
     content: `Verified as **${ign}** for **${mode.label} ${region}**. You can now enter the waitlist.`,
     ephemeral: true
   });
+}
+
+async function showMigrationModal(interaction) {
+  const modal = new ModalBuilder()
+    .setCustomId('ascend:migrationModal')
+    .setTitle('Tier Migration');
+
+  modal.addComponents(
+    new ActionRowBuilder().addComponents(
+      new TextInputBuilder()
+        .setCustomId('mode')
+        .setLabel('Mode')
+        .setPlaceholder('Vanilla, Sword, UHC, Mace, Axe...')
+        .setStyle(TextInputStyle.Short)
+        .setRequired(true)
+        .setMaxLength(32)
+    ),
+    new ActionRowBuilder().addComponents(
+      new TextInputBuilder()
+        .setCustomId('tier')
+        .setLabel('Tier')
+        .setPlaceholder('HT1, LT1, HT2, LT2, HT3, LT3...')
+        .setStyle(TextInputStyle.Short)
+        .setRequired(true)
+        .setMinLength(3)
+        .setMaxLength(3)
+    ),
+    new ActionRowBuilder().addComponents(
+      new TextInputBuilder()
+        .setCustomId('source')
+        .setLabel('Where did you migrate from?')
+        .setPlaceholder('Server name or community')
+        .setStyle(TextInputStyle.Short)
+        .setRequired(true)
+        .setMaxLength(80)
+    )
+  );
+
+  await interaction.showModal(modal);
+}
+
+async function handleMigrationModal(interaction) {
+  const mode = normalizeModeName(interaction.fields.getTextInputValue('mode'));
+  const tier = interaction.fields.getTextInputValue('tier').trim().toUpperCase();
+  const source = interaction.fields.getTextInputValue('source').trim();
+
+  if (!tierChoices.includes(tier)) {
+    await interaction.reply({ content: 'Tier must be one of: HT1, LT1, HT2, LT2, HT3, LT3, HT4, LT4, HT5, LT5.', ephemeral: true });
+    return;
+  }
+
+  const channel = await interaction.guild.channels.fetch(migrationChannelId).catch(() => null);
+  if (!channel?.isTextBased()) {
+    await interaction.reply({ content: 'I could not find the migrations channel in this server.', ephemeral: true });
+    return;
+  }
+
+  await channel.send({
+    embeds: [buildMigrationRequestEmbed(interaction.user.id, mode, tier, source)]
+  });
+
+  state.migrationLog ??= [];
+  state.migrationLog.push({
+    userId: interaction.user.id,
+    mode,
+    tier,
+    source,
+    createdAt: new Date().toISOString()
+  });
+  await saveState(state);
+
+  await interaction.reply({ content: `Migration request sent in <#${migrationChannelId}>.`, ephemeral: true });
 }
 
 async function enterWaitlistFromRequest(interaction, modeKey) {
@@ -594,6 +702,26 @@ function buildRequestButtons(modeKey) {
   );
 }
 
+function buildMigrationPanelEmbed() {
+  return new EmbedBuilder()
+    .setColor(0x9aa8ff)
+    .setTitle('Tier Migrations')
+    .setDescription([
+      'Use this if you have a tier from another server that you want reviewed for carry-over.',
+      '',
+      'Submit the mode, tier, and where the tier came from.'
+    ].join('\n'));
+}
+
+function buildMigrationButton() {
+  return new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId('ascend:migration')
+      .setLabel('Request Migration')
+      .setStyle(ButtonStyle.Primary)
+  );
+}
+
 function buildWaitlistEmbed(waitlist) {
   const mode = modes[waitlist.mode];
 
@@ -642,6 +770,19 @@ function buildQueueButtons(modeKey, region) {
     new ButtonBuilder().setCustomId(`ascend:joinQueue:${modeKey}:${region}`).setLabel('Join Queue').setStyle(ButtonStyle.Primary),
     new ButtonBuilder().setCustomId(`ascend:leaveQueue:${modeKey}:${region}`).setLabel('Leave Queue').setStyle(ButtonStyle.Secondary)
   );
+}
+
+function buildMigrationRequestEmbed(userId, mode, tier, source) {
+  return new EmbedBuilder()
+    .setColor(0xffd166)
+    .setTitle('Migration Request')
+    .addFields(
+      { name: 'Player', value: `<@${userId}>`, inline: false },
+      { name: 'Mode', value: mode, inline: true },
+      { name: 'Tier', value: tier, inline: true },
+      { name: 'Migrated From', value: source, inline: false }
+    )
+    .setTimestamp();
 }
 
 function buildHighTestEmbed(modeKey, userId, ign, region, currentTier) {
@@ -768,6 +909,12 @@ function getWebsiteModeName(modeKey) {
 
 function normalizePlayerKey(value) {
   return value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
+}
+
+function normalizeModeName(value) {
+  const trimmed = value.trim();
+  const knownModes = ['Vanilla', 'Sword', 'UHC', 'Mace', 'Axe', 'Pot', 'NethOP', 'SMP', 'LTMs'];
+  return knownModes.find((mode) => mode.toLowerCase() === trimmed.toLowerCase()) ?? trimmed;
 }
 
 async function queueGithubSync(message) {

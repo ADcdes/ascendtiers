@@ -1,3 +1,5 @@
+export const migrationChannelId = process.env.MIGRATION_CHANNEL_ID ?? '1509007513557798953';
+
 export const modes = {
   crystal: {
     label: 'Crystal',
