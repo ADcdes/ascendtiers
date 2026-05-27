@@ -194,10 +194,12 @@ async function handleTesterStatus(interaction, modeKey, status) {
   }
 
   if (status === 'offline') {
+    const removedQueue = [...waitlist.queue];
     waitlist.activeTesterIds = waitlist.activeTesterIds.filter((id) => id !== testerId);
     waitlist.lastTestingSession = new Date().toISOString();
     if (waitlist.activeTesterIds.length === 0) {
       waitlist.queue = [];
+      await revokeWaitlistAccess(interaction.guild, waitlist, removedQueue);
     }
   }
 
@@ -358,7 +360,12 @@ async function joinQueue(interaction, modeKey, region) {
     waitlist.queue.push(interaction.user.id);
   }
 
-  await updateWaitlistMessage(interaction.guild, waitlist);
+  const channel = await updateWaitlistMessage(interaction.guild, waitlist);
+  await channel.permissionOverwrites.edit(interaction.user.id, {
+    ViewChannel: true,
+    SendMessages: true,
+    ReadMessageHistory: true
+  });
   await saveState(state);
 
   await interaction.reply({ content: `You are in the ${region} ${modes[modeKey].label} queue.`, ephemeral: true });
@@ -369,6 +376,7 @@ async function leaveQueue(interaction, modeKey, region) {
   waitlist.queue = waitlist.queue.filter((id) => id !== interaction.user.id);
 
   await updateWaitlistMessage(interaction.guild, waitlist);
+  await revokeWaitlistAccess(interaction.guild, waitlist, [interaction.user.id]);
   await saveState(state);
 
   await interaction.reply({ content: `You left the ${region} ${modes[modeKey].label} queue.`, ephemeral: true });
@@ -392,12 +400,23 @@ async function updateWaitlistMessage(guild, waitlist, options = {}) {
     const existing = await channel.messages.fetch(waitlist.messageId).catch(() => null);
     if (existing) {
       await existing.edit(payload);
-      return;
+      return channel;
     }
   }
 
   const message = await channel.send(payload);
   waitlist.messageId = message.id;
+  return channel;
+}
+
+async function revokeWaitlistAccess(guild, waitlist, userIds) {
+  if (userIds.length === 0) return;
+  const channel = await findWaitlistChannel(guild, waitlist.mode, waitlist.region);
+  if (!channel?.permissionOverwrites) return;
+
+  for (const userId of userIds) {
+    await channel.permissionOverwrites.delete(userId).catch(() => {});
+  }
 }
 
 async function findWaitlistChannel(guild, modeKey, region) {
