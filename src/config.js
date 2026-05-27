@@ -1,9 +1,9 @@
-export const requestChannelId = '1508639019620368476';
-
 export const modes = {
   crystal: {
     label: 'Crystal',
     icon: 'Crystal',
+    guildId: process.env.CRYSTAL_GUILD_ID ?? '1508638322820518009',
+    requestChannelId: process.env.CRYSTAL_REQUEST_CHANNEL_ID ?? '1508639019620368476',
     requestTitle: 'Evaluation Testing Waitlist',
     highResultsChannelId: '1508638929731977366',
     normalResultsChannelId: '1508638952351858892',
@@ -28,6 +28,8 @@ export const modes = {
   mace: {
     label: 'Mace',
     icon: 'Mace',
+    guildId: process.env.MACE_GUILD_ID ?? '1508918073116327976',
+    requestChannelId: process.env.MACE_REQUEST_CHANNEL_ID ?? '',
     requestTitle: 'Mace Evaluation Testing Waitlist',
     highResultsChannelId: '1508920599395963100',
     normalResultsChannelId: '1508920653481513081',

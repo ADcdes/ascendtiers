@@ -16,16 +16,15 @@ import {
   TextInputBuilder,
   TextInputStyle
 } from 'discord.js';
-import { highResultTiers, modes, requestChannelId, tierChoices } from './config.js';
+import { highResultTiers, modes, tierChoices } from './config.js';
 import { crystalRules, maceRules } from './rules.js';
 import { ensureWaitlist, loadState, profileKey, saveState } from './state.js';
 
 const token = process.env.DISCORD_TOKEN;
 const clientId = process.env.CLIENT_ID;
-const guildId = process.env.GUILD_ID;
 
-if (!token || !clientId || !guildId) {
-  throw new Error('Missing DISCORD_TOKEN, CLIENT_ID, or GUILD_ID. Copy .env.example to .env and fill it in.');
+if (!token || !clientId) {
+  throw new Error('Missing DISCORD_TOKEN or CLIENT_ID. Copy .env.example to .env and fill it in.');
 }
 
 let state = await loadState();
@@ -96,9 +95,11 @@ const commands = [
     .addStringOption((option) => option.setName('mode').setDescription('Ruleset').setRequired(true).addChoices(...modeChoices))
 ].map((command) => command.toJSON());
 
-await new REST({ version: '10' })
-  .setToken(token)
-  .put(Routes.applicationGuildCommands(clientId, guildId), { body: commands });
+const rest = new REST({ version: '10' }).setToken(token);
+for (const guildId of new Set(Object.values(modes).map((mode) => mode.guildId).filter(Boolean))) {
+  await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands });
+  console.log(`Registered commands for guild ${guildId}`);
+}
 
 client.once(Events.ClientReady, (readyClient) => {
   console.log(`Logged in as ${readyClient.user.tag}`);
@@ -134,11 +135,13 @@ async function handleCommand(interaction) {
   const commandName = interaction.commandName;
 
   if (commandName === 'setup-crystal-request') {
+    if (!(await assertModeGuild(interaction, 'crystal'))) return;
     await postRequestPanel(interaction, 'crystal');
     return;
   }
 
   if (commandName === 'setup-mace-request') {
+    if (!(await assertModeGuild(interaction, 'mace'))) return;
     await postRequestPanel(interaction, 'mace');
     return;
   }
@@ -151,18 +154,26 @@ async function handleCommand(interaction) {
 
   const testerMatch = commandName.match(/^(crystal|mace)-tester-(online|offline)$/);
   if (testerMatch) {
+    if (!(await assertModeGuild(interaction, testerMatch[1]))) return;
     await handleTesterStatus(interaction, testerMatch[1], testerMatch[2]);
     return;
   }
 
   const resultMatch = commandName.match(/^(crystal|mace)-result$/);
   if (resultMatch) {
+    if (!(await assertModeGuild(interaction, resultMatch[1]))) return;
     await handleResult(interaction, resultMatch[1]);
   }
 }
 
 async function postRequestPanel(interaction, modeKey) {
-  const channel = await interaction.guild.channels.fetch(requestChannelId);
+  const mode = modes[modeKey];
+  if (!mode.requestChannelId) {
+    await interaction.reply({ content: `Set ${mode.label}'s request-test channel ID first.`, ephemeral: true });
+    return;
+  }
+
+  const channel = await interaction.guild.channels.fetch(mode.requestChannelId);
   if (!channel?.isTextBased()) {
     await interaction.reply({ content: 'I could not find the request-test channel.', ephemeral: true });
     return;
@@ -173,7 +184,7 @@ async function postRequestPanel(interaction, modeKey) {
     components: [buildRequestButtons(modeKey)]
   });
 
-  await interaction.reply({ content: `${modes[modeKey].label} request panel posted in <#${requestChannelId}>.`, ephemeral: true });
+  await interaction.reply({ content: `${mode.label} request panel posted in <#${mode.requestChannelId}>.`, ephemeral: true });
 }
 
 async function handleTesterStatus(interaction, modeKey, status) {
@@ -258,6 +269,7 @@ async function handleResult(interaction, modeKey) {
 async function handleButton(interaction) {
   const [prefix, action, modeKey] = interaction.customId.split(':');
   if (prefix !== 'ascend') return;
+  if (!(await assertModeGuild(interaction, modeKey))) return;
 
   if (action === 'verify') {
     const modal = new ModalBuilder()
@@ -312,6 +324,7 @@ async function handleButton(interaction) {
 async function handleModal(interaction) {
   const [, action, modeKey] = interaction.customId.split(':');
   if (action !== 'verifyModal') return;
+  if (!(await assertModeGuild(interaction, modeKey))) return;
 
   const ign = interaction.fields.getTextInputValue('ign').trim();
   const region = interaction.fields.getTextInputValue('region').trim().toUpperCase();
@@ -552,6 +565,24 @@ function memberHasRole(member, roleId) {
 
 function canManageResults(member, mode) {
   return Object.values(mode.testerRoles).some((roleId) => member.roles.cache.has(roleId));
+}
+
+async function assertModeGuild(interaction, modeKey) {
+  const mode = modes[modeKey];
+  if (!mode) {
+    await interaction.reply({ content: 'Unknown testing mode.', ephemeral: true });
+    return false;
+  }
+
+  if (interaction.guildId !== mode.guildId) {
+    await interaction.reply({
+      content: `${mode.label} commands can only be used in the ${mode.label} server.`,
+      ephemeral: true
+    });
+    return false;
+  }
+
+  return true;
 }
 
 async function sendLongEphemeral(interaction, text) {
