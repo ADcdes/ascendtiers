@@ -1,0 +1,18 @@
+{
+  "name": "ascendtiers-bot",
+  "version": "1.0.0",
+  "description": "Discord waitlist and results bot for AscendTiers Crystal and Mace testing.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.26.4",
+    "dotenv": "^16.4.7"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
