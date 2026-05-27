@@ -742,7 +742,7 @@ async function updateWebsitePlayer({ guildId, modeKey, userId, ign, tier, outcom
   player.tiers ??= {};
 
   if (outcome === 'promoted' || outcome === 'demoted') {
-    player.tiers[modes[modeKey].label] = tier;
+    player.tiers[getWebsiteModeName(modeKey)] = tier;
   }
 
   if (existingKey !== key) {
@@ -760,6 +760,10 @@ async function updateWebsitePlayer({ guildId, modeKey, userId, ign, tier, outcom
 
   const pushed = await queueGithubSync(`Update ${ign} ${modes[modeKey].label} result`);
   return { updated: true, pushed };
+}
+
+function getWebsiteModeName(modeKey) {
+  return modeKey === 'crystal' ? 'Vanilla' : modes[modeKey].label;
 }
 
 function normalizePlayerKey(value) {
