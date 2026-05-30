@@ -21,7 +21,7 @@ import {
   TextInputStyle
 } from 'discord.js';
 import { highResultTiers, highTestTiers, migrationChannelId, modes, testerCommandRoleIds, tierChoices } from './config.js';
-import { crystalRules, maceRules } from './rules.js';
+import { crystalRules, maceRules, swordRules } from './rules.js';
 import { ensureWaitlist, loadState, profileKey, saveState } from './state.js';
 
 const token = process.env.DISCORD_TOKEN;
@@ -53,6 +53,10 @@ const commands = [
     .setDescription('Post the Crystal test request panel.')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
   new SlashCommandBuilder()
+    .setName('setup-sword-request')
+    .setDescription('Post the Sword test request panel.')
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
+  new SlashCommandBuilder()
     .setName('setup-mace-request')
     .setDescription('Post the Mace test request panel.')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
@@ -69,6 +73,14 @@ const commands = [
     .setDescription('Mark a Crystal tester offline and update that regional waitlist.')
     .addStringOption((option) => option.setName('region').setDescription('Tester region').setRequired(true).addChoices(...regionChoices)),
   new SlashCommandBuilder()
+    .setName('sword-tester-online')
+    .setDescription('Mark a Sword tester online and open that regional waitlist.')
+    .addStringOption((option) => option.setName('region').setDescription('Tester region').setRequired(true).addChoices(...regionChoices)),
+  new SlashCommandBuilder()
+    .setName('sword-tester-offline')
+    .setDescription('Mark a Sword tester offline and update that regional waitlist.')
+    .addStringOption((option) => option.setName('region').setDescription('Tester region').setRequired(true).addChoices(...regionChoices)),
+  new SlashCommandBuilder()
     .setName('mace-tester-online')
     .setDescription('Mark a Mace tester online and open that regional waitlist.')
     .addStringOption((option) => option.setName('region').setDescription('Tester region').setRequired(true).addChoices(...regionChoices)),
@@ -79,6 +91,18 @@ const commands = [
   new SlashCommandBuilder()
     .setName('crystal-result')
     .setDescription('Post a Crystal test result and assign tier roles when needed.')
+    .addUserOption((option) => option.setName('player').setDescription('Discord user tested').setRequired(true))
+    .addStringOption((option) => option.setName('ign').setDescription('Minecraft username').setRequired(true))
+    .addStringOption((option) => option.setName('outcome').setDescription('Result outcome').setRequired(true).addChoices(
+      { name: 'Promoted', value: 'promoted' },
+      { name: 'Failed', value: 'failed' },
+      { name: 'Demoted', value: 'demoted' }
+    ))
+    .addStringOption((option) => option.setName('tier').setDescription('Result tier').setRequired(true).addChoices(...tierCommandChoices))
+    .addStringOption((option) => option.setName('details').setDescription('Fight lines / extra notes. New lines are allowed.').setRequired(false)),
+  new SlashCommandBuilder()
+    .setName('sword-result')
+    .setDescription('Post a Sword test result and assign tier roles when needed.')
     .addUserOption((option) => option.setName('player').setDescription('Discord user tested').setRequired(true))
     .addStringOption((option) => option.setName('ign').setDescription('Minecraft username').setRequired(true))
     .addStringOption((option) => option.setName('outcome').setDescription('Result outcome').setRequired(true).addChoices(
@@ -102,7 +126,7 @@ const commands = [
     .addStringOption((option) => option.setName('details').setDescription('Fight lines / extra notes. New lines are allowed.').setRequired(false)),
   new SlashCommandBuilder()
     .setName('rules')
-    .setDescription('Show Crystal or Mace rules.')
+    .setDescription('Show Crystal, Sword, or Mace rules.')
     .addStringOption((option) => option.setName('mode').setDescription('Ruleset').setRequired(true).addChoices(...modeChoices))
 ].map((command) => command.toJSON());
 
@@ -155,6 +179,12 @@ async function handleCommand(interaction) {
     return;
   }
 
+  if (commandName === 'setup-sword-request') {
+    if (!(await assertModeGuild(interaction, 'sword'))) return;
+    await postRequestPanel(interaction, 'sword');
+    return;
+  }
+
   if (commandName === 'setup-mace-request') {
     if (!(await assertModeGuild(interaction, 'mace'))) return;
     await postRequestPanel(interaction, 'mace');
@@ -168,18 +198,23 @@ async function handleCommand(interaction) {
 
   if (commandName === 'rules') {
     const mode = interaction.options.getString('mode', true);
-    await sendLongEphemeral(interaction, mode === 'crystal' ? crystalRules : maceRules);
+    const rules = {
+      crystal: crystalRules,
+      sword: swordRules,
+      mace: maceRules
+    }[mode];
+    await sendLongEphemeral(interaction, rules);
     return;
   }
 
-  const testerMatch = commandName.match(/^(crystal|mace)-tester-(online|offline)$/);
+  const testerMatch = commandName.match(/^(crystal|sword|mace)-tester-(online|offline)$/);
   if (testerMatch) {
     if (!(await assertModeGuild(interaction, testerMatch[1]))) return;
     await handleTesterStatus(interaction, testerMatch[1], testerMatch[2]);
     return;
   }
 
-  const resultMatch = commandName.match(/^(crystal|mace)-result$/);
+  const resultMatch = commandName.match(/^(crystal|sword|mace)-result$/);
   if (resultMatch) {
     if (!(await assertModeGuild(interaction, resultMatch[1]))) return;
     await handleResult(interaction, resultMatch[1]);
@@ -678,8 +713,14 @@ async function findWaitlistChannel(guild, modeKey, region) {
 
 function buildRequestEmbed(modeKey) {
   const mode = modes[modeKey];
+  const colors = {
+    crystal: 0xff2d68,
+    sword: 0x57f287,
+    mace: 0x5865f2
+  };
+
   return new EmbedBuilder()
-    .setColor(modeKey === 'crystal' ? 0xff2d68 : 0x5865f2)
+    .setColor(colors[modeKey] ?? 0x5865f2)
     .setTitle(`${mode.requestTitle}`)
     .setDescription([
       'Upon applying, you will be added to a waitlist channel.',
@@ -787,17 +828,11 @@ function buildMigrationRequestEmbed(userId, mode, tier, source) {
 
 function buildHighTestEmbed(modeKey, userId, ign, region, currentTier) {
   const mode = modes[modeKey];
-  const rulesSummary = modeKey === 'crystal'
-    ? [
-        'High tests follow the Crystal ranked ruleset.',
-        'HT3+ players should test through this private ticket.',
-        'A tester must accept this ticket before the test proceeds.'
-      ]
-    : [
-        'High tests follow the Mace ranked ruleset.',
-        'HT3+ players should test through this private ticket.',
-        'A tester must accept this ticket before the test proceeds.'
-      ];
+  const rulesSummary = [
+    `High tests follow the ${mode.label} ranked ruleset.`,
+    'HT3+ players should test through this private ticket.',
+    'A tester must accept this ticket before the test proceeds.'
+  ];
 
   return new EmbedBuilder()
     .setColor(0xffd166)

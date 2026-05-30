@@ -1,5 +1,12 @@
 export const migrationChannelId = process.env.MIGRATION_CHANNEL_ID ?? '1509007513557798953';
 
+function envList(name) {
+  return (process.env[name] ?? '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
 export const modes = {
   crystal: {
     label: 'Crystal',
@@ -25,6 +32,32 @@ export const modes = {
       LT4: '1508647233502056579',
       HT5: '1508647251130454127',
       LT5: '1508647268134424817'
+    }
+  },
+  sword: {
+    label: 'Sword',
+    icon: 'Sword',
+    guildId: process.env.SWORD_GUILD_ID ?? '1510413936145596496',
+    requestChannelId: process.env.SWORD_REQUEST_CHANNEL_ID ?? '1510415495868711002',
+    requestTitle: 'Sword Evaluation Testing Waitlist',
+    highResultsChannelId: process.env.SWORD_HIGH_RESULTS_CHANNEL_ID ?? '1510415349370060920',
+    normalResultsChannelId: process.env.SWORD_NORMAL_RESULTS_CHANNEL_ID ?? '1510415392407945226',
+    verifiedRoleId: process.env.SWORD_VERIFIED_ROLE_ID ?? '1510417214996480173',
+    waitlistRoles: {
+      NA: process.env.SWORD_NA_WAITLIST_ROLE_ID ?? '1510417101033050212',
+      EU: process.env.SWORD_EU_WAITLIST_ROLE_ID ?? '1510417145782075532'
+    },
+    tierRoles: {
+      HT1: process.env.SWORD_HT1_ROLE_ID ?? '1510416624967094472',
+      LT1: process.env.SWORD_LT1_ROLE_ID ?? '1510416684450844803',
+      HT2: process.env.SWORD_HT2_ROLE_ID ?? '1510416749877530715',
+      LT2: process.env.SWORD_LT2_ROLE_ID ?? '1510416823798071376',
+      HT3: process.env.SWORD_HT3_ROLE_ID ?? '1510416885001228421',
+      LT3: process.env.SWORD_LT3_ROLE_ID ?? '1510416955541164202',
+      HT4: process.env.SWORD_HT4_ROLE_ID ?? '1510417003431727174',
+      LT4: process.env.SWORD_LT4_ROLE_ID ?? '1510417024013303968',
+      HT5: process.env.SWORD_HT5_ROLE_ID ?? '1510417044502347816',
+      LT5: process.env.SWORD_LT5_ROLE_ID ?? '1510417070100185128'
     }
   },
   mace: {
@@ -62,5 +95,6 @@ export const testerCommandRoleIds = [
   '1508646169683955754',
   '1508646454229471272',
   '1508646596466835486',
-  '1508994896554627185'
+  '1508994896554627185',
+  ...envList('SWORD_TESTER_ROLE_IDS')
 ];

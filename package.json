@@ -1,7 +1,7 @@
 {
   "name": "ascendtiers-bot",
   "version": "1.0.0",
-  "description": "Discord waitlist and results bot for AscendTiers Crystal and Mace testing.",
+  "description": "Discord waitlist and results bot for AscendTiers Crystal, Sword, and Mace testing.",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
