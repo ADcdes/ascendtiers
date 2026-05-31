@@ -37,6 +37,16 @@
       "tiers": {
         "Vanilla": "HT5"
       }
+    },
+    "p8ne": {
+      "ign": "P8ne",
+      "region": "NA",
+      "discordId": "1370872717238075505",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Sword": "LT3"
+      }
     }
   }
 }
