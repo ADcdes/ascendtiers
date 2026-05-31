@@ -156,7 +156,7 @@
         .rank-wrap { height:125px; padding: 22px 0 18px 20px; display:flex; align-items:center; position:relative; overflow:hidden; }
         .rank-num { font-family: 'Bebas Neue', sans-serif; font-size: 2.7rem; line-height: 1; color: #3d58a6; text-shadow: 0 4px 5px rgba(0,0,0,.6); z-index:2; }
         .rank-num.r1,.rank-num.r2,.rank-num.r3 { color:#05070c; text-shadow: 0 3px 5px rgba(0,0,0,.55); }
-        .rank-skin { position:absolute; right:58px; bottom:-2px; width:106px; height:106px; object-fit:contain; image-rendering: pixelated; filter: drop-shadow(0 12px 10px rgba(0,0,0,.55)); z-index:1; }
+        .rank-skin { position:absolute; right:82px; bottom:-2px; width:104px; height:104px; object-fit:contain; image-rendering: pixelated; filter: drop-shadow(0 12px 10px rgba(0,0,0,.55)); z-index:1; }
 
         .td-player { width: 190px; padding: 18px 22px; }
         .player-inner { display: flex; align-items: center; gap: 12px; }
@@ -199,8 +199,9 @@
         .t-lt5{border-color:var(--lt5)} .tag-lt5{color:var(--lt5)}
 
         .td-pts { width: 150px; text-align: right; padding: 0 34px 0 18px; }
+        .pts-stack { display: inline-flex; flex-direction: column; align-items: center; min-width: 44px; }
         .pts-num { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; line-height: 1; color: var(--teal); letter-spacing: 1px; }
-        .pts-label { font-size: 0.58rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); text-align: right; }
+        .pts-label { font-size: 0.58rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); text-align: center; }
 
         /* ── TIER GRID (MODE VIEW) ── */
         .tier-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 4px; }
@@ -407,7 +408,7 @@
             .lb-row.top-3 .td-rank { background: linear-gradient(100deg, #f35d3e 0%, #8d1f0e 76%, transparent 76%); }
             .rank-wrap { height: 96px; min-height: 0; padding: 16px 0 12px 18px; }
             .rank-num { font-size: 2.45rem; }
-            .rank-skin { width: 92px; height: 92px; right: 34px; }
+            .rank-skin { width: 90px; height: 90px; right: 54px; }
 
             .td-player { padding: 14px 16px 6px; }
             .player-name { font-size: 1.28rem; }
@@ -647,7 +648,7 @@ function renderOverall(el, list) {
             </div></td>
             <td class="td-region"><span class="region-pill region-${p.region||'NA'}">${p.region||'NA'}</span></td>
             <td class="td-tiers"><div class="tier-circles">${tierCircles}</div></td>
-            <td class="td-pts"><div class="pts-num">${pts}</div><div class="pts-label">points</div></td>
+            <td class="td-pts"><div class="pts-stack"><div class="pts-num">${pts}</div><div class="pts-label">points</div></div></td>
         </tr>`;
     }).join('');
 
