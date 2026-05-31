@@ -10,7 +10,9 @@
         "Vanilla": "LT4",
         "Sword": "HT4",
         "UHC": "HT5",
-        "Mace": "LT4"
+        "Mace": "LT4",
+        "SMP": "LT4",
+        "Pot": "HT5"
       }
     },
     "itzwraps": {

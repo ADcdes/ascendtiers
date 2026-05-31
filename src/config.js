@@ -7,6 +7,35 @@ function envList(name) {
     .filter(Boolean);
 }
 
+function placeholderMode(label, envPrefix) {
+  return {
+    label,
+    icon: label,
+    guildId: process.env[`${envPrefix}_GUILD_ID`] ?? '',
+    requestChannelId: process.env[`${envPrefix}_REQUEST_CHANNEL_ID`] ?? '',
+    requestTitle: `${label} Evaluation Testing Waitlist`,
+    highResultsChannelId: process.env[`${envPrefix}_HIGH_RESULTS_CHANNEL_ID`] ?? '',
+    normalResultsChannelId: process.env[`${envPrefix}_NORMAL_RESULTS_CHANNEL_ID`] ?? '',
+    verifiedRoleId: process.env[`${envPrefix}_VERIFIED_ROLE_ID`] ?? '',
+    waitlistRoles: {
+      NA: process.env[`${envPrefix}_NA_WAITLIST_ROLE_ID`] ?? '',
+      EU: process.env[`${envPrefix}_EU_WAITLIST_ROLE_ID`] ?? ''
+    },
+    tierRoles: {
+      HT1: process.env[`${envPrefix}_HT1_ROLE_ID`] ?? '',
+      LT1: process.env[`${envPrefix}_LT1_ROLE_ID`] ?? '',
+      HT2: process.env[`${envPrefix}_HT2_ROLE_ID`] ?? '',
+      LT2: process.env[`${envPrefix}_LT2_ROLE_ID`] ?? '',
+      HT3: process.env[`${envPrefix}_HT3_ROLE_ID`] ?? '',
+      LT3: process.env[`${envPrefix}_LT3_ROLE_ID`] ?? '',
+      HT4: process.env[`${envPrefix}_HT4_ROLE_ID`] ?? '',
+      LT4: process.env[`${envPrefix}_LT4_ROLE_ID`] ?? '',
+      HT5: process.env[`${envPrefix}_HT5_ROLE_ID`] ?? '',
+      LT5: process.env[`${envPrefix}_LT5_ROLE_ID`] ?? ''
+    }
+  };
+}
+
 export const modes = {
   crystal: {
     label: 'Crystal',
@@ -34,6 +63,11 @@ export const modes = {
       LT5: '1508647268134424817'
     }
   },
+  ltms: placeholderMode('LTMs', 'LTMS'),
+  uhc: placeholderMode('UHC', 'UHC'),
+  pot: placeholderMode('Pot', 'POT'),
+  nethop: placeholderMode('NethOP', 'NETHOP'),
+  smp: placeholderMode('SMP', 'SMP'),
   sword: {
     label: 'Sword',
     icon: 'Sword',
@@ -60,6 +94,7 @@ export const modes = {
       LT5: process.env.SWORD_LT5_ROLE_ID ?? '1510417070100185128'
     }
   },
+  axe: placeholderMode('Axe', 'AXE'),
   mace: {
     label: 'Mace',
     icon: 'Mace',
@@ -97,5 +132,11 @@ export const testerCommandRoleIds = [
   '1508646454229471272',
   '1508646596466835486',
   '1508994896554627185',
-  ...envList('SWORD_TESTER_ROLE_IDS')
+  ...envList('LTMS_TESTER_ROLE_IDS'),
+  ...envList('UHC_TESTER_ROLE_IDS'),
+  ...envList('POT_TESTER_ROLE_IDS'),
+  ...envList('NETHOP_TESTER_ROLE_IDS'),
+  ...envList('SMP_TESTER_ROLE_IDS'),
+  ...envList('SWORD_TESTER_ROLE_IDS'),
+  ...envList('AXE_TESTER_ROLE_IDS')
 ];

@@ -46,87 +46,51 @@ const regionChoices = [
   { name: 'EU', value: 'EU' }
 ];
 const tierCommandChoices = tierChoices.map((tier) => ({ name: tier, value: tier }));
+const modeCommandEntries = Object.entries(modes);
+
+function buildSetupCommand(modeKey, mode) {
+  return new SlashCommandBuilder()
+    .setName(`setup-${modeKey}-request`)
+    .setDescription(`Post the ${mode.label} test request panel.`)
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
+}
+
+function buildTesterCommand(modeKey, mode, status) {
+  return new SlashCommandBuilder()
+    .setName(`${modeKey}-tester-${status}`)
+    .setDescription(`Mark a ${mode.label} tester ${status} and ${status === 'online' ? 'open' : 'update'} that regional waitlist.`)
+    .addStringOption((option) => option.setName('region').setDescription('Tester region').setRequired(true).addChoices(...regionChoices));
+}
+
+function buildResultCommand(modeKey, mode) {
+  return new SlashCommandBuilder()
+    .setName(`${modeKey}-result`)
+    .setDescription(`Post a ${mode.label} test result and assign tier roles when needed.`)
+    .addUserOption((option) => option.setName('player').setDescription('Discord user tested').setRequired(true))
+    .addStringOption((option) => option.setName('ign').setDescription('Minecraft username').setRequired(true))
+    .addStringOption((option) => option.setName('outcome').setDescription('Result outcome').setRequired(true).addChoices(
+      { name: 'Promoted', value: 'promoted' },
+      { name: 'Failed', value: 'failed' },
+      { name: 'Demoted', value: 'demoted' }
+    ))
+    .addStringOption((option) => option.setName('tier').setDescription('Result tier').setRequired(true).addChoices(...tierCommandChoices))
+    .addStringOption((option) => option.setName('details').setDescription('Fight lines / extra notes. New lines are allowed.').setRequired(false));
+}
 
 const commands = [
-  new SlashCommandBuilder()
-    .setName('setup-crystal-request')
-    .setDescription('Post the Crystal test request panel.')
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
-  new SlashCommandBuilder()
-    .setName('setup-sword-request')
-    .setDescription('Post the Sword test request panel.')
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
-  new SlashCommandBuilder()
-    .setName('setup-mace-request')
-    .setDescription('Post the Mace test request panel.')
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
+  ...modeCommandEntries.map(([modeKey, mode]) => buildSetupCommand(modeKey, mode)),
   new SlashCommandBuilder()
     .setName('setup-migration-panel')
     .setDescription('Post the tier migration request panel.')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
-  new SlashCommandBuilder()
-    .setName('crystal-tester-online')
-    .setDescription('Mark a Crystal tester online and open that regional waitlist.')
-    .addStringOption((option) => option.setName('region').setDescription('Tester region').setRequired(true).addChoices(...regionChoices)),
-  new SlashCommandBuilder()
-    .setName('crystal-tester-offline')
-    .setDescription('Mark a Crystal tester offline and update that regional waitlist.')
-    .addStringOption((option) => option.setName('region').setDescription('Tester region').setRequired(true).addChoices(...regionChoices)),
-  new SlashCommandBuilder()
-    .setName('sword-tester-online')
-    .setDescription('Mark a Sword tester online and open that regional waitlist.')
-    .addStringOption((option) => option.setName('region').setDescription('Tester region').setRequired(true).addChoices(...regionChoices)),
-  new SlashCommandBuilder()
-    .setName('sword-tester-offline')
-    .setDescription('Mark a Sword tester offline and update that regional waitlist.')
-    .addStringOption((option) => option.setName('region').setDescription('Tester region').setRequired(true).addChoices(...regionChoices)),
-  new SlashCommandBuilder()
-    .setName('mace-tester-online')
-    .setDescription('Mark a Mace tester online and open that regional waitlist.')
-    .addStringOption((option) => option.setName('region').setDescription('Tester region').setRequired(true).addChoices(...regionChoices)),
-  new SlashCommandBuilder()
-    .setName('mace-tester-offline')
-    .setDescription('Mark a Mace tester offline and update that regional waitlist.')
-    .addStringOption((option) => option.setName('region').setDescription('Tester region').setRequired(true).addChoices(...regionChoices)),
-  new SlashCommandBuilder()
-    .setName('crystal-result')
-    .setDescription('Post a Crystal test result and assign tier roles when needed.')
-    .addUserOption((option) => option.setName('player').setDescription('Discord user tested').setRequired(true))
-    .addStringOption((option) => option.setName('ign').setDescription('Minecraft username').setRequired(true))
-    .addStringOption((option) => option.setName('outcome').setDescription('Result outcome').setRequired(true).addChoices(
-      { name: 'Promoted', value: 'promoted' },
-      { name: 'Failed', value: 'failed' },
-      { name: 'Demoted', value: 'demoted' }
-    ))
-    .addStringOption((option) => option.setName('tier').setDescription('Result tier').setRequired(true).addChoices(...tierCommandChoices))
-    .addStringOption((option) => option.setName('details').setDescription('Fight lines / extra notes. New lines are allowed.').setRequired(false)),
-  new SlashCommandBuilder()
-    .setName('sword-result')
-    .setDescription('Post a Sword test result and assign tier roles when needed.')
-    .addUserOption((option) => option.setName('player').setDescription('Discord user tested').setRequired(true))
-    .addStringOption((option) => option.setName('ign').setDescription('Minecraft username').setRequired(true))
-    .addStringOption((option) => option.setName('outcome').setDescription('Result outcome').setRequired(true).addChoices(
-      { name: 'Promoted', value: 'promoted' },
-      { name: 'Failed', value: 'failed' },
-      { name: 'Demoted', value: 'demoted' }
-    ))
-    .addStringOption((option) => option.setName('tier').setDescription('Result tier').setRequired(true).addChoices(...tierCommandChoices))
-    .addStringOption((option) => option.setName('details').setDescription('Fight lines / extra notes. New lines are allowed.').setRequired(false)),
-  new SlashCommandBuilder()
-    .setName('mace-result')
-    .setDescription('Post a Mace test result and assign tier roles when needed.')
-    .addUserOption((option) => option.setName('player').setDescription('Discord user tested').setRequired(true))
-    .addStringOption((option) => option.setName('ign').setDescription('Minecraft username').setRequired(true))
-    .addStringOption((option) => option.setName('outcome').setDescription('Result outcome').setRequired(true).addChoices(
-      { name: 'Promoted', value: 'promoted' },
-      { name: 'Failed', value: 'failed' },
-      { name: 'Demoted', value: 'demoted' }
-    ))
-    .addStringOption((option) => option.setName('tier').setDescription('Result tier').setRequired(true).addChoices(...tierCommandChoices))
-    .addStringOption((option) => option.setName('details').setDescription('Fight lines / extra notes. New lines are allowed.').setRequired(false)),
+  ...modeCommandEntries.flatMap(([modeKey, mode]) => [
+    buildTesterCommand(modeKey, mode, 'online'),
+    buildTesterCommand(modeKey, mode, 'offline')
+  ]),
+  ...modeCommandEntries.map(([modeKey, mode]) => buildResultCommand(modeKey, mode)),
   new SlashCommandBuilder()
     .setName('rules')
-    .setDescription('Show Crystal, Sword, or Mace rules.')
+    .setDescription('Show testing rules.')
     .addStringOption((option) => option.setName('mode').setDescription('Ruleset').setRequired(true).addChoices(...modeChoices))
 ].map((command) => command.toJSON());
 
@@ -173,21 +137,10 @@ client.on(Events.InteractionCreate, async (interaction) => {
 async function handleCommand(interaction) {
   const commandName = interaction.commandName;
 
-  if (commandName === 'setup-crystal-request') {
-    if (!(await assertModeGuild(interaction, 'crystal'))) return;
-    await postRequestPanel(interaction, 'crystal');
-    return;
-  }
-
-  if (commandName === 'setup-sword-request') {
-    if (!(await assertModeGuild(interaction, 'sword'))) return;
-    await postRequestPanel(interaction, 'sword');
-    return;
-  }
-
-  if (commandName === 'setup-mace-request') {
-    if (!(await assertModeGuild(interaction, 'mace'))) return;
-    await postRequestPanel(interaction, 'mace');
+  const setupMatch = commandName.match(/^setup-([a-z0-9-]+)-request$/);
+  if (setupMatch && modes[setupMatch[1]]) {
+    if (!(await assertModeGuild(interaction, setupMatch[1]))) return;
+    await postRequestPanel(interaction, setupMatch[1]);
     return;
   }
 
@@ -198,27 +151,34 @@ async function handleCommand(interaction) {
 
   if (commandName === 'rules') {
     const mode = interaction.options.getString('mode', true);
-    const rules = {
-      crystal: crystalRules,
-      sword: swordRules,
-      mace: maceRules
-    }[mode];
-    await sendLongEphemeral(interaction, rules);
+    await sendLongEphemeral(interaction, getRulesText(mode));
     return;
   }
 
-  const testerMatch = commandName.match(/^(crystal|sword|mace)-tester-(online|offline)$/);
-  if (testerMatch) {
+  const testerMatch = commandName.match(/^([a-z0-9-]+)-tester-(online|offline)$/);
+  if (testerMatch && modes[testerMatch[1]]) {
     if (!(await assertModeGuild(interaction, testerMatch[1]))) return;
     await handleTesterStatus(interaction, testerMatch[1], testerMatch[2]);
     return;
   }
 
-  const resultMatch = commandName.match(/^(crystal|sword|mace)-result$/);
-  if (resultMatch) {
+  const resultMatch = commandName.match(/^([a-z0-9-]+)-result$/);
+  if (resultMatch && modes[resultMatch[1]]) {
     if (!(await assertModeGuild(interaction, resultMatch[1]))) return;
     await handleResult(interaction, resultMatch[1]);
   }
+}
+
+function getRulesText(modeKey) {
+  const exactRules = {
+    crystal: crystalRules,
+    sword: swordRules,
+    mace: maceRules
+  }[modeKey];
+
+  if (exactRules) return exactRules;
+
+  return swordRules.replace('AscendTiers Sword Ranked Ruleset', `AscendTiers ${modes[modeKey].label} Ranked Ruleset`);
 }
 
 async function postRequestPanel(interaction, modeKey) {
