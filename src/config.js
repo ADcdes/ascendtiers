@@ -89,6 +89,7 @@ export const modes = {
 };
 
 export const tierChoices = ['HT1', 'LT1', 'HT2', 'LT2', 'HT3', 'LT3', 'HT4', 'LT4', 'HT5', 'LT5'];
+export const websiteGameModes = ['Vanilla', 'LTMs', 'UHC', 'Pot', 'NethOP', 'SMP', 'Sword', 'Axe', 'Mace'];
 export const highResultTiers = new Set(['HT1', 'LT1', 'HT2', 'LT2', 'HT3']);
 export const highTestTiers = ['HT1', 'LT1', 'HT2', 'LT2', 'HT3'];
 export const testerCommandRoleIds = [

@@ -20,7 +20,7 @@ import {
   TextInputBuilder,
   TextInputStyle
 } from 'discord.js';
-import { highResultTiers, highTestTiers, migrationChannelId, modes, testerCommandRoleIds, tierChoices } from './config.js';
+import { highResultTiers, highTestTiers, migrationChannelId, modes, testerCommandRoleIds, tierChoices, websiteGameModes } from './config.js';
 import { crystalRules, maceRules, swordRules } from './rules.js';
 import { ensureWaitlist, loadState, profileKey, saveState } from './state.js';
 
@@ -460,7 +460,7 @@ async function showMigrationModal(interaction) {
       new TextInputBuilder()
         .setCustomId('mode')
         .setLabel('Mode')
-        .setPlaceholder('Vanilla, Sword, UHC, Mace, Axe...')
+        .setPlaceholder('Vanilla, LTMs, UHC, Pot, NethOP...')
         .setStyle(TextInputStyle.Short)
         .setRequired(true)
         .setMaxLength(32)
@@ -948,8 +948,7 @@ function normalizePlayerKey(value) {
 
 function normalizeModeName(value) {
   const trimmed = value.trim();
-  const knownModes = ['Vanilla', 'Sword', 'UHC', 'Mace', 'Axe', 'Pot', 'NethOP', 'SMP', 'LTMs'];
-  return knownModes.find((mode) => mode.toLowerCase() === trimmed.toLowerCase()) ?? trimmed;
+  return websiteGameModes.find((mode) => mode.toLowerCase() === trimmed.toLowerCase()) ?? trimmed;
 }
 
 async function queueGithubSync(message) {
