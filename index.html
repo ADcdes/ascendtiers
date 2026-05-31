@@ -126,14 +126,14 @@
         .info-btn:hover { border-color: var(--border2); background: rgba(255,255,255,0.08); }
 
         /* ── LEADERBOARD TABLE ── */
-        .lb-table { width: 100%; border-collapse: collapse; background:#0d1324; border:1px solid #1c2741; border-radius:12px; overflow:hidden; }
+        .lb-table { width: 100%; border-collapse: collapse; table-layout: fixed; background:#0d1324; border:1px solid #1c2741; border-radius:12px; overflow:hidden; }
         .lb-table thead th {
             text-align: left; padding: 20px 22px;
             font-size: 0.84rem; font-weight: 900; letter-spacing: 1.5px;
             text-transform: uppercase; color: var(--muted);
             border-bottom: 1px solid var(--border);
         }
-        .lb-table thead th.right { text-align: right; }
+        .lb-table thead th.right { text-align: right; padding-right: 34px; }
         .lb-row {
             height: 125px;
             border-bottom: 1px solid rgba(98,121,170,0.11);
@@ -148,17 +148,17 @@
             width: 275px; padding: 0;
             background: linear-gradient(102deg, #101827 0%, #101827 78%, transparent 78%);
             clip-path: polygon(0 0, 88% 0, 74% 100%, 0 100%);
-            position: relative; overflow: visible;
+            position: relative; overflow: hidden;
         }
         .lb-row.top-1 .td-rank { background: linear-gradient(103deg, #e0a816 0%, #f4c425 64%, transparent 64%); }
         .lb-row.top-2 .td-rank { background: linear-gradient(103deg, #9eb1c1 0%, #cfe2f3 64%, transparent 64%); }
         .lb-row.top-3 .td-rank { background: linear-gradient(103deg, #f35d3e 0%, #8d1f0e 64%, transparent 64%); }
-        .rank-wrap { min-height:125px; padding: 22px 0 18px 20px; display:flex; align-items:center; position:relative; }
+        .rank-wrap { height:125px; padding: 22px 0 18px 20px; display:flex; align-items:center; position:relative; overflow:hidden; }
         .rank-num { font-family: 'Bebas Neue', sans-serif; font-size: 2.7rem; line-height: 1; color: #3d58a6; text-shadow: 0 4px 5px rgba(0,0,0,.6); z-index:2; }
         .rank-num.r1,.rank-num.r2,.rank-num.r3 { color:#05070c; text-shadow: 0 3px 5px rgba(0,0,0,.55); }
-        .rank-skin { position:absolute; right:52px; bottom:0; width:112px; height:112px; object-fit:contain; image-rendering: pixelated; filter: drop-shadow(0 12px 10px rgba(0,0,0,.55)); z-index:1; }
+        .rank-skin { position:absolute; right:58px; bottom:-2px; width:106px; height:106px; object-fit:contain; image-rendering: pixelated; filter: drop-shadow(0 12px 10px rgba(0,0,0,.55)); z-index:1; }
 
-        .td-player { padding: 18px 22px; }
+        .td-player { width: 190px; padding: 18px 22px; }
         .player-inner { display: flex; align-items: center; gap: 12px; }
         .player-skin { display:none; }
         .player-name { font-size: 1.22rem; font-weight: 900; color: var(--text); text-shadow: 0 0 10px rgba(78,134,255,.18); }
@@ -198,7 +198,7 @@
         .t-ht5{border-color:var(--ht5)} .tag-ht5{color:var(--ht5)}
         .t-lt5{border-color:var(--lt5)} .tag-lt5{color:var(--lt5)}
 
-        .td-pts { width: 120px; text-align: right; padding-right: 24px; }
+        .td-pts { width: 150px; text-align: right; padding: 0 34px 0 18px; }
         .pts-num { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; line-height: 1; color: var(--teal); letter-spacing: 1px; }
         .pts-label { font-size: 0.58rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); text-align: right; }
 
@@ -405,7 +405,7 @@
             .lb-row.top-1 .td-rank { background: linear-gradient(100deg, #e0a816 0%, #f4c425 76%, transparent 76%); }
             .lb-row.top-2 .td-rank { background: linear-gradient(100deg, #9eb1c1 0%, #cfe2f3 76%, transparent 76%); }
             .lb-row.top-3 .td-rank { background: linear-gradient(100deg, #f35d3e 0%, #8d1f0e 76%, transparent 76%); }
-            .rank-wrap { min-height: 96px; padding: 16px 0 12px 18px; }
+            .rank-wrap { height: 96px; min-height: 0; padding: 16px 0 12px 18px; }
             .rank-num { font-size: 2.45rem; }
             .rank-skin { width: 92px; height: 92px; right: 34px; }
 
