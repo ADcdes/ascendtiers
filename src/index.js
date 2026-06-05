@@ -28,6 +28,7 @@ const token = process.env.DISCORD_TOKEN;
 const clientId = process.env.CLIENT_ID;
 const execFileAsync = promisify(execFile);
 const gitPath = process.env.GIT_PATH ?? 'C:\\Program Files\\Git\\cmd\\git.exe';
+const cooldownMs = 30 * 24 * 60 * 60 * 1000;
 let githubSyncQueue = Promise.resolve();
 
 if (!token || !clientId) {
@@ -88,6 +89,16 @@ const commands = [
     buildTesterCommand(modeKey, mode, 'offline')
   ]),
   ...modeCommandEntries.map(([modeKey, mode]) => buildResultCommand(modeKey, mode)),
+  new SlashCommandBuilder()
+    .setName('undo-result')
+    .setDescription('Undo the most recent test result in this server.')
+    .addUserOption((option) => option.setName('player').setDescription('Only undo this player if they were the latest matching result.').setRequired(false)),
+  new SlashCommandBuilder()
+    .setName('restrict-player')
+    .setDescription('Permanently restrict a player, wipe website tiers, and ban them from this server.')
+    .addUserOption((option) => option.setName('player').setDescription('Discord user to restrict').setRequired(true))
+    .addStringOption((option) => option.setName('ign').setDescription('Minecraft username').setRequired(true))
+    .addStringOption((option) => option.setName('reason').setDescription('Restriction reason').setRequired(false)),
   new SlashCommandBuilder()
     .setName('rules')
     .setDescription('Show testing rules.')
@@ -152,6 +163,16 @@ async function handleCommand(interaction) {
   if (commandName === 'rules') {
     const mode = interaction.options.getString('mode', true);
     await sendLongEphemeral(interaction, getRulesText(mode));
+    return;
+  }
+
+  if (commandName === 'undo-result') {
+    await handleUndoResult(interaction);
+    return;
+  }
+
+  if (commandName === 'restrict-player') {
+    await handleRestrictPlayer(interaction);
     return;
   }
 
@@ -243,6 +264,7 @@ async function handleTesterStatus(interaction, modeKey, status) {
   }
 
   await updateWaitlistMessage(interaction.guild, waitlist, { pingHere: status === 'online' });
+  await notifyFirstInQueue(interaction.guild, waitlist);
   await saveState(state);
 
   await interaction.editReply(`${mode.label} ${region} tester marked ${status}.`);
@@ -263,6 +285,15 @@ async function handleResult(interaction, modeKey) {
 
   await interaction.deferReply({ ephemeral: true });
 
+  const cooldown = await getActiveCooldown(interaction.guildId, player.id, modeKey, ign);
+  if (cooldown) {
+    const message = cooldown.restricted
+      ? `${player} is restricted and cannot test. Reason: ${cooldown.reason}`
+      : `${player} is on ${mode.label} cooldown until <t:${cooldown.availableAt}:f> (<t:${cooldown.availableAt}:R>).`;
+    await interaction.editReply(message);
+    return;
+  }
+
   const targetChannelId = highResultTiers.has(tier) ? mode.highResultsChannelId : mode.normalResultsChannelId;
   const channel = await interaction.guild.channels.fetch(targetChannelId);
 
@@ -271,8 +302,7 @@ async function handleResult(interaction, modeKey) {
     return;
   }
 
-  const embed = buildResultEmbed(modeKey, player.id, ign, outcome, tier, details, interaction.user.id);
-  await channel.send({ content: `<@${player.id}>`, embeds: [embed] });
+  const previousTierRoleIds = await getMemberModeTierRoleIds(interaction.guild, player.id, mode);
 
   if (outcome === 'promoted' || outcome === 'demoted') {
     await assignTierRole(interaction.guild, player.id, mode, tier);
@@ -287,7 +317,21 @@ async function handleResult(interaction, modeKey) {
     outcome
   });
 
+  const embed = buildResultEmbed({
+    modeKey,
+    user: player,
+    ign,
+    outcome,
+    tier,
+    details,
+    testerId: interaction.user.id,
+    previousRank: syncResult.previousTier,
+    region: syncResult.region
+  });
+  const message = await channel.send({ content: `<@${player.id}>`, embeds: [embed] });
+
   state.resultLog.push({
+    guildId: interaction.guildId,
     mode: modeKey,
     userId: player.id,
     ign,
@@ -295,8 +339,13 @@ async function handleResult(interaction, modeKey) {
     tier,
     details,
     channelId: channel.id,
+    messageId: message.id,
     createdAt: new Date().toISOString(),
     createdBy: interaction.user.id,
+    previousPlayerKey: syncResult.previousPlayerKey,
+    playerKey: syncResult.playerKey,
+    previousPlayer: syncResult.previousPlayer,
+    previousTierRoleIds,
     websiteSynced: syncResult.updated,
     githubSynced: syncResult.pushed
   });
@@ -306,6 +355,91 @@ async function handleResult(interaction, modeKey) {
     ? syncResult.pushed ? ' Website data was synced to GitHub.' : ' Website data changed, but GitHub push failed; check bot logs.'
     : ' Website tier data was unchanged.';
   await interaction.editReply(`Posted ${mode.label} ${tier} result in <#${channel.id}>.${syncText}`);
+}
+
+async function handleUndoResult(interaction) {
+  if (!canUseTesterCommands(interaction.member)) {
+    await interaction.reply({ content: 'Only tester staff roles can undo results.', ephemeral: true });
+    return;
+  }
+
+  await interaction.deferReply({ ephemeral: true });
+
+  const player = interaction.options.getUser('player');
+  const logIndex = findUndoableResultIndex(interaction.guildId, player?.id);
+  if (logIndex === -1) {
+    await interaction.editReply(player ? `No result found to undo for ${player}.` : 'No result found to undo in this server.');
+    return;
+  }
+
+  const entry = state.resultLog[logIndex];
+  const data = await readPlayersData();
+  data.players ??= {};
+
+  if (entry.previousPlayer) {
+    if (entry.playerKey && entry.playerKey !== entry.previousPlayerKey) {
+      delete data.players[entry.playerKey];
+    }
+    data.players[entry.previousPlayerKey] = entry.previousPlayer;
+  } else if (entry.playerKey) {
+    delete data.players[entry.playerKey];
+  }
+
+  const mode = modes[entry.mode];
+  if (mode && (entry.outcome === 'promoted' || entry.outcome === 'demoted')) {
+    await restoreTierRoles(interaction.guild, entry.userId, mode, entry.previousTierRoleIds ?? []);
+  }
+
+  if (entry.channelId && entry.messageId) {
+    const channel = await interaction.guild.channels.fetch(entry.channelId).catch(() => null);
+    const message = channel?.isTextBased()
+      ? await channel.messages.fetch(entry.messageId).catch(() => null)
+      : null;
+    await message?.delete().catch(() => {});
+  }
+
+  state.resultLog.splice(logIndex, 1);
+  const pushed = await writePlayersData(data, `Undo ${entry.ign} ${modes[entry.mode]?.label ?? entry.mode} result`);
+  await saveState(state);
+
+  await interaction.editReply(`Undid ${entry.ign}'s ${modes[entry.mode]?.label ?? entry.mode} ${entry.tier} result.${pushed ? ' Website data was synced to GitHub.' : ' GitHub push failed; check bot logs.'}`);
+}
+
+async function handleRestrictPlayer(interaction) {
+  if (!canUseTesterCommands(interaction.member)) {
+    await interaction.reply({ content: 'Only tester staff roles can restrict players.', ephemeral: true });
+    return;
+  }
+
+  await interaction.deferReply({ ephemeral: true });
+
+  const player = interaction.options.getUser('player', true);
+  const ign = interaction.options.getString('ign', true);
+  const reason = interaction.options.getString('reason') ?? 'Restricted from testing.';
+  const data = await readPlayersData();
+  const key = findPlayerDataKey(data, player.id, ign) ?? normalizePlayerKey(ign);
+  const record = data.players[key] ?? {};
+
+  record.ign = ign;
+  record.discordId = player.id;
+  record.region ??= 'NA';
+  record.restricted = true;
+  record.restrictReason = reason;
+  record.restrictedAt = new Date().toISOString();
+  record.tiers = {};
+  record.lastTestedAt = {};
+  data.players[key] = record;
+
+  removeUserFromAllQueues(player.id);
+  await removeKnownTierRoles(interaction.guild, player.id);
+  await interaction.guild.members.ban(player.id, { reason: `Restricted: ${reason}` }).catch((error) => {
+    throw new Error(`Could not ban ${player.tag}: ${error.message}`);
+  });
+
+  const pushed = await writePlayersData(data, `Restrict ${ign}`);
+  await saveState(state);
+
+  await interaction.editReply(`Restricted and banned **${ign}**. Their public tiers were wiped.${pushed ? ' Website data was synced to GitHub.' : ' GitHub push failed; check bot logs.'}`);
 }
 
 async function handleButton(interaction) {
@@ -355,7 +489,7 @@ async function handleButton(interaction) {
   }
 
   if (action === 'cooldown') {
-    await interaction.reply({ content: 'Cooldown lookup is not connected yet. Failed tests are 30 days by default.', ephemeral: true });
+    await showCooldown(interaction, modeKey);
     return;
   }
 
@@ -482,6 +616,30 @@ async function handleMigrationModal(interaction) {
   await interaction.reply({ content: `Migration request sent in <#${migrationChannelId}>.`, ephemeral: true });
 }
 
+async function showCooldown(interaction, modeKey) {
+  const profile = state.profiles[profileKey(interaction.guildId, interaction.user.id, modeKey)];
+  if (!profile) {
+    await interaction.reply({ content: 'Verify first so I know your Minecraft username and region.', ephemeral: true });
+    return;
+  }
+
+  const cooldown = await getActiveCooldown(interaction.guildId, interaction.user.id, modeKey, profile.ign);
+  await interaction.reply({
+    content: cooldown
+      ? formatCooldownMessage(cooldown, modes[modeKey].label)
+      : `You are not on ${modes[modeKey].label} cooldown. You can test now.`,
+    ephemeral: true
+  });
+}
+
+function formatCooldownMessage(cooldown, modeLabel) {
+  if (cooldown.restricted) {
+    return `You are restricted and cannot test. Reason: ${cooldown.reason}`;
+  }
+
+  return `You are on ${modeLabel} cooldown until <t:${cooldown.availableAt}:f> (<t:${cooldown.availableAt}:R>). Tests require 30 days between attempts.`;
+}
+
 async function enterWaitlistFromRequest(interaction, modeKey) {
   const profile = state.profiles[profileKey(interaction.guildId, interaction.user.id, modeKey)];
   if (!profile) {
@@ -490,6 +648,12 @@ async function enterWaitlistFromRequest(interaction, modeKey) {
   }
 
   const mode = modes[modeKey];
+  const cooldown = await getActiveCooldown(interaction.guildId, interaction.user.id, modeKey, profile.ign);
+  if (cooldown) {
+    await interaction.reply({ content: formatCooldownMessage(cooldown, mode.label), ephemeral: true });
+    return;
+  }
+
   const member = await interaction.guild.members.fetch(interaction.user.id);
   const highTier = getHighestHighTier(member, mode);
 
@@ -511,6 +675,15 @@ async function enterWaitlistFromRequest(interaction, modeKey) {
 
 async function joinQueue(interaction, modeKey, region) {
   const waitlist = ensureWaitlist(state, modeKey, region);
+  const profile = state.profiles[profileKey(interaction.guildId, interaction.user.id, modeKey)];
+
+  if (profile) {
+    const cooldown = await getActiveCooldown(interaction.guildId, interaction.user.id, modeKey, profile.ign);
+    if (cooldown) {
+      await interaction.reply({ content: formatCooldownMessage(cooldown, modes[modeKey].label), ephemeral: true });
+      return;
+    }
+  }
 
   if (waitlist.activeTesterIds.length === 0) {
     await interaction.reply({ content: `No ${region} ${modes[modeKey].label} testers are online right now, so the queue is closed.`, ephemeral: true });
@@ -522,6 +695,7 @@ async function joinQueue(interaction, modeKey, region) {
   }
 
   await updateWaitlistMessage(interaction.guild, waitlist);
+  await notifyFirstInQueue(interaction.guild, waitlist);
   await saveState(state);
 
   await interaction.reply({ content: `You are in the ${region} ${modes[modeKey].label} queue.`, ephemeral: true });
@@ -532,6 +706,7 @@ async function leaveQueue(interaction, modeKey, region) {
   waitlist.queue = waitlist.queue.filter((id) => id !== interaction.user.id);
 
   await updateWaitlistMessage(interaction.guild, waitlist);
+  await notifyFirstInQueue(interaction.guild, waitlist);
   await saveState(state);
 
   await interaction.reply({ content: `You left the ${region} ${modes[modeKey].label} queue.`, ephemeral: true });
@@ -562,6 +737,23 @@ async function updateWaitlistMessage(guild, waitlist, options = {}) {
   const message = await channel.send(payload);
   waitlist.messageId = message.id;
   return channel;
+}
+
+async function notifyFirstInQueue(guild, waitlist) {
+  const firstUserId = waitlist.queue[0];
+  if (!firstUserId) {
+    waitlist.lastFirstNotifiedId = null;
+    return;
+  }
+
+  if (waitlist.activeTesterIds.length === 0 || waitlist.lastFirstNotifiedId === firstUserId) {
+    return;
+  }
+
+  waitlist.lastFirstNotifiedId = firstUserId;
+  const mode = modes[waitlist.mode];
+  const user = await client.users.fetch(firstUserId).catch(() => null);
+  await user?.send(`You are #1 in the ${waitlist.region} ${mode.label} queue in **${guild.name}**. A tester is available now.`).catch(() => {});
 }
 
 async function createHighTestTicket(interaction, modeKey, profile, currentTier) {
@@ -818,25 +1010,36 @@ function buildHighTestButtons(modeKey, userId) {
   );
 }
 
-function buildResultEmbed(modeKey, userId, ign, outcome, tier, details, testerId) {
+function buildResultEmbed({ modeKey, user, ign, outcome, tier, details, testerId, previousRank, region }) {
   const mode = modes[modeKey];
-  const action = {
-    promoted: `Promoted to **${formatTier(tier)}**`,
-    failed: `Failed **${formatTier(tier)}**`,
-    demoted: `Demoted to **${formatTier(tier)}**`
-  }[outcome];
+  const skinUrl = minecraftBustUrl(ign);
+  const earnedText = outcome === 'failed'
+    ? `Failed ${formatTier(tier)}`
+    : formatTier(tier);
 
-  const description = [
-    `<@${userId}> - ${ign} - ${action}`,
-    details?.trim() ? `\n${details.trim()}` : null
-  ].filter(Boolean).join('\n');
-
-  return new EmbedBuilder()
-    .setColor(outcome === 'failed' ? 0xff5757 : 0x57f287)
-    .setTitle(`${mode.icon} Test Result`)
-    .setDescription(description)
-    .setFooter({ text: `Submitted by ${testerId}` })
+  const embed = new EmbedBuilder()
+    .setColor(outcome === 'failed' ? 0xff5757 : 0xff2d2d)
+    .setAuthor({ name: `${ign}'s Test Results 🏆`, iconURL: skinUrl })
+    .setThumbnail(skinUrl)
+    .addFields(
+      { name: 'Tester:', value: `<@${testerId}>`, inline: false },
+      { name: 'Region:', value: region ?? 'Unknown', inline: false },
+      { name: 'Username:', value: ign, inline: false },
+      { name: 'Previous Rank:', value: previousRank === 'Unranked' ? 'Unranked' : formatTier(previousRank), inline: false },
+      { name: 'Rank Earned:', value: earnedText, inline: false }
+    )
+    .setFooter({ text: `${mode.label} result` })
     .setTimestamp();
+
+  if (details?.trim()) {
+    embed.addFields({ name: 'Notes:', value: details.trim().slice(0, 1024), inline: false });
+  }
+
+  return embed;
+}
+
+function minecraftBustUrl(ign) {
+  return `https://render.crafty.gg/3d/bust/${encodeURIComponent(ign)}`;
 }
 
 function formatTier(tier) {
@@ -855,10 +1058,93 @@ async function assignTierRole(guild, userId, mode, tier) {
   await member.roles.add(mode.tierRoles[tier]);
 }
 
+async function getMemberModeTierRoleIds(guild, userId, mode) {
+  const member = await guild.members.fetch(userId).catch(() => null);
+  if (!member) return [];
+
+  const roleIds = new Set(Object.values(mode.tierRoles).filter(Boolean));
+  return member.roles.cache.filter((role) => roleIds.has(role.id)).map((role) => role.id);
+}
+
+async function restoreTierRoles(guild, userId, mode, previousRoleIds) {
+  const member = await guild.members.fetch(userId).catch(() => null);
+  if (!member) return;
+  await guild.roles.fetch().catch(() => {});
+
+  const currentTierRoleIds = Object.values(mode.tierRoles).filter(Boolean);
+  const rolesToRemove = member.roles.cache.filter((role) => currentTierRoleIds.includes(role.id));
+  if (rolesToRemove.size > 0) {
+    await member.roles.remove([...rolesToRemove.keys()]).catch(() => {});
+  }
+
+  const rolesToAdd = previousRoleIds.filter((roleId) => guild.roles.cache.has(roleId));
+  if (rolesToAdd.length > 0) {
+    await member.roles.add(rolesToAdd).catch(() => {});
+  }
+}
+
+async function removeKnownTierRoles(guild, userId) {
+  const member = await guild.members.fetch(userId).catch(() => null);
+  if (!member) return;
+  await guild.roles.fetch().catch(() => {});
+
+  const knownRoleIds = new Set(Object.values(modes).flatMap((mode) => Object.values(mode.tierRoles)).filter(Boolean));
+  const rolesToRemove = member.roles.cache.filter((role) => knownRoleIds.has(role.id));
+  if (rolesToRemove.size > 0) {
+    await member.roles.remove([...rolesToRemove.keys()]).catch(() => {});
+  }
+}
+
+function findUndoableResultIndex(guildId, userId) {
+  for (let index = state.resultLog.length - 1; index >= 0; index -= 1) {
+    const entry = state.resultLog[index];
+    if (entry.undoneAt) continue;
+    if (entry.guildId && entry.guildId !== guildId) continue;
+    if (userId && entry.userId !== userId) continue;
+    return index;
+  }
+
+  return -1;
+}
+
+function findPlayerDataKey(data, userId, ign) {
+  const normalizedIgn = normalizePlayerKey(ign ?? '');
+  return Object.entries(data.players ?? {}).find(([, player]) =>
+    player.discordId === userId || normalizePlayerKey(player.ign ?? player.name ?? '') === normalizedIgn
+  )?.[0] ?? null;
+}
+
+function removeUserFromAllQueues(userId) {
+  for (const waitlist of Object.values(state.waitlists ?? {})) {
+    waitlist.queue = waitlist.queue.filter((id) => id !== userId);
+  }
+}
+
+async function getActiveCooldown(guildId, userId, modeKey, ign) {
+  const data = await readPlayersData();
+  const key = findPlayerDataKey(data, userId, ign);
+  if (!key) return null;
+
+  const player = data.players[key];
+  if (player.restricted) {
+    return { restricted: true, reason: player.restrictReason ?? 'Restricted from testing.' };
+  }
+
+  const websiteMode = getWebsiteModeName(modeKey);
+  const testedAt = player.lastTestedAt?.[websiteMode];
+  if (!testedAt) return null;
+
+  const testedTime = new Date(testedAt).getTime();
+  if (Number.isNaN(testedTime)) return null;
+
+  const availableTime = testedTime + cooldownMs;
+  if (Date.now() >= availableTime) return null;
+
+  return { availableAt: Math.floor(availableTime / 1000), testedAt };
+}
+
 async function updateWebsitePlayer({ guildId, modeKey, userId, ign, tier, outcome }) {
-  const playersPath = 'players.json';
-  const raw = await readFile(playersPath, 'utf8');
-  const data = JSON.parse(raw);
+  const data = await readPlayersData();
   data.players ??= {};
 
   const key = normalizePlayerKey(ign);
@@ -868,6 +1154,9 @@ async function updateWebsitePlayer({ guildId, modeKey, userId, ign, tier, outcom
 
   const profile = state.profiles[profileKey(guildId, userId, modeKey)];
   const player = data.players[existingKey] ?? {};
+  const previousPlayer = data.players[existingKey] ? structuredClone(data.players[existingKey]) : null;
+  const websiteMode = getWebsiteModeName(modeKey);
+  const previousTier = player.tiers?.[websiteMode] ?? 'Unranked';
   const previous = JSON.stringify(player);
 
   player.ign = ign;
@@ -876,9 +1165,11 @@ async function updateWebsitePlayer({ guildId, modeKey, userId, ign, tier, outcom
   player.restricted ??= false;
   player.restrictReason ??= null;
   player.tiers ??= {};
+  player.lastTestedAt ??= {};
+  player.lastTestedAt[websiteMode] = new Date().toISOString();
 
   if (outcome === 'promoted' || outcome === 'demoted') {
-    player.tiers[getWebsiteModeName(modeKey)] = tier;
+    player.tiers[websiteMode] = tier;
   }
 
   if (existingKey !== key) {
@@ -886,20 +1177,45 @@ async function updateWebsitePlayer({ guildId, modeKey, userId, ign, tier, outcom
   }
   data.players[key] = player;
 
-  const next = `${JSON.stringify(data, null, 2)}\n`;
   const changed = previous !== JSON.stringify(player) || existingKey !== key;
   if (!changed) {
-    return { updated: false, pushed: false };
+    return {
+      updated: false,
+      pushed: false,
+      previousTier,
+      region: player.region,
+      previousPlayerKey: existingKey,
+      playerKey: key,
+      previousPlayer
+    };
   }
 
-  await writeFile(playersPath, next, 'utf8');
-
-  const pushed = await queueGithubSync(`Update ${ign} ${modes[modeKey].label} result`);
-  return { updated: true, pushed };
+  const pushed = await writePlayersData(data, `Update ${ign} ${modes[modeKey].label} result`);
+  return {
+    updated: true,
+    pushed,
+    previousTier,
+    region: player.region,
+    previousPlayerKey: existingKey,
+    playerKey: key,
+    previousPlayer
+  };
 }
 
 function getWebsiteModeName(modeKey) {
   return modeKey === 'crystal' ? 'Vanilla' : modes[modeKey].label;
+}
+
+async function readPlayersData() {
+  const raw = await readFile('players.json', 'utf8');
+  const data = JSON.parse(raw);
+  data.players ??= {};
+  return data;
+}
+
+async function writePlayersData(data, message) {
+  await writeFile('players.json', `${JSON.stringify(data, null, 2)}\n`, 'utf8');
+  return queueGithubSync(message);
 }
 
 function normalizePlayerKey(value) {
