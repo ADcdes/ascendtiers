@@ -56,6 +56,13 @@ function buildSetupCommand(modeKey, mode) {
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
 }
 
+function buildApplicationSetupCommand(modeKey, mode) {
+  return new SlashCommandBuilder()
+    .setName(`setup-${modeKey}-applications`)
+    .setDescription(`Post the ${mode.label} staff and tester application panel.`)
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
+}
+
 function buildTesterCommand(modeKey, mode, status) {
   return new SlashCommandBuilder()
     .setName(`${modeKey}-tester-${status}`)
@@ -80,6 +87,7 @@ function buildResultCommand(modeKey, mode) {
 
 const commands = [
   ...modeCommandEntries.map(([modeKey, mode]) => buildSetupCommand(modeKey, mode)),
+  ...modeCommandEntries.map(([modeKey, mode]) => buildApplicationSetupCommand(modeKey, mode)),
   new SlashCommandBuilder()
     .setName('setup-migration-panel')
     .setDescription('Post the tier migration request panel.')
@@ -155,6 +163,13 @@ async function handleCommand(interaction) {
     return;
   }
 
+  const applicationSetupMatch = commandName.match(/^setup-([a-z0-9-]+)-applications$/);
+  if (applicationSetupMatch && modes[applicationSetupMatch[1]]) {
+    if (!(await assertModeGuild(interaction, applicationSetupMatch[1]))) return;
+    await postApplicationPanel(interaction, applicationSetupMatch[1]);
+    return;
+  }
+
   if (commandName === 'setup-migration-panel') {
     await postMigrationPanel(interaction);
     return;
@@ -221,6 +236,27 @@ async function postRequestPanel(interaction, modeKey) {
   });
 
   await interaction.reply({ content: `${mode.label} request panel posted in <#${mode.requestChannelId}>.`, ephemeral: true });
+}
+
+async function postApplicationPanel(interaction, modeKey) {
+  const mode = modes[modeKey];
+  if (!mode.applicationChannelId) {
+    await interaction.reply({ content: `Set ${mode.label}'s application channel ID first.`, ephemeral: true });
+    return;
+  }
+
+  const channel = await interaction.guild.channels.fetch(mode.applicationChannelId).catch(() => null);
+  if (!channel?.isTextBased()) {
+    await interaction.reply({ content: 'I could not find the applications channel.', ephemeral: true });
+    return;
+  }
+
+  await channel.send({
+    embeds: [buildApplicationPanelEmbed(modeKey)],
+    components: [buildApplicationButtons(modeKey)]
+  });
+
+  await interaction.reply({ content: `${mode.label} application panel posted in <#${mode.applicationChannelId}>.`, ephemeral: true });
 }
 
 async function postMigrationPanel(interaction) {
@@ -483,6 +519,11 @@ async function handleButton(interaction) {
     return;
   }
 
+  if (action === 'application') {
+    await showApplicationModal(interaction, modeKey, interaction.customId.split(':')[3]);
+    return;
+  }
+
   if (action === 'enter') {
     await enterWaitlistFromRequest(interaction, modeKey);
     return;
@@ -509,10 +550,16 @@ async function handleButton(interaction) {
 }
 
 async function handleModal(interaction) {
-  const [, action, modeKey] = interaction.customId.split(':');
+  const [, action, modeKey, extra] = interaction.customId.split(':');
 
   if (action === 'migrationModal') {
     await handleMigrationModal(interaction);
+    return;
+  }
+
+  if (action === 'applicationModal') {
+    if (!(await assertModeGuild(interaction, modeKey))) return;
+    await handleApplicationModal(interaction, modeKey, extra);
     return;
   }
 
@@ -614,6 +661,90 @@ async function handleMigrationModal(interaction) {
   await saveState(state);
 
   await interaction.reply({ content: `Migration request sent in <#${migrationChannelId}>.`, ephemeral: true });
+}
+
+async function showApplicationModal(interaction, modeKey, applicationType) {
+  if (!['staff', 'tester'].includes(applicationType)) {
+    await interaction.reply({ content: 'Unknown application type.', ephemeral: true });
+    return;
+  }
+
+  const typeLabel = formatApplicationType(applicationType);
+  const modal = new ModalBuilder()
+    .setCustomId(`ascend:applicationModal:${modeKey}:${applicationType}`)
+    .setTitle(`${modes[modeKey].label} ${typeLabel}`);
+
+  modal.addComponents(
+    new ActionRowBuilder().addComponents(
+      new TextInputBuilder()
+        .setCustomId('ign')
+        .setLabel('Minecraft username')
+        .setStyle(TextInputStyle.Short)
+        .setMinLength(3)
+        .setMaxLength(16)
+        .setRequired(true)
+    ),
+    new ActionRowBuilder().addComponents(
+      new TextInputBuilder()
+        .setCustomId('region')
+        .setLabel('Region')
+        .setPlaceholder('NA, EU, AS, AU...')
+        .setStyle(TextInputStyle.Short)
+        .setMinLength(2)
+        .setMaxLength(8)
+        .setRequired(true)
+    ),
+    new ActionRowBuilder().addComponents(
+      new TextInputBuilder()
+        .setCustomId('rank')
+        .setLabel(applicationType === 'tester' ? 'Current rank / proof' : 'Relevant experience')
+        .setPlaceholder(applicationType === 'tester' ? 'Example: LT3 Sword on PvPTiers' : 'Example: moderation, events, support')
+        .setStyle(TextInputStyle.Paragraph)
+        .setMaxLength(700)
+        .setRequired(true)
+    ),
+    new ActionRowBuilder().addComponents(
+      new TextInputBuilder()
+        .setCustomId('activity')
+        .setLabel('Availability')
+        .setPlaceholder('Timezone and usual active hours')
+        .setStyle(TextInputStyle.Paragraph)
+        .setMaxLength(700)
+        .setRequired(true)
+    ),
+    new ActionRowBuilder().addComponents(
+      new TextInputBuilder()
+        .setCustomId('reason')
+        .setLabel('Why should we pick you?')
+        .setStyle(TextInputStyle.Paragraph)
+        .setMaxLength(1000)
+        .setRequired(true)
+    )
+  );
+
+  await interaction.showModal(modal);
+}
+
+async function handleApplicationModal(interaction, modeKey, applicationType) {
+  await interaction.deferReply({ ephemeral: true });
+
+  const application = {
+    type: applicationType,
+    ign: interaction.fields.getTextInputValue('ign').trim(),
+    region: interaction.fields.getTextInputValue('region').trim(),
+    rank: interaction.fields.getTextInputValue('rank').trim(),
+    activity: interaction.fields.getTextInputValue('activity').trim(),
+    reason: interaction.fields.getTextInputValue('reason').trim()
+  };
+
+  const existing = await findExistingApplicationTicket(interaction.guild, interaction.user.id, modeKey, applicationType);
+  if (existing) {
+    await interaction.editReply(`You already have an open ${formatApplicationType(applicationType).toLowerCase()} ticket: <#${existing.id}>.`);
+    return;
+  }
+
+  const channel = await createApplicationTicket(interaction, modeKey, application);
+  await interaction.editReply(`Created your ${formatApplicationType(applicationType).toLowerCase()} ticket: <#${channel.id}>.`);
 }
 
 async function showCooldown(interaction, modeKey) {
@@ -756,6 +887,77 @@ async function notifyFirstInQueue(guild, waitlist) {
   await user?.send(`You are #1 in the ${waitlist.region} ${mode.label} queue in **${guild.name}**. A tester is available now.`).catch(() => {});
 }
 
+async function createApplicationTicket(interaction, modeKey, application) {
+  await interaction.guild.roles.fetch();
+  const reviewerRoleIds = testerCommandRoleIds.filter((roleId) => interaction.guild.roles.cache.has(roleId));
+
+  const channelName = `${application.type}-app-${application.ign}-${interaction.user.username}`
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 90);
+
+  const permissionOverwrites = [
+    {
+      id: interaction.guild.roles.everyone.id,
+      deny: [PermissionsBitField.Flags.ViewChannel]
+    },
+    {
+      id: interaction.user.id,
+      allow: [
+        PermissionsBitField.Flags.ViewChannel,
+        PermissionsBitField.Flags.SendMessages,
+        PermissionsBitField.Flags.ReadMessageHistory
+      ]
+    },
+    {
+      id: client.user.id,
+      allow: [
+        PermissionsBitField.Flags.ViewChannel,
+        PermissionsBitField.Flags.SendMessages,
+        PermissionsBitField.Flags.ReadMessageHistory,
+        PermissionsBitField.Flags.ManageChannels
+      ]
+    },
+    ...reviewerRoleIds
+      .map((roleId) => ({
+        id: roleId,
+        allow: [
+          PermissionsBitField.Flags.ViewChannel,
+          PermissionsBitField.Flags.SendMessages,
+          PermissionsBitField.Flags.ReadMessageHistory
+        ]
+      }))
+  ];
+
+  const channel = await interaction.guild.channels.create({
+    name: channelName,
+    type: ChannelType.GuildText,
+    topic: `application:${modeKey}:${application.type}:${interaction.user.id}`,
+    permissionOverwrites
+  });
+
+  await channel.send({
+    content: [`<@${interaction.user.id}>`, ...reviewerRoleIds.map((roleId) => `<@&${roleId}>`)].join(' '),
+    embeds: [buildApplicationTicketEmbed(modeKey, interaction.user.id, application)],
+    allowedMentions: { users: [interaction.user.id], roles: reviewerRoleIds }
+  });
+
+  state.applicationLog ??= [];
+  state.applicationLog.push({
+    guildId: interaction.guildId,
+    mode: modeKey,
+    type: application.type,
+    userId: interaction.user.id,
+    ign: application.ign,
+    channelId: channel.id,
+    createdAt: new Date().toISOString()
+  });
+  await saveState(state);
+
+  return channel;
+}
+
 async function createHighTestTicket(interaction, modeKey, profile, currentTier) {
   const mode = modes[modeKey];
   await interaction.deferReply({ ephemeral: true });
@@ -849,6 +1051,14 @@ async function findExistingHighTestTicket(guild, userId, modeKey) {
   );
 }
 
+async function findExistingApplicationTicket(guild, userId, modeKey, applicationType) {
+  await guild.channels.fetch();
+  return [...guild.channels.cache.values()].find((channel) =>
+    channel.type === ChannelType.GuildText
+    && channel.topic === `application:${modeKey}:${applicationType}:${userId}`
+  );
+}
+
 async function findWaitlistChannel(guild, modeKey, region) {
   await guild.channels.fetch();
   const channels = [...guild.channels.cache.values()].filter((channel) => channel.type === ChannelType.GuildText);
@@ -892,6 +1102,35 @@ function buildRequestButtons(modeKey) {
     new ButtonBuilder().setCustomId(`ascend:verify:${modeKey}`).setLabel('Verify Account').setStyle(ButtonStyle.Primary),
     new ButtonBuilder().setCustomId(`ascend:enter:${modeKey}`).setLabel('Enter Waitlist').setStyle(ButtonStyle.Primary),
     new ButtonBuilder().setCustomId(`ascend:cooldown:${modeKey}`).setLabel('View Cooldown').setStyle(ButtonStyle.Primary)
+  );
+}
+
+function buildApplicationPanelEmbed(modeKey) {
+  const mode = modes[modeKey];
+  return new EmbedBuilder()
+    .setColor(0xffd166)
+    .setTitle(`${mode.label} Applications`)
+    .setDescription([
+      'Open an application ticket for staff or tier tester review.',
+      '',
+      '**Tester Requirements**',
+      '- Active players',
+      '- Unbiased and fair judgment',
+      '- Mature behavior',
+      '- Tested LT3 or higher on PvPTiers or MCTiers'
+    ].join('\n'));
+}
+
+function buildApplicationButtons(modeKey) {
+  return new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`ascend:application:${modeKey}:staff`)
+      .setLabel('Staff Application')
+      .setStyle(ButtonStyle.Primary),
+    new ButtonBuilder()
+      .setCustomId(`ascend:application:${modeKey}:tester`)
+      .setLabel('Tier Tester Application')
+      .setStyle(ButtonStyle.Success)
   );
 }
 
@@ -1008,6 +1247,25 @@ function buildHighTestButtons(modeKey, userId) {
       .setLabel('Accept High Test')
       .setStyle(ButtonStyle.Success)
   );
+}
+
+function buildApplicationTicketEmbed(modeKey, userId, application) {
+  return new EmbedBuilder()
+    .setColor(application.type === 'tester' ? 0x57f287 : 0x5865f2)
+    .setTitle(`${modes[modeKey].label} ${formatApplicationType(application.type)}`)
+    .setDescription(`Applicant: <@${userId}>`)
+    .addFields(
+      { name: 'Minecraft Username', value: application.ign, inline: true },
+      { name: 'Region', value: application.region, inline: true },
+      { name: application.type === 'tester' ? 'Current Rank / Proof' : 'Relevant Experience', value: application.rank || 'None provided', inline: false },
+      { name: 'Availability', value: application.activity || 'None provided', inline: false },
+      { name: 'Why should we pick you?', value: application.reason || 'None provided', inline: false }
+    )
+    .setTimestamp();
+}
+
+function formatApplicationType(applicationType) {
+  return applicationType === 'tester' ? 'Tier Tester Application' : 'Staff Application';
 }
 
 function buildResultEmbed({ modeKey, user, ign, outcome, tier, details, testerId, previousRank, region }) {
