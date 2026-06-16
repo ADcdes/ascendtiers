@@ -50,6 +50,19 @@
       "tiers": {
         "Sword": "LT3"
       }
+    },
+    "skibbidic12": {
+      "ign": "SkibbidiC12",
+      "region": "NA",
+      "discordId": "1404237437177303080",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Sword": "LT5"
+      },
+      "lastTestedAt": {
+        "Sword": "2026-06-16T19:58:28.467Z"
+      }
     }
   }
 }
