@@ -101,28 +101,28 @@ export const modes = {
   mace: {
     label: 'Mace',
     icon: 'Mace',
-    guildId: process.env.MACE_GUILD_ID ?? '1508918073116327976',
-    requestChannelId: process.env.MACE_REQUEST_CHANNEL_ID ?? '',
-    applicationChannelId: process.env.MACE_APPLICATION_CHANNEL_ID ?? '1508918073116327976',
+    guildId: process.env.MACE_GUILD_ID ?? '1515086386443845753',
+    requestChannelId: process.env.MACE_REQUEST_CHANNEL_ID ?? '1517616492689231912',
+    applicationChannelId: process.env.MACE_APPLICATION_CHANNEL_ID ?? '1517616533159940187',
     requestTitle: 'Mace Evaluation Testing Waitlist',
-    highResultsChannelId: '1508920599395963100',
-    normalResultsChannelId: '1508920653481513081',
-    verifiedRoleId: '1508980097540161687',
+    highResultsChannelId: '1517616369213116446',
+    normalResultsChannelId: '1517616403803275514',
+    verifiedRoleId: '1517618067713167432',
     waitlistRoles: {
-      NA: '1508994781475508264',
-      EU: '1508994831102246932'
+      NA: '1517618017167609997',
+      EU: '1517618045646934066'
     },
     tierRoles: {
-      HT1: '1508979742555246782',
-      LT1: '1508979785676886068',
-      HT2: '1508979843319070740',
-      LT2: '1508979911921238236',
-      HT3: '1508979955709771946',
-      LT3: '1508979982633009372',
-      HT4: '1508980011368054906',
-      LT4: '1508980031463096340',
-      HT5: '1508980053973795019',
-      LT5: '1508980071459848192'
+      HT1: '1517617482431729714',
+      LT1: '1517617535330160700',
+      HT2: '1517617601298042890',
+      LT2: '1517617640221315283',
+      HT3: '1517617871788965918',
+      LT3: '1517617898905014412',
+      HT4: '1517617929984807083',
+      LT4: '1517617939174526976',
+      HT5: '1517617952944554124',
+      LT5: '1517617972028506244'
     }
   }
 };
@@ -136,6 +136,9 @@ export const testerCommandRoleIds = [
   '1508646454229471272',
   '1508646596466835486',
   '1508994896554627185',
+  '1517617320954957874',
+  '1517617346066518237',
+  '1517617390148391134',
   ...envList('LTMS_TESTER_ROLE_IDS'),
   ...envList('UHC_TESTER_ROLE_IDS'),
   ...envList('POT_TESTER_ROLE_IDS'),
