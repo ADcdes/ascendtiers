@@ -63,6 +63,19 @@
       "lastTestedAt": {
         "Sword": "2026-06-16T19:58:28.467Z"
       }
+    },
+    "rytento": {
+      "ign": "rytento",
+      "region": "NA",
+      "discordId": "1177416341154709616",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-06-30T15:18:12.897Z"
+      }
     }
   }
 }
