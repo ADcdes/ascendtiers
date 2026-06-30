@@ -7,7 +7,7 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Vanilla": "HT4",
+        "Vanilla": "LT4",
         "Sword": "HT4",
         "UHC": "HT5",
         "Mace": "LT4",
@@ -15,7 +15,7 @@
         "Pot": "HT5"
       },
       "lastTestedAt": {
-        "Vanilla": "2026-06-05T23:08:18.204Z"
+        "Vanilla": "2026-06-30T15:39:48.971Z"
       }
     },
     "itzwraps": {
