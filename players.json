@@ -89,6 +89,19 @@
       "lastTestedAt": {
         "Vanilla": "2026-07-01T16:34:15.068Z"
       }
+    },
+    "subarujaxy": {
+      "ign": "SubaruJaxy",
+      "region": "NA",
+      "discordId": "1467920577032618229",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-07-01T21:23:54.184Z"
+      }
     }
   }
 }
