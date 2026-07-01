@@ -76,6 +76,19 @@
       "lastTestedAt": {
         "Vanilla": "2026-06-30T15:18:12.897Z"
       }
+    },
+    "zayexor": {
+      "ign": "Zayexor",
+      "region": "NA",
+      "discordId": "633639811810328598",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT5"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-07-01T16:34:15.068Z"
+      }
     }
   }
 }
