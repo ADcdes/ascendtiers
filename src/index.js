@@ -85,6 +85,21 @@ function buildResultCommand(modeKey, mode) {
     .addStringOption((option) => option.setName('details').setDescription('Fight lines / extra notes. New lines are allowed.').setRequired(false));
 }
 
+function buildTicketResultCommand(modeKey, mode) {
+  return new SlashCommandBuilder()
+    .setName(`${modeKey}-test-result`)
+    .setDescription(`Post a ${mode.label} ticket test result.`)
+    .addStringOption((option) => option.setName('outcome').setDescription('Result outcome').setRequired(true).addChoices(
+      { name: 'Promoted', value: 'promoted' },
+      { name: 'Failed', value: 'failed' },
+      { name: 'Demoted', value: 'demoted' }
+    ))
+    .addStringOption((option) => option.setName('tier').setDescription('Result tier').setRequired(true).addChoices(...tierCommandChoices))
+    .addUserOption((option) => option.setName('player').setDescription('Discord user tested. Optional inside a test ticket.').setRequired(false))
+    .addStringOption((option) => option.setName('ign').setDescription('Minecraft username. Optional inside a test ticket.').setRequired(false))
+    .addStringOption((option) => option.setName('details').setDescription('Fight lines / extra notes. New lines are allowed.').setRequired(false));
+}
+
 const commands = [
   ...modeCommandEntries.map(([modeKey, mode]) => buildSetupCommand(modeKey, mode)),
   ...modeCommandEntries.map(([modeKey, mode]) => buildApplicationSetupCommand(modeKey, mode)),
@@ -96,7 +111,10 @@ const commands = [
     buildTesterCommand(modeKey, mode, 'online'),
     buildTesterCommand(modeKey, mode, 'offline')
   ]),
-  ...modeCommandEntries.map(([modeKey, mode]) => buildResultCommand(modeKey, mode)),
+  ...modeCommandEntries.flatMap(([modeKey, mode]) => [
+    buildResultCommand(modeKey, mode),
+    buildTicketResultCommand(modeKey, mode)
+  ]),
   new SlashCommandBuilder()
     .setName('undo-result')
     .setDescription('Undo the most recent test result in this server.')
@@ -198,7 +216,7 @@ async function handleCommand(interaction) {
     return;
   }
 
-  const resultMatch = commandName.match(/^([a-z0-9-]+)-result$/);
+  const resultMatch = commandName.match(/^([a-z0-9-]+)-(?:test-)?result$/);
   if (resultMatch && modes[resultMatch[1]]) {
     if (!(await assertModeGuild(interaction, resultMatch[1]))) return;
     await handleResult(interaction, resultMatch[1]);
@@ -308,14 +326,31 @@ async function handleTesterStatus(interaction, modeKey, status) {
 
 async function handleResult(interaction, modeKey) {
   const mode = modes[modeKey];
-  const player = interaction.options.getUser('player', true);
-  const ign = interaction.options.getString('ign', true);
+  const ticketContext = getTestTicketContext(interaction.channel);
+  const player = interaction.options.getUser('player') ?? (ticketContext?.userId ? await client.users.fetch(ticketContext.userId).catch(() => null) : null);
+  const ign = interaction.options.getString('ign') ?? ticketContext?.ign;
   const outcome = interaction.options.getString('outcome', true);
   const tier = interaction.options.getString('tier', true);
   const details = interaction.options.getString('details') ?? '';
 
   if (!canUseTesterCommands(interaction.member)) {
     await interaction.reply({ content: `Only tester staff roles can post ${mode.label} results.`, ephemeral: true });
+    return;
+  }
+
+  if (!player || !ign) {
+    await interaction.reply({
+      content: `Use this command inside a ${mode.label} test ticket, or include both the player and ign options.`,
+      ephemeral: true
+    });
+    return;
+  }
+
+  if (ticketContext && ticketContext.modeKey !== modeKey) {
+    await interaction.reply({
+      content: `This ticket is for ${modes[ticketContext.modeKey].label}. Use /${ticketContext.modeKey}-test-result here.`,
+      ephemeral: true
+    });
     return;
   }
 
@@ -331,7 +366,12 @@ async function handleResult(interaction, modeKey) {
   }
 
   const targetChannelId = highResultTiers.has(tier) ? mode.highResultsChannelId : mode.normalResultsChannelId;
-  const channel = await interaction.guild.channels.fetch(targetChannelId);
+  if (!targetChannelId) {
+    await interaction.editReply(`Set ${mode.label}'s result channel IDs before posting results.`);
+    return;
+  }
+
+  const channel = await interaction.guild.channels.fetch(targetChannelId).catch(() => null);
 
   if (!channel?.isTextBased()) {
     await interaction.editReply('I could not find the result channel for that tier.');
@@ -365,6 +405,9 @@ async function handleResult(interaction, modeKey) {
     region: syncResult.region
   });
   const message = await channel.send({ content: `<@${player.id}>`, embeds: [embed] });
+  await removeModeWaitlistRoles(interaction.guild, player.id, mode);
+  removeUserFromAllQueues(player.id);
+  await updateAllModeWaitlistMessages(interaction.guild, modeKey);
 
   state.resultLog.push({
     guildId: interaction.guildId,
@@ -390,7 +433,8 @@ async function handleResult(interaction, modeKey) {
   const syncText = syncResult.updated
     ? syncResult.pushed ? ' Website data was synced to GitHub.' : ' Website data changed, but GitHub push failed; check bot logs.'
     : ' Website tier data was unchanged.';
-  await interaction.editReply(`Posted ${mode.label} ${tier} result in <#${channel.id}>.${syncText}`);
+  const ticketText = ticketContext ? ' You can close this ticket now, or press Skip to accept the next player.' : '';
+  await interaction.editReply(`Posted ${mode.label} ${tier} result in <#${channel.id}>.${syncText}${ticketText}`);
 }
 
 async function handleUndoResult(interaction) {
@@ -541,6 +585,21 @@ async function handleButton(interaction) {
 
   if (action === 'leaveQueue') {
     await leaveQueue(interaction, modeKey, interaction.customId.split(':')[3]);
+    return;
+  }
+
+  if (action === 'acceptQueue') {
+    await acceptNextQueuePlayer(interaction, modeKey, interaction.customId.split(':')[3]);
+    return;
+  }
+
+  if (action === 'ticketClose') {
+    await closeTestTicket(interaction);
+    return;
+  }
+
+  if (action === 'ticketSkip') {
+    await skipTestTicket(interaction, modeKey, interaction.customId.split(':')[3]);
     return;
   }
 
@@ -841,6 +900,147 @@ async function leaveQueue(interaction, modeKey, region) {
   await saveState(state);
 
   await interaction.reply({ content: `You left the ${region} ${modes[modeKey].label} queue.`, ephemeral: true });
+}
+
+async function acceptNextQueuePlayer(interaction, modeKey, region, options = {}) {
+  const mode = modes[modeKey];
+  if (!canUseTesterCommands(interaction.member)) {
+    await interaction.reply({ content: 'Only tester staff roles can accept queued players.', ephemeral: true });
+    return null;
+  }
+
+  const waitlist = ensureWaitlist(state, modeKey, region);
+  const userId = waitlist.queue[0];
+  if (!userId) {
+    await interaction.reply({ content: `There is nobody in the ${region} ${mode.label} queue.`, ephemeral: true }).catch(() => {});
+    return null;
+  }
+
+  const profile = state.profiles[profileKey(interaction.guildId, userId, modeKey)];
+  if (!profile) {
+    waitlist.queue.shift();
+    await updateWaitlistMessage(interaction.guild, waitlist);
+    await saveState(state);
+    await interaction.reply({ content: 'The first queued player is missing verification data, so I removed them from the queue.', ephemeral: true }).catch(() => {});
+    return null;
+  }
+
+  await interaction.deferReply({ ephemeral: true }).catch(() => {});
+  waitlist.queue.shift();
+  waitlist.lastFirstNotifiedId = null;
+  const channel = await createQueueTestTicket(interaction, modeKey, region, userId, profile);
+  await updateWaitlistMessage(interaction.guild, waitlist);
+  await notifyFirstInQueue(interaction.guild, waitlist);
+  await saveState(state);
+
+  await interaction.editReply(`${options.skipped ? 'Skipped this ticket and accepted' : 'Accepted'} <@${userId}> into <#${channel.id}>.`).catch(() => {});
+  return channel;
+}
+
+async function createQueueTestTicket(interaction, modeKey, region, userId, profile) {
+  const mode = modes[modeKey];
+  const channelName = `${profile.ign}-test`
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 90);
+
+  const permissionOverwrites = [
+    {
+      id: interaction.guild.roles.everyone.id,
+      deny: [PermissionsBitField.Flags.ViewChannel]
+    },
+    {
+      id: userId,
+      allow: [
+        PermissionsBitField.Flags.ViewChannel,
+        PermissionsBitField.Flags.SendMessages,
+        PermissionsBitField.Flags.ReadMessageHistory
+      ]
+    },
+    {
+      id: interaction.user.id,
+      allow: [
+        PermissionsBitField.Flags.ViewChannel,
+        PermissionsBitField.Flags.SendMessages,
+        PermissionsBitField.Flags.ReadMessageHistory,
+        PermissionsBitField.Flags.ManageChannels
+      ]
+    },
+    {
+      id: client.user.id,
+      allow: [
+        PermissionsBitField.Flags.ViewChannel,
+        PermissionsBitField.Flags.SendMessages,
+        PermissionsBitField.Flags.ReadMessageHistory,
+        PermissionsBitField.Flags.ManageChannels
+      ]
+    }
+  ];
+
+  const channel = await interaction.guild.channels.create({
+    name: channelName,
+    type: ChannelType.GuildText,
+    topic: `test:${modeKey}:${region}:${userId}:${interaction.user.id}:${profile.ign}`,
+    permissionOverwrites
+  });
+
+  const currentTier = await getPlayerCurrentTier(userId, profile.ign, modeKey);
+
+  await channel.send({
+    content: `<@${userId}> <@${interaction.user.id}>`,
+    embeds: [buildQueueTestEmbed(modeKey, userId, profile, interaction.user.id, currentTier)],
+    components: [buildTestTicketButtons(modeKey, region)],
+    allowedMentions: { users: [userId, interaction.user.id] }
+  });
+
+  state.testTickets ??= [];
+  state.testTickets.push({
+    guildId: interaction.guildId,
+    mode: modeKey,
+    region,
+    userId,
+    testerId: interaction.user.id,
+    ign: profile.ign,
+    channelId: channel.id,
+    createdAt: new Date().toISOString()
+  });
+
+  await removeModeWaitlistRoles(interaction.guild, userId, mode);
+  return channel;
+}
+
+async function closeTestTicket(interaction) {
+  if (!canUseTesterCommands(interaction.member)) {
+    await interaction.reply({ content: 'Only tester staff roles can close test tickets.', ephemeral: true });
+    return;
+  }
+
+  const context = getTestTicketContext(interaction.channel);
+  if (!context) {
+    await interaction.reply({ content: 'This is not a test ticket channel.', ephemeral: true });
+    return;
+  }
+
+  await interaction.reply({ content: 'Closing this test ticket.' }).catch(() => {});
+  await interaction.channel.delete('Test ticket closed').catch(() => {});
+}
+
+async function skipTestTicket(interaction, modeKey, region) {
+  if (!canUseTesterCommands(interaction.member)) {
+    await interaction.reply({ content: 'Only tester staff roles can skip test tickets.', ephemeral: true });
+    return;
+  }
+
+  const context = getTestTicketContext(interaction.channel);
+  if (!context) {
+    await interaction.reply({ content: 'This is not a test ticket channel.', ephemeral: true });
+    return;
+  }
+
+  const channelToDelete = interaction.channel;
+  const nextChannel = await acceptNextQueuePlayer(interaction, modeKey, region, { skipped: true });
+  await channelToDelete.delete(nextChannel ? 'Test ticket skipped' : 'Test ticket skipped with no next player').catch(() => {});
 }
 
 async function updateWaitlistMessage(guild, waitlist, options = {}) {
@@ -1200,7 +1400,8 @@ function buildWaitlistEmbed(waitlist) {
 function buildQueueButtons(modeKey, region) {
   return new ActionRowBuilder().addComponents(
     new ButtonBuilder().setCustomId(`ascend:joinQueue:${modeKey}:${region}`).setLabel('Join Queue').setStyle(ButtonStyle.Primary),
-    new ButtonBuilder().setCustomId(`ascend:leaveQueue:${modeKey}:${region}`).setLabel('Leave Queue').setStyle(ButtonStyle.Secondary)
+    new ButtonBuilder().setCustomId(`ascend:leaveQueue:${modeKey}:${region}`).setLabel('Leave Queue').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId(`ascend:acceptQueue:${modeKey}:${region}`).setLabel('Accept #1').setStyle(ButtonStyle.Success)
   );
 }
 
@@ -1246,6 +1447,36 @@ function buildHighTestButtons(modeKey, userId) {
       .setCustomId(`ascend:acceptHighTest:${modeKey}:${userId}`)
       .setLabel('Accept High Test')
       .setStyle(ButtonStyle.Success)
+  );
+}
+
+function buildQueueTestEmbed(modeKey, userId, profile, testerId, currentTier) {
+  const mode = modes[modeKey];
+  return new EmbedBuilder()
+    .setColor(0xff2d2d)
+    .setTitle('Tier Test')
+    .setThumbnail(minecraftBustUrl(profile.ign))
+    .addFields(
+      { name: 'Username', value: profile.ign, inline: false },
+      { name: 'Preferred Server', value: `${mode.label} Ranked`, inline: false },
+      { name: 'Region', value: profile.region, inline: false },
+      { name: 'Current Tier', value: currentTier ?? 'Unranked', inline: false },
+      { name: 'Tester', value: `<@${testerId}>`, inline: false }
+    )
+    .setFooter({ text: `Testee: ${userId}` })
+    .setTimestamp();
+}
+
+function buildTestTicketButtons(modeKey, region) {
+  return new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`ascend:ticketClose:${modeKey}:${region}`)
+      .setLabel('Close')
+      .setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder()
+      .setCustomId(`ascend:ticketSkip:${modeKey}:${region}`)
+      .setLabel('Skip')
+      .setStyle(ButtonStyle.Primary)
   );
 }
 
@@ -1306,6 +1537,9 @@ function formatTier(tier) {
 
 async function assignTierRole(guild, userId, mode, tier) {
   const member = await guild.members.fetch(userId);
+  if (!mode.tierRoles[tier]) {
+    throw new Error(`Missing role ID for ${mode.label} ${tier}.`);
+  }
   const currentTierRoleIds = Object.values(mode.tierRoles);
   const rolesToRemove = member.roles.cache.filter((role) => currentTierRoleIds.includes(role.id));
 
@@ -1351,6 +1585,44 @@ async function removeKnownTierRoles(guild, userId) {
   if (rolesToRemove.size > 0) {
     await member.roles.remove([...rolesToRemove.keys()]).catch(() => {});
   }
+}
+
+async function removeModeWaitlistRoles(guild, userId, mode) {
+  const member = await guild.members.fetch(userId).catch(() => null);
+  if (!member) return;
+  const waitlistRoleIds = Object.values(mode.waitlistRoles ?? {}).filter(Boolean);
+  const rolesToRemove = member.roles.cache.filter((role) => waitlistRoleIds.includes(role.id));
+  if (rolesToRemove.size > 0) {
+    await member.roles.remove([...rolesToRemove.keys()]).catch(() => {});
+  }
+}
+
+async function updateAllModeWaitlistMessages(guild, modeKey) {
+  const waitlists = Object.values(state.waitlists ?? {}).filter((waitlist) => waitlist.mode === modeKey);
+  for (const waitlist of waitlists) {
+    await updateWaitlistMessage(guild, waitlist).catch(() => {});
+  }
+}
+
+function getTestTicketContext(channel) {
+  if (!channel?.topic) return null;
+  const [type, modeKey, region, userId, testerId, ...ignParts] = channel.topic.split(':');
+  if (type !== 'test' || !modes[modeKey] || !userId || !testerId) return null;
+  return {
+    modeKey,
+    region,
+    userId,
+    testerId,
+    ign: ignParts.join(':')
+  };
+}
+
+async function getPlayerCurrentTier(userId, ign, modeKey) {
+  const data = await readPlayersData().catch(() => null);
+  if (!data) return null;
+  const key = findPlayerDataKey(data, userId, ign);
+  if (!key) return null;
+  return data.players[key]?.tiers?.[getWebsiteModeName(modeKey)] ?? null;
 }
 
 function findUndoableResultIndex(guildId, userId) {
