@@ -102,6 +102,19 @@
       "lastTestedAt": {
         "Vanilla": "2026-07-01T21:23:54.184Z"
       }
+    },
+    "enthozic": {
+      "ign": "Enthozic",
+      "region": "NA",
+      "discordId": "838224308987232306",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Sword": "LT3"
+      },
+      "lastTestedAt": {
+        "Sword": "2026-07-07T00:14:59.946Z"
+      }
     }
   }
 }
