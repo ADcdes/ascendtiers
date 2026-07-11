@@ -115,6 +115,19 @@
       "lastTestedAt": {
         "Sword": "2026-07-07T00:14:59.946Z"
       }
+    },
+    "s33yuhispapa": {
+      "ign": "S33yuhisPAPA",
+      "region": "NA",
+      "discordId": "780617355322851338",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-07-11T17:58:34.645Z"
+      }
     }
   }
 }
