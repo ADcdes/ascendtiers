@@ -4,3 +4,4 @@ data/
 npm-debug.log*
 bot.out.log
 bot.err.log
+.env.example
