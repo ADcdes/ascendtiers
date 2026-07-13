@@ -148,7 +148,9 @@
       "discordId": "1294579290985467997",
       "restricted": false,
       "restrictReason": null,
-      "tiers": {},
+      "tiers": {
+        "Vanilla": "HT5"
+      },
       "lastTestedAt": {
         "Vanilla": "2026-07-13T19:40:45.787Z"
       }
