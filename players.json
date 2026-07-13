@@ -193,6 +193,19 @@
       "lastTestedAt": {
         "Vanilla": "2026-07-13T20:29:35.460Z"
       }
+    },
+    "ishift5yearold": {
+      "ign": "Ishift5yearold",
+      "region": "EU",
+      "discordId": "1467281853752017121",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-07-13T20:52:22.456Z"
+      }
     }
   }
 }
