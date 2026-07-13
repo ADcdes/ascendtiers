@@ -128,6 +128,19 @@
       "lastTestedAt": {
         "Vanilla": "2026-06-11T17:58:34.645Z"
       }
+    },
+    "flickzy6": {
+      "ign": "Flickzy6",
+      "region": "NA",
+      "discordId": "1090296134481743992",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-07-13T17:41:18.282Z"
+      }
     }
   }
 }
