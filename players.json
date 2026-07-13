@@ -206,6 +206,19 @@
       "lastTestedAt": {
         "Vanilla": "2026-07-13T20:52:22.456Z"
       }
+    },
+    "nexokek": {
+      "ign": "NexoKek",
+      "region": "EU",
+      "discordId": "1281601406305964147",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-07-13T21:13:47.812Z"
+      }
     }
   }
 }
