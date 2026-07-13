@@ -180,6 +180,19 @@
       "lastTestedAt": {
         "Vanilla": "2026-07-13T20:27:30.132Z"
       }
+    },
+    "sabiagamc2": {
+      "ign": "SabiagaMC2",
+      "region": "NA",
+      "discordId": "1521169092021584037",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-07-13T20:29:35.460Z"
+      }
     }
   }
 }
