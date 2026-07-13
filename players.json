@@ -154,6 +154,19 @@
       "lastTestedAt": {
         "Vanilla": "2026-07-13T19:40:45.787Z"
       }
+    },
+    "shadowxnightmare": {
+      "ign": "Shadowxnightmare",
+      "region": "EU",
+      "discordId": "804666965993848873",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT5"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-07-13T19:47:12.942Z"
+      }
     }
   }
 }
