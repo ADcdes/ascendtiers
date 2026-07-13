@@ -141,6 +141,17 @@
       "lastTestedAt": {
         "Vanilla": "2026-07-13T17:41:18.282Z"
       }
+    },
+    "xyz_star": {
+      "ign": "XYZ_STAR",
+      "region": "EU",
+      "discordId": "1294579290985467997",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {},
+      "lastTestedAt": {
+        "Vanilla": "2026-07-13T19:40:45.787Z"
+      }
     }
   }
 }
