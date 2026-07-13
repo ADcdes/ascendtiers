@@ -167,6 +167,19 @@
       "lastTestedAt": {
         "Vanilla": "2026-07-13T19:47:12.942Z"
       }
+    },
+    "ogf_": {
+      "ign": "OGF_",
+      "region": "EU",
+      "discordId": "1488202649500123226",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT2"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-07-13T20:27:30.132Z"
+      }
     }
   }
 }
