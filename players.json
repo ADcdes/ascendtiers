@@ -219,6 +219,19 @@
       "lastTestedAt": {
         "Vanilla": "2026-06-13T21:13:47.812Z"
       }
+    },
+    "epicboogs": {
+      "ign": "EpicBoogs",
+      "region": "NA",
+      "discordId": "1291881276487368705",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-07-14T03:41:29.571Z"
+      }
     }
   }
 }
