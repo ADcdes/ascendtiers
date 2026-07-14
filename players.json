@@ -232,6 +232,19 @@
       "lastTestedAt": {
         "Vanilla": "2026-07-14T03:41:29.571Z"
       }
+    },
+    "nexxxiu": {
+      "ign": "nexxxiu",
+      "region": "NA",
+      "discordId": "1522441485721534525",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Sword": "LT3"
+      },
+      "lastTestedAt": {
+        "Sword": "2026-07-14T04:32:04.685Z"
+      }
     }
   }
 }
