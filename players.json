@@ -266,10 +266,10 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Vanilla": "HT3"
+        "Vanilla": "LT2"
       },
       "lastTestedAt": {
-        "Vanilla": "2026-06-14T20:08:59.815Z"
+        "Vanilla": "2026-07-14T21:03:07.204Z"
       }
     }
   }
