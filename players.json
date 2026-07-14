@@ -201,10 +201,10 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Vanilla": "HT2"
+        "Vanilla": "HT3"
       },
       "lastTestedAt": {
-        "Vanilla": "2026-06-14T19:11:22.980Z"
+        "Vanilla": "2026-07-14T19:54:28.380Z"
       }
     },
     "nexokek": {
