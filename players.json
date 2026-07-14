@@ -245,6 +245,19 @@
       "lastTestedAt": {
         "Sword": "2026-07-14T04:32:04.685Z"
       }
+    },
+    "ominousmeow": {
+      "ign": "ominousmeow",
+      "region": "NA",
+      "discordId": "998312014285901947",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-07-14T04:38:18.770Z"
+      }
     }
   }
 }
