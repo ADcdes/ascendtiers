@@ -258,6 +258,19 @@
       "lastTestedAt": {
         "Vanilla": "2026-07-14T04:38:18.770Z"
       }
+    },
+    "zpxva": {
+      "ign": "zpxVA",
+      "region": "NA",
+      "discordId": "1495461059811606550",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-07-14T18:03:02.866Z"
+      }
     }
   }
 }
