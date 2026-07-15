@@ -271,6 +271,19 @@
       "lastTestedAt": {
         "Vanilla": "2026-07-14T21:03:07.204Z"
       }
+    },
+    "molbit": {
+      "ign": "Molbit",
+      "region": "NA",
+      "discordId": "749065256378040370",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-07-15T03:50:03.902Z"
+      }
     }
   }
 }
