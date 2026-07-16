@@ -284,6 +284,19 @@
       "lastTestedAt": {
         "Vanilla": "2026-07-16T15:51:10.431Z"
       }
+    },
+    "flxwery": {
+      "ign": "FLXWERY",
+      "region": "EU",
+      "discordId": "1486800622534529084",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-07-16T16:15:28.191Z"
+      }
     }
   }
 }
