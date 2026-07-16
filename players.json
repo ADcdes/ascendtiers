@@ -310,6 +310,19 @@
       "lastTestedAt": {
         "Vanilla": "2026-06-16T16:33:45.315Z"
       }
+    },
+    "br8ad": {
+      "ign": "br8ad",
+      "region": "NA",
+      "discordId": "1405953954931802162",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT4"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-07-16T19:27:05.673Z"
+      }
     }
   }
 }
