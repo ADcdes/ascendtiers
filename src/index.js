@@ -1271,8 +1271,7 @@ async function notifyFirstInQueue(guild, waitlist) {
 
 async function createApplicationTicket(interaction, modeKey, application) {
   await interaction.guild.roles.fetch();
-  const rolePool = application.type === 'tester' ? testerCommandRoleIds : supportPingRoleIds;
-  const reviewerRoleIds = rolePool.filter((roleId) => interaction.guild.roles.cache.has(roleId));
+  const reviewerRoleIds = supportPingRoleIds.filter((roleId) => interaction.guild.roles.cache.has(roleId));
 
   const channelName = `${application.type}-app-${application.ign}-${interaction.user.username}`
     .toLowerCase()

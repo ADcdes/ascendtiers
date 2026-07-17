@@ -1,9 +1,8 @@
 export const migrationChannelId = process.env.MIGRATION_CHANNEL_ID ?? '1509007513557798953';
 
-// Roles pinged on new support (staff application) tickets, instead of the full tester roster.
+// Role pinged on new application tickets (staff or tester). Testers are never pinged.
 export const supportPingRoleIds = [
-  '1526038853423726715',
-  '1508645264523530280'
+  '1527029966804353074'
 ];
 
 function envList(name) {
