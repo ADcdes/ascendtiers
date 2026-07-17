@@ -64,6 +64,13 @@ function buildApplicationSetupCommand(modeKey, mode) {
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
 }
 
+function buildSupportSetupCommand(modeKey, mode) {
+  return new SlashCommandBuilder()
+    .setName(`setup-${modeKey}-support`)
+    .setDescription(`Post the ${mode.label} request-support panel (player reports, support, partnerships).`)
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
+}
+
 function buildTesterCommand(modeKey, mode, status) {
   return new SlashCommandBuilder()
     .setName(`${modeKey}-tester-${status}`)
@@ -104,6 +111,7 @@ function buildTicketResultCommand(modeKey, mode) {
 const commands = [
   ...modeCommandEntries.map(([modeKey, mode]) => buildSetupCommand(modeKey, mode)),
   ...modeCommandEntries.map(([modeKey, mode]) => buildApplicationSetupCommand(modeKey, mode)),
+  ...modeCommandEntries.map(([modeKey, mode]) => buildSupportSetupCommand(modeKey, mode)),
   new SlashCommandBuilder()
     .setName('setup-migration-panel')
     .setDescription('Post the tier migration request panel.')
@@ -221,6 +229,13 @@ async function handleCommand(interaction) {
     return;
   }
 
+  const supportSetupMatch = commandName.match(/^setup-([a-z0-9-]+)-support$/);
+  if (supportSetupMatch && modes[supportSetupMatch[1]]) {
+    if (!(await assertModeGuild(interaction, supportSetupMatch[1]))) return;
+    await postSupportPanel(interaction, supportSetupMatch[1]);
+    return;
+  }
+
   if (commandName === 'setup-migration-panel') {
     await postMigrationPanel(interaction);
     return;
@@ -328,6 +343,27 @@ async function postApplicationPanel(interaction, modeKey) {
   });
 
   await interaction.reply({ content: `${mode.label} application panel posted in <#${mode.applicationChannelId}>.`, ephemeral: true });
+}
+
+async function postSupportPanel(interaction, modeKey) {
+  const mode = modes[modeKey];
+  if (!mode.supportChannelId) {
+    await interaction.reply({ content: `Set ${mode.label}'s support channel ID first (env var: ${modeKey.toUpperCase()}_SUPPORT_CHANNEL_ID).`, ephemeral: true });
+    return;
+  }
+
+  const channel = await interaction.guild.channels.fetch(mode.supportChannelId).catch(() => null);
+  if (!channel?.isTextBased()) {
+    await interaction.reply({ content: 'I could not find the request-support channel.', ephemeral: true });
+    return;
+  }
+
+  await channel.send({
+    embeds: [buildSupportPanelEmbed(modeKey)],
+    components: [buildSupportButtons(modeKey)]
+  });
+
+  await interaction.reply({ content: `${mode.label} request-support panel posted in <#${mode.supportChannelId}>.`, ephemeral: true });
 }
 
 async function postMigrationPanel(interaction) {
@@ -750,6 +786,16 @@ async function handleButton(interaction) {
     return;
   }
 
+  if (action === 'supportRequest') {
+    await showSupportModal(interaction, modeKey, interaction.customId.split(':')[3]);
+    return;
+  }
+
+  if (action === 'supportClose') {
+    await closeSupportTicket(interaction);
+    return;
+  }
+
   if (action === 'enter') {
     await enterWaitlistFromRequest(interaction, modeKey);
     return;
@@ -986,6 +1032,105 @@ async function handleApplicationModal(interaction, modeKey, applicationType) {
 
   const channel = await createApplicationTicket(interaction, modeKey, application);
   await interaction.editReply(`Created your ${formatApplicationType(applicationType).toLowerCase()} ticket: <#${channel.id}>.`);
+}
+
+const supportTypes = ['report', 'support', 'partnership'];
+
+function formatSupportType(supportType) {
+  if (supportType === 'report') return 'Player Report';
+  if (supportType === 'partnership') return 'Partnership Request';
+  return 'Support Request';
+}
+
+async function showSupportModal(interaction, modeKey, supportType) {
+  if (!supportTypes.includes(supportType)) {
+    await interaction.reply({ content: 'Unknown request type.', ephemeral: true });
+    return;
+  }
+
+  const modal = new ModalBuilder()
+    .setCustomId(`ascend:supportModal:${modeKey}:${supportType}`)
+    .setTitle(`${modes[modeKey].label} ${formatSupportType(supportType)}`);
+
+  if (supportType === 'report') {
+    modal.addComponents(
+      new ActionRowBuilder().addComponents(
+        new TextInputBuilder()
+          .setCustomId('subject')
+          .setLabel('Player being reported (IGN or @)')
+          .setStyle(TextInputStyle.Short)
+          .setMaxLength(100)
+          .setRequired(true)
+      ),
+      new ActionRowBuilder().addComponents(
+        new TextInputBuilder()
+          .setCustomId('details')
+          .setLabel('What happened? Include proof if you have it.')
+          .setStyle(TextInputStyle.Paragraph)
+          .setMaxLength(1000)
+          .setRequired(true)
+      )
+    );
+  } else if (supportType === 'partnership') {
+    modal.addComponents(
+      new ActionRowBuilder().addComponents(
+        new TextInputBuilder()
+          .setCustomId('subject')
+          .setLabel('Server / community name')
+          .setStyle(TextInputStyle.Short)
+          .setMaxLength(100)
+          .setRequired(true)
+      ),
+      new ActionRowBuilder().addComponents(
+        new TextInputBuilder()
+          .setCustomId('details')
+          .setLabel('Proposal details')
+          .setStyle(TextInputStyle.Paragraph)
+          .setMaxLength(1000)
+          .setRequired(true)
+      )
+    );
+  } else {
+    modal.addComponents(
+      new ActionRowBuilder().addComponents(
+        new TextInputBuilder()
+          .setCustomId('subject')
+          .setLabel('Short summary')
+          .setStyle(TextInputStyle.Short)
+          .setMaxLength(100)
+          .setRequired(true)
+      ),
+      new ActionRowBuilder().addComponents(
+        new TextInputBuilder()
+          .setCustomId('details')
+          .setLabel('What do you need help with?')
+          .setStyle(TextInputStyle.Paragraph)
+          .setMaxLength(1000)
+          .setRequired(true)
+      )
+    );
+  }
+
+  await interaction.showModal(modal);
+}
+
+async function handleSupportModal(interaction, modeKey, supportType) {
+  await interaction.deferReply({ ephemeral: true });
+
+  const request = {
+    type: supportType,
+    subject: interaction.fields.getTextInputValue('subject').trim(),
+    details: interaction.fields.getTextInputValue('details').trim()
+  };
+
+  const existing = await findExistingSupportTicket(interaction.guild, interaction.user.id, modeKey, supportType);
+  if (existing) {
+    await interaction.editReply(`You already have an open ${formatSupportType(supportType).toLowerCase()} ticket: <#${existing.id}>.`);
+    return;
+  }
+
+  const channel = await createSupportTicket(interaction, modeKey, request);
+  await interaction.editReply(`Created your ${formatSupportType(supportType).toLowerCase()} ticket: <#${channel.id}>.`);
 }
 
 async function showCooldown(interaction, modeKey) {
@@ -1513,6 +1658,37 @@ function buildApplicationButtons(modeKey) {
       .setCustomId(`ascend:application:${modeKey}:tester`)
       .setLabel('Tier Tester Application')
       .setStyle(ButtonStyle.Success)
+  );
+}
+
+function buildSupportPanelEmbed(modeKey) {
+  const mode = modes[modeKey];
+  return new EmbedBuilder()
+    .setColor(0x5865f2)
+    .setTitle(`${mode.label} Request Support`)
+    .setDescription([
+      'Open a private ticket for one of the options below.',
+      '',
+      '**Player Report** — report rule-breaking or misconduct by a player',
+      '**Support** — general help, questions, or issues',
+      '**Partnership** — propose a partnership with another server/community'
+    ].join('\n'));
+}
+
+function buildSupportButtons(modeKey) {
+  return new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`ascend:supportRequest:${modeKey}:report`)
+      .setLabel('Player Report')
+      .setStyle(ButtonStyle.Danger),
+    new ButtonBuilder()
+      .setCustomId(`ascend:supportRequest:${modeKey}:support`)
+      .setLabel('Support')
+      .setStyle(ButtonStyle.Primary),
+    new ButtonBuilder()
+      .setCustomId(`ascend:supportRequest:${modeKey}:partnership`)
+      .setLabel('Partnership')
+      .setStyle(ButtonStyle.Secondary)
   );
 }
 
