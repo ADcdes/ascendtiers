@@ -20,7 +20,7 @@ import {
   TextInputBuilder,
   TextInputStyle
 } from 'discord.js';
-import { highResultTiers, highTestTiers, migrationChannelId, modes, testerCommandRoleIds, tierChoices, websiteGameModes } from './config.js';
+import { highResultTiers, highTestTiers, migrationChannelId, modes, supportPingRoleIds, testerCommandRoleIds, tierChoices, websiteGameModes } from './config.js';
 import { crystalRules, maceRules, swordRules } from './rules.js';
 import { ensureWaitlist, loadState, profileKey, saveState } from './state.js';
 
@@ -28,7 +28,8 @@ const token = process.env.DISCORD_TOKEN;
 const clientId = process.env.CLIENT_ID;
 const execFileAsync = promisify(execFile);
 const gitPath = process.env.GIT_PATH ?? 'C:\\Program Files\\Git\\cmd\\git.exe';
-const cooldownMs = 30 * 24 * 60 * 60 * 1000;
+const highCooldownMs = 30 * 24 * 60 * 60 * 1000;
+const normalCooldownMs = 2 * 24 * 60 * 60 * 1000;
 let githubSyncQueue = Promise.resolve();
 
 if (!token || !clientId) {
@@ -128,7 +129,39 @@ const commands = [
   new SlashCommandBuilder()
     .setName('rules')
     .setDescription('Show testing rules.')
-    .addStringOption((option) => option.setName('mode').setDescription('Ruleset').setRequired(true).addChoices(...modeChoices))
+    .addStringOption((option) => option.setName('mode').setDescription('Ruleset').setRequired(true).addChoices(...modeChoices)),
+  new SlashCommandBuilder()
+    .setName('migrate')
+    .setDescription('Post a tier migration for a player in the migrations channel.')
+    .addUserOption((option) => option.setName('player').setDescription('Discord user migrating').setRequired(true))
+    .addStringOption((option) => option.setName('mode').setDescription('Mode they hold the tier in').setRequired(true).addChoices(...modeChoices))
+    .addStringOption((option) => option.setName('tier').setDescription('Tier being migrated').setRequired(true).addChoices(...tierCommandChoices))
+    .addStringOption((option) => option.setName('source').setDescription('Where they migrated from').setRequired(true)),
+  new SlashCommandBuilder()
+    .setName('cdreset')
+    .setDescription('Clear a player\'s Crystal cooldown silently (no result message posted).')
+    .addUserOption((option) => option.setName('player').setDescription('Discord user to reset').setRequired(true)),
+  new SlashCommandBuilder()
+    .setName('add')
+    .setDescription('Add a user to this high-test ticket channel.')
+    .addUserOption((option) => option.setName('user').setDescription('User to add to the ticket').setRequired(true)),
+  new SlashCommandBuilder()
+    .setName('format')
+    .setDescription('Format a Crystal tier test result post.')
+    .addUserOption((option) => option.setName('player').setDescription('Discord user tested').setRequired(true))
+    .addStringOption((option) => option.setName('ign').setDescription('Minecraft username').setRequired(true))
+    .addStringOption((option) => option.setName('outcome').setDescription('Result outcome').setRequired(true).addChoices(
+      { name: 'Failed', value: 'failed' },
+      { name: 'Promoted', value: 'promoted' }
+    ))
+    .addStringOption((option) => option.setName('tier').setDescription('Tier tested').setRequired(true).addChoices(
+      { name: 'HT1', value: 'HT1' },
+      { name: 'LT1', value: 'LT1' },
+      { name: 'HT2', value: 'HT2' },
+      { name: 'LT2', value: 'LT2' },
+      { name: 'HT3', value: 'HT3' }
+    ))
+    .addStringOption((option) => option.setName('fights').setDescription('Fight lines / notes, exactly as they should appear. New lines are allowed.').setRequired(true))
 ].map((command) => command.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(token);
@@ -206,6 +239,26 @@ async function handleCommand(interaction) {
 
   if (commandName === 'restrict-player') {
     await handleRestrictPlayer(interaction);
+    return;
+  }
+
+  if (commandName === 'migrate') {
+    await handleMigrateCommand(interaction);
+    return;
+  }
+
+  if (commandName === 'cdreset') {
+    await handleCooldownReset(interaction);
+    return;
+  }
+
+  if (commandName === 'add') {
+    await handleAddToTicket(interaction);
+    return;
+  }
+
+  if (commandName === 'format') {
+    await handleFormatCommand(interaction);
     return;
   }
 
@@ -522,6 +575,135 @@ async function handleRestrictPlayer(interaction) {
   await interaction.editReply(`Restricted and banned **${ign}**. Their public tiers were wiped.${pushed ? ' Website data was synced to GitHub.' : ' GitHub push failed; check bot logs.'}`);
 }
 
+async function handleMigrateCommand(interaction) {
+  if (!(await assertModeGuild(interaction, 'crystal'))) return;
+
+  if (!canUseTesterCommands(interaction.member)) {
+    await interaction.reply({ content: 'Only tester staff roles can post migrations.', ephemeral: true });
+    return;
+  }
+
+  await interaction.deferReply({ ephemeral: true });
+
+  const player = interaction.options.getUser('player', true);
+  const modeKeyOpt = interaction.options.getString('mode', true);
+  const tier = interaction.options.getString('tier', true);
+  const source = interaction.options.getString('source', true);
+  const modeLabel = modes[modeKeyOpt]?.label ?? modeKeyOpt;
+
+  const channel = await interaction.guild.channels.fetch(migrationChannelId).catch(() => null);
+  if (!channel?.isTextBased()) {
+    await interaction.editReply('I could not find the migrations channel in this server.');
+    return;
+  }
+
+  await channel.send({ embeds: [buildMigrationRequestEmbed(player.id, modeLabel, tier, source)] });
+
+  state.migrationLog ??= [];
+  state.migrationLog.push({
+    userId: player.id,
+    mode: modeKeyOpt,
+    tier,
+    source,
+    postedBy: interaction.user.id,
+    createdAt: new Date().toISOString()
+  });
+  await saveState(state);
+
+  await interaction.editReply(`Migration posted in <#${migrationChannelId}> for ${player}.`);
+}
+
+async function handleCooldownReset(interaction) {
+  if (!(await assertModeGuild(interaction, 'crystal'))) return;
+
+  if (!canUseTesterCommands(interaction.member)) {
+    await interaction.reply({ content: 'Only tester staff roles can reset cooldowns.', ephemeral: true });
+    return;
+  }
+
+  await interaction.deferReply({ ephemeral: true });
+
+  const player = interaction.options.getUser('player', true);
+  const data = await readPlayersData();
+  const key = Object.entries(data.players ?? {}).find(([, record]) => record.discordId === player.id)?.[0];
+
+  if (!key) {
+    await interaction.editReply(`No Crystal record found for ${player}.`);
+    return;
+  }
+
+  const record = data.players[key];
+  const websiteMode = getWebsiteModeName('crystal');
+  if (record.lastTestedAt) delete record.lastTestedAt[websiteMode];
+  if (record.lastTestedTier) delete record.lastTestedTier[websiteMode];
+  record.restricted = false;
+  record.restrictReason = null;
+
+  const pushed = await writePlayersData(data, `Reset ${record.ign ?? player.id} Crystal cooldown`);
+  await saveState(state);
+
+  await interaction.editReply(`Cleared **${record.ign ?? player.username}**'s Crystal cooldown. They can be tested immediately.${pushed ? '' : ' GitHub push failed; check bot logs.'}`);
+}
+
+function getHighTestTicketContext(channel) {
+  if (!channel?.topic) return null;
+  const [type, modeKey, userId] = channel.topic.split(':');
+  if (type !== 'high-test' || !modes[modeKey] || !userId) return null;
+  return { modeKey, userId };
+}
+
+async function handleAddToTicket(interaction) {
+  if (!canUseTesterCommands(interaction.member)) {
+    await interaction.reply({ content: 'Only tester staff roles can add users to a ticket.', ephemeral: true });
+    return;
+  }
+
+  const ticketContext = getHighTestTicketContext(interaction.channel);
+  if (!ticketContext) {
+    await interaction.reply({ content: 'Use this command inside a high-test ticket channel.', ephemeral: true });
+    return;
+  }
+
+  const user = interaction.options.getUser('user', true);
+
+  await interaction.channel.permissionOverwrites.edit(user.id, {
+    ViewChannel: true,
+    SendMessages: true,
+    ReadMessageHistory: true
+  });
+
+  await interaction.reply({ content: `Added ${user} to this ticket.` });
+}
+
+const formatTierNames = {
+  HT1: 'High Tier 1',
+  LT1: 'Low Tier 1',
+  HT2: 'High Tier 2',
+  LT2: 'Low Tier 2',
+  HT3: 'High Tier 3'
+};
+
+async function handleFormatCommand(interaction) {
+  if (!(await assertModeGuild(interaction, 'crystal'))) return;
+
+  if (!canUseTesterCommands(interaction.member)) {
+    await interaction.reply({ content: 'Only tester staff roles can post formatted results.', ephemeral: true });
+    return;
+  }
+
+  const player = interaction.options.getUser('player', true);
+  const ign = interaction.options.getString('ign', true);
+  const outcome = interaction.options.getString('outcome', true);
+  const tier = interaction.options.getString('tier', true);
+  const fights = interaction.options.getString('fights', true);
+
+  const tierName = formatTierNames[tier] ?? tier;
+  const headerLine = outcome === 'promoted' ? `**Promoted To ${tierName}**` : `**Failed ${tierName}**`;
+  const content = `<@${player.id}> - ${ign} - ${headerLine}\n${fights}`;
+
+  await interaction.reply({ content, allowedMentions: { users: [player.id] } });
+}
+
 async function handleButton(interaction) {
   const [prefix, action, modeKey] = interaction.customId.split(':');
   if (prefix !== 'ascend') return;
@@ -827,7 +1009,7 @@ function formatCooldownMessage(cooldown, modeLabel) {
     return `You are restricted and cannot test. Reason: ${cooldown.reason}`;
   }
 
-  return `You are on ${modeLabel} cooldown until <t:${cooldown.availableAt}:f> (<t:${cooldown.availableAt}:R>). Tests require 30 days between attempts.`;
+  return `You are on ${modeLabel} cooldown until <t:${cooldown.availableAt}:f> (<t:${cooldown.availableAt}:R>). ${cooldown.cooldownDays ?? 30}-day cooldown between attempts at that tier range.`;
 }
 
 async function enterWaitlistFromRequest(interaction, modeKey) {
@@ -1089,7 +1271,8 @@ async function notifyFirstInQueue(guild, waitlist) {
 
 async function createApplicationTicket(interaction, modeKey, application) {
   await interaction.guild.roles.fetch();
-  const reviewerRoleIds = testerCommandRoleIds.filter((roleId) => interaction.guild.roles.cache.has(roleId));
+  const rolePool = application.type === 'tester' ? testerCommandRoleIds : supportPingRoleIds;
+  const reviewerRoleIds = rolePool.filter((roleId) => interaction.guild.roles.cache.has(roleId));
 
   const channelName = `${application.type}-app-${application.ign}-${interaction.user.username}`
     .toLowerCase()
@@ -1667,10 +1850,13 @@ async function getActiveCooldown(guildId, userId, modeKey, ign) {
   const testedTime = new Date(testedAt).getTime();
   if (Number.isNaN(testedTime)) return null;
 
+  const testedTier = player.lastTestedTier?.[websiteMode];
+  const cooldownMs = testedTier && highTestTiers.includes(testedTier) ? highCooldownMs : normalCooldownMs;
+
   const availableTime = testedTime + cooldownMs;
   if (Date.now() >= availableTime) return null;
 
-  return { availableAt: Math.floor(availableTime / 1000), testedAt };
+  return { availableAt: Math.floor(availableTime / 1000), testedAt, cooldownDays: cooldownMs / (24 * 60 * 60 * 1000) };
 }
 
 async function updateWebsitePlayer({ guildId, modeKey, userId, ign, tier, outcome }) {
@@ -1697,6 +1883,8 @@ async function updateWebsitePlayer({ guildId, modeKey, userId, ign, tier, outcom
   player.tiers ??= {};
   player.lastTestedAt ??= {};
   player.lastTestedAt[websiteMode] = new Date().toISOString();
+  player.lastTestedTier ??= {};
+  player.lastTestedTier[websiteMode] = tier;
 
   if (outcome === 'promoted' || outcome === 'demoted') {
     player.tiers[websiteMode] = tier;
