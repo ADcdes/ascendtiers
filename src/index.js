@@ -749,6 +749,12 @@ async function handleButton(interaction) {
     return;
   }
 
+  // Handle universal close commands for all ticket types instantly
+  if (action === 'supportClose' || action === 'appClose' || action === 'highTestClose') {
+    await closeTicketChannel(interaction);
+    return;
+  }
+
   if (!(await assertModeGuild(interaction, modeKey))) return;
 
   if (action === 'verify') {
@@ -788,11 +794,6 @@ async function handleButton(interaction) {
 
   if (action === 'supportRequest') {
     await showSupportModal(interaction, modeKey, interaction.customId.split(':')[3]);
-    return;
-  }
-
-  if (action === 'supportClose') {
-    await closeSupportTicket(interaction);
     return;
   }
 
@@ -850,6 +851,12 @@ async function handleModal(interaction) {
     return;
   }
 
+  if (action === 'supportModal') {
+    if (!(await assertModeGuild(interaction, modeKey))) return;
+    await handleSupportModal(interaction, modeKey, extra);
+    return;
+  }
+
   if (action !== 'verifyModal') return;
   if (!(await assertModeGuild(interaction, modeKey))) return;
 
@@ -877,6 +884,103 @@ async function handleModal(interaction) {
     ephemeral: true
   });
 }
+
+// ==========================================
+// NEW TICKETING SUPPORT FUNCTIONS ADDED HERE
+// ==========================================
+
+async function findExistingSupportTicket(guild, userId, modeKey, supportType) {
+  await guild.channels.fetch();
+  return [...guild.channels.cache.values()].find((channel) =>
+    channel.type === ChannelType.GuildText
+    && channel.topic === `support:${modeKey}:${supportType}:${userId}`
+  );
+}
+
+async function createSupportTicket(interaction, modeKey, request) {
+  await interaction.guild.roles.fetch();
+  const reviewerRoleIds = supportPingRoleIds.filter((roleId) => interaction.guild.roles.cache.has(roleId));
+
+  const channelName = `${request.type}-${interaction.user.username}`
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 90);
+
+  const permissionOverwrites = [
+    {
+      id: interaction.guild.roles.everyone.id,
+      deny: [PermissionsBitField.Flags.ViewChannel]
+    },
+    {
+      id: interaction.user.id,
+      allow: [
+        PermissionsBitField.Flags.ViewChannel,
+        PermissionsBitField.Flags.SendMessages,
+        PermissionsBitField.Flags.ReadMessageHistory
+      ]
+    },
+    {
+      id: client.user.id,
+      allow: [
+        PermissionsBitField.Flags.ViewChannel,
+        PermissionsBitField.Flags.SendMessages,
+        PermissionsBitField.Flags.ReadMessageHistory,
+        PermissionsBitField.Flags.ManageChannels
+      ]
+    },
+    ...reviewerRoleIds
+      .map((roleId) => ({
+        id: roleId,
+        allow: [
+          PermissionsBitField.Flags.ViewChannel,
+          PermissionsBitField.Flags.SendMessages,
+          PermissionsBitField.Flags.ReadMessageHistory
+        ]
+      }))
+  ];
+
+  const channel = await interaction.guild.channels.create({
+    name: channelName,
+    type: ChannelType.GuildText,
+    topic: `support:${modeKey}:${request.type}:${interaction.user.id}`,
+    permissionOverwrites
+  });
+
+  const embed = new EmbedBuilder()
+    .setColor(0x5865f2)
+    .setTitle(`${modes[modeKey].label} ${formatSupportType(request.type)}`)
+    .setDescription(`Submitted by: <@${interaction.user.id}>`)
+    .addFields(
+      { name: 'Subject / Player', value: request.subject, inline: false },
+      { name: 'Details', value: request.details, inline: false }
+    )
+    .setTimestamp();
+
+  const closeButtonRow = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId('ascend:supportClose')
+      .setLabel('🔒 Close Ticket')
+      .setStyle(ButtonStyle.Danger)
+  );
+
+  await channel.send({
+    content: [`<@${interaction.user.id}>`, ...reviewerRoleIds.map((roleId) => `<@&${roleId}>`)].join(' '),
+    embeds: [embed],
+    components: [closeButtonRow],
+    allowedMentions: { users: [interaction.user.id], roles: reviewerRoleIds }
+  });
+
+  return channel;
+}
+
+// Universal close function to delete channel
+async function closeTicketChannel(interaction) {
+  await interaction.reply({ content: 'Closing this ticket channel...' }).catch(() => {});
+  await interaction.channel.delete('Ticket closed via Close button').catch(() => {});
+}
+
+// ==========================================
 
 async function showMigrationModal(interaction) {
   const modal = new ModalBuilder()
@@ -1349,7 +1453,7 @@ async function closeTestTicket(interaction) {
     return;
   }
 
-  await interaction.reply({ content: 'Closing this test ticket.' }).catch(() => {});
+  await interaction.reply({ content: 'Closing this test ticket...' }).catch(() => {});
   await interaction.channel.delete('Test ticket closed').catch(() => {});
 }
 
@@ -1464,9 +1568,17 @@ async function createApplicationTicket(interaction, modeKey, application) {
     permissionOverwrites
   });
 
+  const closeButtonRow = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId('ascend:appClose')
+      .setLabel('🔒 Close Ticket')
+      .setStyle(ButtonStyle.Danger)
+  );
+
   await channel.send({
     content: [`<@${interaction.user.id}>`, ...reviewerRoleIds.map((roleId) => `<@&${roleId}>`)].join(' '),
     embeds: [buildApplicationTicketEmbed(modeKey, interaction.user.id, application)],
+    components: [closeButtonRow],
     allowedMentions: { users: [interaction.user.id], roles: reviewerRoleIds }
   });
 
@@ -1804,7 +1916,11 @@ function buildHighTestButtons(modeKey, userId) {
     new ButtonBuilder()
       .setCustomId(`ascend:acceptHighTest:${modeKey}:${userId}`)
       .setLabel('Accept High Test')
-      .setStyle(ButtonStyle.Success)
+      .setStyle(ButtonStyle.Success),
+    new ButtonBuilder()
+      .setCustomId('ascend:highTestClose')
+      .setLabel('🔒 Close Ticket')
+      .setStyle(ButtonStyle.Danger)
   );
 }
 
@@ -1829,8 +1945,8 @@ function buildTestTicketButtons(modeKey, region) {
   return new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId(`ascend:ticketClose:${modeKey}:${region}`)
-      .setLabel('Close')
-      .setStyle(ButtonStyle.Secondary),
+      .setLabel('🔒 Close')
+      .setStyle(ButtonStyle.Danger),
     new ButtonBuilder()
       .setCustomId(`ascend:ticketSkip:${modeKey}:${region}`)
       .setLabel('Skip')
