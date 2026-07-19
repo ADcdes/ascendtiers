@@ -320,9 +320,7 @@
       "tiers": {
         "Vanilla": "HT4"
       },
-      "lastTestedAt": {
-        "Vanilla": "2026-07-16T19:27:05.673Z"
-      }
+      "lastTestedAt": {}
     }
   }
 }
