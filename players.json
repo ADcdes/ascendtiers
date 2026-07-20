@@ -231,10 +231,15 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Vanilla": "LT3"
+        "Vanilla": "LT3",
+        "Sword": "LT4"
       },
       "lastTestedAt": {
-        "Vanilla": "2026-07-14T03:41:29.571Z"
+        "Vanilla": "2026-07-14T03:41:29.571Z",
+        "Sword": "2026-07-20T22:11:53.151Z"
+      },
+      "lastTestedTier": {
+        "Sword": "LT4"
       }
     },
     "nexxxiu": {
