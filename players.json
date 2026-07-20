@@ -15,7 +15,11 @@
         "Pot": "HT5"
       },
       "lastTestedAt": {
-        "Vanilla": "2026-07-13T20:07:14.353Z"
+        "Vanilla": "2026-07-13T20:07:14.353Z",
+        "Sword": "2026-07-20T20:25:21.015Z"
+      },
+      "lastTestedTier": {
+        "Sword": "HT4"
       }
     },
     "itzwraps": {
