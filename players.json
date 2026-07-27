@@ -333,6 +333,22 @@
         "Vanilla": "HT4"
       },
       "lastTestedAt": {}
+    },
+    "plankedmc": {
+      "ign": "PlankedMC",
+      "region": "NA",
+      "discordId": "1328007154468388963",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Sword": "LT4"
+      },
+      "lastTestedAt": {
+        "Sword": "2026-07-27T18:12:47.176Z"
+      },
+      "lastTestedTier": {
+        "Sword": "LT4"
+      }
     }
   }
 }
