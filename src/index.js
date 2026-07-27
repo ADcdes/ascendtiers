@@ -169,7 +169,11 @@ const commands = [
       { name: 'LT2', value: 'LT2' },
       { name: 'HT3', value: 'HT3' }
     ))
-    .addStringOption((option) => option.setName('fights').setDescription('Fight lines / notes, exactly as they should appear. New lines are allowed.').setRequired(true))
+    .addStringOption((option) => option.setName('fights').setDescription('Fight lines / notes, exactly as they should appear. New lines are allowed.').setRequired(true)),
+  new SlashCommandBuilder()
+    .setName('forceclose')
+    .setDescription('Force close a region queue if a tester left it open.')
+    .addStringOption((option) => option.setName('region').setDescription('Queue region').setRequired(true).addChoices(...regionChoices))
 ].map((command) => command.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(token);
@@ -274,6 +278,11 @@ async function handleCommand(interaction) {
 
   if (commandName === 'format') {
     await handleFormatCommand(interaction);
+    return;
+  }
+
+  if (commandName === 'forceclose') {
+    await handleForceClose(interaction);
     return;
   }
 
@@ -411,6 +420,33 @@ async function handleTesterStatus(interaction, modeKey, status) {
   await saveState(state);
 
   await interaction.editReply(`${mode.label} ${region} tester marked ${status}.`);
+}
+
+async function handleForceClose(interaction) {
+  const modeKey = Object.keys(modes).find((key) => modes[key].guildId === interaction.guildId);
+  if (!modeKey) {
+    await interaction.reply({ content: 'This server is not configured for a testing mode.', ephemeral: true });
+    return;
+  }
+
+  if (!canUseTesterCommands(interaction.member)) {
+    await interaction.reply({ content: 'Only tester staff roles can force close a queue.', ephemeral: true });
+    return;
+  }
+
+  const region = interaction.options.getString('region', true);
+  await interaction.deferReply({ ephemeral: true });
+
+  const waitlist = ensureWaitlist(state, modeKey, region);
+  waitlist.activeTesterIds = [];
+  waitlist.queue = [];
+  waitlist.lastFirstNotifiedId = null;
+  waitlist.lastTestingSession = new Date().toISOString();
+
+  await updateWaitlistMessage(interaction.guild, waitlist);
+  await saveState(state);
+
+  await interaction.editReply(`Force closed the ${modes[modeKey].label} ${region} queue. All testers were marked offline and the queue was cleared.`);
 }
 
 async function handleResult(interaction, modeKey) {
