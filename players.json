@@ -62,10 +62,13 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Sword": "LT5"
+        "Sword": "HT5"
       },
       "lastTestedAt": {
-        "Sword": "2026-06-16T19:58:28.467Z"
+        "Sword": "2026-07-27T18:03:28.957Z"
+      },
+      "lastTestedTier": {
+        "Sword": "HT5"
       }
     },
     "rytento": {
