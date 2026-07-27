@@ -201,19 +201,6 @@
         "Vanilla": "2026-07-13T20:29:35.460Z"
       }
     },
-    "ishift5yearold": {
-      "ign": "Ishift5yearold",
-      "region": "EU",
-      "discordId": "1467281853752017121",
-      "restricted": false,
-      "restrictReason": null,
-      "tiers": {
-        "Vanilla": "HT2"
-      },
-      "lastTestedAt": {
-        "Vanilla": "2026-07-14T21:01:22.918Z"
-      }
-    },
     "nexokek": {
       "ign": "NexoKek",
       "region": "EU",
