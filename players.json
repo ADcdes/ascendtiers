@@ -344,12 +344,8 @@
       "tiers": {
         "Vanilla": "HT3"
       },
-      "lastTestedAt": {
-        "Vanilla": "2026-08-01T22:39:05.462Z"
-      },
-      "lastTestedTier": {
-        "Vanilla": "HT3"
-      }
+      "lastTestedAt": {},
+      "lastTestedTier": {}
     }
   }
 }
