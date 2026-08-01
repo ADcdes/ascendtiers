@@ -151,7 +151,7 @@ const commands = [
     .addUserOption((option) => option.setName('player').setDescription('Discord user to reset').setRequired(true)),
   new SlashCommandBuilder()
     .setName('add')
-    .setDescription('Add a user to this high-test ticket channel.')
+    .setDescription('Add a user to this ticket channel.')
     .addUserOption((option) => option.setName('user').setDescription('User to add to the ticket').setRequired(true)),
   new SlashCommandBuilder()
     .setName('format')
@@ -717,22 +717,26 @@ async function handleCooldownReset(interaction) {
   await interaction.editReply(`Cleared **${record.ign ?? player.username}**'s Crystal cooldown. They can be tested immediately.${pushed ? '' : ' GitHub push failed; check bot logs.'}`);
 }
 
-function getHighTestTicketContext(channel) {
+const ticketTopicTypes = ['test', 'high-test', 'application', 'support'];
+
+function getTicketChannelContext(channel) {
   if (!channel?.topic) return null;
-  const [type, modeKey, userId] = channel.topic.split(':');
-  if (type !== 'high-test' || !modes[modeKey] || !userId) return null;
-  return { modeKey, userId };
+  const [type, modeKey] = channel.topic.split(':');
+  if (!ticketTopicTypes.includes(type) || !modes[modeKey]) return null;
+  return { type, modeKey };
 }
 
 async function handleAddToTicket(interaction) {
+  await interaction.deferReply({ ephemeral: true });
+
   if (!canUseTesterCommands(interaction.member)) {
-    await interaction.reply({ content: 'Only tester staff roles can add users to a ticket.', ephemeral: true });
+    await interaction.editReply('Only tester staff roles can add users to a ticket.');
     return;
   }
 
-  const ticketContext = getHighTestTicketContext(interaction.channel);
+  const ticketContext = getTicketChannelContext(interaction.channel);
   if (!ticketContext) {
-    await interaction.reply({ content: 'Use this command inside a high-test ticket channel.', ephemeral: true });
+    await interaction.editReply('Use this command inside a ticket channel.');
     return;
   }
 
@@ -744,7 +748,8 @@ async function handleAddToTicket(interaction) {
     ReadMessageHistory: true
   });
 
-  await interaction.reply({ content: `Added ${user} to this ticket.` });
+  await interaction.channel.send(`Added ${user} to this ticket.`);
+  await interaction.editReply('Done.');
 }
 
 const formatTierNames = {
