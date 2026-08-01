@@ -293,9 +293,7 @@
       "tiers": {
         "Vanilla": "LT3"
       },
-      "lastTestedAt": {
-        "Vanilla": "2026-07-16T16:15:28.191Z"
-      }
+      "lastTestedAt": {}
     },
     "lyntal": {
       "ign": "Lyntal",
