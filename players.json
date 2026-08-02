@@ -56,7 +56,10 @@
       "restrictReason": null,
       "tiers": {
         "Sword": "LT3"
-      }
+      },
+      "uuid": "3204707b3c834e6fbf717929eba27cb0",
+      "skinUrl": "https://textures.minecraft.net/texture/fe68ac631ffb2f4580120c6fd9b7143be5b4c0c3fa1099a281fd956201dd54ed",
+      "skinUpdatedAt": "2026-08-02T00:04:44.103Z"
     },
     "skibbidic12": {
       "ign": "SkibbidiC12",
