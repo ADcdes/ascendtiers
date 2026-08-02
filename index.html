@@ -769,7 +769,7 @@
 
   <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
     <div class="modal-card">
-      <button class="modal-close" onclick="closeModal()">x</button>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close player profile">&times;</button>
       <div id="modal-body"></div>
     </div>
   </div>
@@ -819,8 +819,12 @@
     }
     function playerIgn(p) { return p.ign || p.name || ''; }
     function playerIdentity(p) { return p.uuid || playerIgn(p); }
-    function bustUrl(p, size = 96) { return `https://mc-heads.net/body/${encodeURIComponent(playerIdentity(p))}/${size}`; }
-    function avatarUrl(p, size = 96) { return `https://mc-heads.net/avatar/${encodeURIComponent(playerIdentity(p))}/${size}`; }
+    function craftyIdentity(p) {
+      const value = String(playerIdentity(p));
+      return /^[a-f0-9]{32}$/i.test(value) ? value.replace(/^(........)(....)(....)(....)(............)$/, '$1-$2-$3-$4-$5') : value;
+    }
+    function bustUrl(p) { return `https://render.crafty.gg/3d/bust/${encodeURIComponent(craftyIdentity(p))}`; }
+    function avatarUrl(p, size = 160) { return `https://mc-heads.net/avatar/${encodeURIComponent(playerIdentity(p))}/${size}`; }
     function playerPoints(p) {
       return Object.values(p.tiers || {}).reduce((sum, tier) => sum + (TIER_POINTS[tier] || 0), 0);
     }
@@ -837,9 +841,7 @@
       if (points >= 10) return 'Combat Novice';
       return 'Rookie';
     }
-    function sortedPlayers() {
-      return Object.values(players).sort((a,b) => playerPoints(b) - playerPoints(a));
-    }
+    function sortedPlayers() { return Object.values(players).filter(p => Object.keys(p.tiers || {}).length > 0).sort((a,b) => playerPoints(b) - playerPoints(a)); }
     function escapeText(value) {
       return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
     }
@@ -892,10 +894,22 @@
     function emptySlots(count) {
       return Array.from({length: count}, () => `<div class="tier-slot"></div>`).join('');
     }
-    function tierSlots(p, retired = false) {
-      const entries = GAME_MODES.filter(mode => p.tiers?.[mode]).map(mode => tierChip(mode, p.tiers[mode], retired ? 'retired' : ''));
-      const max = retired ? 7 : 8;
+    function tierSlots(p) {
+      const entries = GAME_MODES.filter(mode => p.tiers?.[mode]).map(mode => tierChip(mode, p.tiers[mode]));
+      const max = 8;
       return `${entries.slice(0, max).join('')}${emptySlots(Math.max(0, max - entries.length))}`;
+    }
+    function modalTierSlots(tiers, retired = false) {
+      const entries = GAME_MODES.filter(mode => tiers?.[mode]).map(mode => {
+        const tier = tiers[mode];
+        return `<div class="modal-tier-chip tier-${tier.toLowerCase()}${retired ? ' retired' : ''}" title="${mode}: ${tier}">
+          <span class="tiny-icon">${ICONS[mode] ? ICONS[mode](28) : ''}</span><span>${tier}</span>
+        </div>`;
+      });
+      return `${entries.slice(0, 8).join('')}${Array.from({length: Math.max(0, 8 - entries.length)}, () => '<div class="modal-tier-slot"></div>').join('')}`;
+    }
+    function regionName(region) {
+      return ({ NA: 'North America', EU: 'Europe', AS: 'Asia', AU: 'Australia' })[region] ?? region ?? 'Unknown Region';
     }
 
     function animateContent() {
@@ -919,7 +933,7 @@
     }
 
     function renderOverall(list) {
-      list.sort((a,b) => playerPoints(b) - playerPoints(a));
+      list = list.filter(p => Object.keys(p.tiers || {}).length > 0).sort((a,b) => playerPoints(b) - playerPoints(a));
       if (!list.length) {
         document.getElementById('content').innerHTML = `<div class="empty-state">No players found.</div>`;
         return;
@@ -938,12 +952,11 @@
             <div class="player-title">${titleBadge(title)}<span>${title} (${points} points)</span></div>
           </div>
           <span class="region-pill region-${escapeText(p.region || 'NA')}">${escapeText(p.region || 'NA')}</span>
-          <div class="tier-slots">${tierSlots(p, false)}</div>
-          <div class="tier-slots retired-slots">${emptySlots(7)}</div>
+          <div class="tier-slots">${tierSlots(p)}</div>
         </div>`;
       }).join('');
       document.getElementById('content').innerHTML = `
-        <div class="board-head"><div>#</div><div>Player</div><div>Region</div><div>Tiers</div><div>Retired</div></div>
+        <div class="board-head"><div>#</div><div>Player</div><div>Region</div><div>Tiers</div></div>
         <div class="ranking-list">${rows}</div>
       `;
     }
@@ -1000,24 +1013,27 @@
       if (updateUrl) setPlayerUrl(ign);
       document.getElementById('modal-body').innerHTML = `
         <div class="modal-top">
-          <img class="profile-hero-skin" src="${bustUrl(p, 160)}" loading="lazy" onerror="this.onerror=null;this.src='${avatarUrl(p, 160)}'">
+          <img class="profile-hero-skin" src="${bustUrl(p)}" loading="eager" onerror="this.onerror=null;this.src='${avatarUrl(p, 160)}'">
           <div class="modal-name">${escapeText(ign)}</div>
           <div class="modal-badge">${titleBadge(title, 'modal-title-badge')}<span>${title}</span></div>
-          <div class="modal-meta"><span class="region-pill region-${escapeText(p.region || 'NA')}">${escapeText(p.region || 'NA')}</span></div>
-          <div class="profile-actions">
-            <button class="profile-action" onclick="navigator.clipboard?.writeText('${jsString(profileUrl(ign))}')">Copy Profile</button>
-            <a class="profile-action" href="https://namemc.com/profile/${encodeURIComponent(ign)}" target="_blank">NameMC</a>
+          <div class="modal-region">${escapeText(regionName(p.region))}</div>
+        </div>
+        <section class="modal-section">
+          <h2 class="modal-section-title">Position</h2>
+          <div class="modal-position">
+            <div class="modal-position-rank">${pos > 0 ? `${pos}.` : '-'}</div>
+            <div class="modal-position-label"><span aria-hidden="true">🏆</span> OVERALL <span>(${points} points)</span></div>
           </div>
-        </div>
-        <div class="modal-stat-grid">
-          <div class="modal-stat"><div class="modal-stat-value">#${pos}</div><div class="modal-stat-label">Overall</div></div>
-          <div class="modal-stat"><div class="modal-stat-value">${bestTier(p)}</div><div class="modal-stat-label">Best Tier</div></div>
-          <div class="modal-stat"><div class="modal-stat-value">${points}</div><div class="modal-stat-label">Points</div></div>
-        </div>
-        <div class="modal-section">
-          <div class="modal-section-title">Tiers</div>
-          <div class="modal-tiers-grid">${GAME_MODES.filter(m => p.tiers?.[m]).map(m => `<div class="modal-tier-item"><div class="modal-tier-circle">${ICONS[m](30)}</div><div>${p.tiers[m]}</div></div>`).join('') || 'No tiers yet'}</div>
-        </div>
+        </section>
+        <section class="modal-section">
+          <h2 class="modal-section-title">Tiers</h2>
+          <div class="modal-tier-rack">${modalTierSlots(p.tiers)}</div>
+        </section>
+        <section class="modal-section">
+          <h2 class="modal-section-title">Retired</h2>
+          <div class="modal-tier-rack">${modalTierSlots(p.retiredTiers, true)}</div>
+          ${p.retireReason ? `<div class="modal-restricted">${escapeText(p.retireReason)}</div>` : ''}
+        </section>
         ${p.restricted ? `<div class="modal-restricted">Restricted${p.restrictReason ? ': ' + escapeText(p.restrictReason) : ''}</div>` : ''}
       `;
       document.getElementById('modal-overlay').classList.add('open');
