@@ -30,6 +30,8 @@ const execFileAsync = promisify(execFile);
 const gitPath = process.env.GIT_PATH ?? 'C:\\Program Files\\Git\\cmd\\git.exe';
 const highCooldownMs = 30 * 24 * 60 * 60 * 1000;
 const normalCooldownMs = 2 * 24 * 60 * 60 * 1000;
+const minecraftProfileLookupUrl = 'https://api.minecraftservices.com/minecraft/profile/lookup';
+const minecraftSessionProfileUrl = 'https://sessionserver.mojang.com/session/minecraft/profile';
 let githubSyncQueue = Promise.resolve();
 
 if (!token || !clientId) {
@@ -135,6 +137,11 @@ const commands = [
     .addStringOption((option) => option.setName('ign').setDescription('Minecraft username').setRequired(true))
     .addStringOption((option) => option.setName('reason').setDescription('Restriction reason').setRequired(false)),
   new SlashCommandBuilder()
+    .setName('retire')
+    .setDescription('Retire a player and move their active tiers to their retired profile.')
+    .addUserOption((option) => option.setName('player').setDescription('Player to retire').setRequired(true))
+    .addStringOption((option) => option.setName('reason').setDescription('Optional retirement note').setRequired(false)),
+  new SlashCommandBuilder()
     .setName('rules')
     .setDescription('Show testing rules.')
     .addStringOption((option) => option.setName('mode').setDescription('Ruleset').setRequired(true).addChoices(...modeChoices)),
@@ -173,7 +180,11 @@ const commands = [
   new SlashCommandBuilder()
     .setName('forceclose')
     .setDescription('Force close a region queue if a tester left it open.')
-    .addStringOption((option) => option.setName('region').setDescription('Queue region').setRequired(true).addChoices(...regionChoices))
+    .addStringOption((option) => option.setName('region').setDescription('Queue region').setRequired(true).addChoices(...regionChoices)),
+  new SlashCommandBuilder()
+    .setName('user-refresh')
+    .setDescription('Refresh a player\'s Minecraft username and skin from their stored UUID.')
+    .addUserOption((option) => option.setName('player').setDescription('Player to refresh').setRequired(true))
 ].map((command) => command.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(token);
@@ -261,6 +272,11 @@ async function handleCommand(interaction) {
     return;
   }
 
+  if (commandName === 'retire') {
+    await handleRetirePlayer(interaction);
+    return;
+  }
+
   if (commandName === 'migrate') {
     await handleMigrateCommand(interaction);
     return;
@@ -283,6 +299,11 @@ async function handleCommand(interaction) {
 
   if (commandName === 'forceclose') {
     await handleForceClose(interaction);
+    return;
+  }
+
+  if (commandName === 'user-refresh') {
+    await handleUserRefresh(interaction);
     return;
   }
 
@@ -447,6 +468,66 @@ async function handleForceClose(interaction) {
   await saveState(state);
 
   await interaction.editReply(`Force closed the ${modes[modeKey].label} ${region} queue. All testers were marked offline and the queue was cleared.`);
+}
+
+async function handleUserRefresh(interaction) {
+  const modeKey = Object.keys(modes).find((key) => modes[key].guildId === interaction.guildId);
+  if (!modeKey) {
+    await interaction.reply({ content: 'This server is not configured for a testing mode.', ephemeral: true });
+    return;
+  }
+
+  if (!canUseTesterCommands(interaction.member)) {
+    await interaction.reply({ content: 'Only tester staff roles can refresh player data.', ephemeral: true });
+    return;
+  }
+
+  await interaction.deferReply({ ephemeral: true });
+  const discordUser = interaction.options.getUser('player', true);
+  const data = await readPlayersData();
+  const key = Object.entries(data.players ?? {}).find(([, player]) => player.discordId === discordUser.id)?.[0];
+  const player = key ? data.players[key] : null;
+
+  if (!player) {
+    await interaction.editReply(`${discordUser} does not have a website profile yet.`);
+    return;
+  }
+
+  let minecraftProfile;
+  try {
+    minecraftProfile = player.uuid
+      ? await getMinecraftProfileByUuid(player.uuid)
+      : await getMinecraftProfileByName(player.ign ?? player.name ?? '');
+  } catch (error) {
+    await interaction.editReply(`I could not refresh ${discordUser}'s Minecraft profile. If they changed their username before UUID tracking was added, have them verify their account again.`);
+    return;
+  }
+
+  const previousIgn = player.ign ?? player.name ?? 'Unknown';
+  player.ign = minecraftProfile.name;
+  player.uuid = minecraftProfile.uuid;
+  player.skinUrl = minecraftProfile.skinUrl;
+  player.skinUpdatedAt = new Date().toISOString();
+  delete player.name;
+  data.players[normalizePlayerKey(minecraftProfile.name)] = player;
+  if (key !== normalizePlayerKey(minecraftProfile.name)) delete data.players[key];
+
+  for (const [profileStateKey, profile] of Object.entries(state.profiles)) {
+    if (profile.uuid === minecraftProfile.uuid || profile.discordId === discordUser.id || profileStateKey.includes(`:${discordUser.id}:`)) {
+      profile.ign = minecraftProfile.name;
+      profile.uuid = minecraftProfile.uuid;
+      profile.skinUrl = minecraftProfile.skinUrl;
+      profile.refreshedAt = new Date().toISOString();
+    }
+  }
+
+  const pushed = await writePlayersData(data, `Refresh ${minecraftProfile.name} Minecraft profile`);
+  await saveState(state);
+
+  await interaction.editReply({
+    content: `Refreshed **${previousIgn}** as **${minecraftProfile.name}**.${pushed ? ' Website data was synced to GitHub.' : ' Website data changed, but GitHub push failed; check bot logs.'}`,
+    embeds: [buildMinecraftProfileEmbed('Minecraft Profile Refreshed', minecraftProfile)]
+  });
 }
 
 async function handleResult(interaction, modeKey) {
@@ -647,6 +728,42 @@ async function handleRestrictPlayer(interaction) {
   await interaction.editReply(`Restricted and banned **${ign}**. Their public tiers were wiped.${pushed ? ' Website data was synced to GitHub.' : ' GitHub push failed; check bot logs.'}`);
 }
 
+async function handleRetirePlayer(interaction) {
+  if (!canUseTesterCommands(interaction.member)) {
+    await interaction.reply({ content: 'Only tester staff roles can retire players.', ephemeral: true });
+    return;
+  }
+
+  await interaction.deferReply({ ephemeral: true });
+  const discordUser = interaction.options.getUser('player', true);
+  const reason = interaction.options.getString('reason')?.trim() ?? null;
+  const data = await readPlayersData();
+  const key = Object.entries(data.players ?? {}).find(([, player]) => player.discordId === discordUser.id)?.[0];
+  const player = key ? data.players[key] : null;
+
+  if (!player) {
+    await interaction.editReply(`${discordUser} does not have a website profile yet.`);
+    return;
+  }
+
+  const activeTiers = player.tiers ?? {};
+  if (Object.keys(activeTiers).length === 0) {
+    await interaction.editReply(`**${player.ign ?? discordUser.username}** has no active tiers to retire.`);
+    return;
+  }
+
+  player.retiredTiers = { ...(player.retiredTiers ?? {}), ...activeTiers };
+  player.tiers = {};
+  player.retiredAt = new Date().toISOString();
+  player.retireReason = reason;
+  await removeKnownTierRoles(interaction.guild, discordUser.id);
+
+  const pushed = await writePlayersData(data, `Retire ${player.ign ?? discordUser.username}`);
+  await saveState(state);
+
+  await interaction.editReply(`Retired **${player.ign ?? discordUser.username}** and moved ${Object.keys(activeTiers).length} active tier${Object.keys(activeTiers).length === 1 ? '' : 's'} to their retired profile.${pushed ? ' Website data was synced to GitHub.' : ' Website data changed, but GitHub push failed; check bot logs.'}`);
+}
+
 async function handleMigrateCommand(interaction) {
   if (!(await assertModeGuild(interaction, 'crystal'))) return;
 
@@ -828,6 +945,16 @@ async function handleButton(interaction) {
     return;
   }
 
+  if (action === 'confirmVerify') {
+    await confirmVerification(interaction, modeKey);
+    return;
+  }
+
+  if (action === 'cancelVerify') {
+    await cancelVerification(interaction, modeKey);
+    return;
+  }
+
   if (action === 'application') {
     await showApplicationModal(interaction, modeKey, interaction.customId.split(':')[3]);
     return;
@@ -901,7 +1028,7 @@ async function handleModal(interaction) {
   if (action !== 'verifyModal') return;
   if (!(await assertModeGuild(interaction, modeKey))) return;
 
-  const ign = interaction.fields.getTextInputValue('ign').trim();
+  const submittedIgn = interaction.fields.getTextInputValue('ign').trim();
   const region = interaction.fields.getTextInputValue('region').trim().toUpperCase();
 
   if (!['NA', 'EU'].includes(region)) {
@@ -909,20 +1036,73 @@ async function handleModal(interaction) {
     return;
   }
 
-  const mode = modes[modeKey];
-  const member = await interaction.guild.members.fetch(interaction.user.id);
-  await member.roles.add(mode.verifiedRoleId);
+  await interaction.deferReply({ ephemeral: true });
 
-  state.profiles[profileKey(interaction.guildId, interaction.user.id, modeKey)] = {
-    ign,
+  let minecraftProfile;
+  try {
+    minecraftProfile = await getMinecraftProfileByName(submittedIgn);
+  } catch (error) {
+    await interaction.editReply(`I could not find a Minecraft account named **${submittedIgn}**. Check the spelling and try again.`);
+    return;
+  }
+
+  state.pendingVerifications ??= {};
+  state.pendingVerifications[profileKey(interaction.guildId, interaction.user.id, modeKey)] = {
+    ign: minecraftProfile.name,
     region,
-    verifiedAt: new Date().toISOString()
+    uuid: minecraftProfile.uuid,
+    skinUrl: minecraftProfile.skinUrl,
+    createdAt: new Date().toISOString()
   };
   await saveState(state);
 
-  await interaction.reply({
-    content: `Verified as **${ign}** for **${mode.label} ${region}**. You can now enter the waitlist.`,
-    ephemeral: true
+  const mode = modes[modeKey];
+  await interaction.editReply({
+    embeds: [buildVerificationEmbed(mode, region, minecraftProfile)],
+    components: [buildVerificationButtons(modeKey)]
+  });
+}
+
+async function confirmVerification(interaction, modeKey) {
+  const key = profileKey(interaction.guildId, interaction.user.id, modeKey);
+  const pending = state.pendingVerifications?.[key];
+  if (!pending) {
+    await interaction.reply({ content: 'This verification request has expired. Please verify again.', ephemeral: true });
+    return;
+  }
+
+  await interaction.deferUpdate();
+  const mode = modes[modeKey];
+  const member = await interaction.guild.members.fetch(interaction.user.id);
+  if (mode.verifiedRoleId) await member.roles.add(mode.verifiedRoleId);
+
+  state.profiles[key] = {
+    ...pending,
+    discordId: interaction.user.id,
+    verifiedAt: new Date().toISOString()
+  };
+  delete state.pendingVerifications[key];
+  const websiteSync = await syncVerifiedProfileToWebsite(interaction.user.id, pending);
+  await saveState(state);
+
+  await interaction.editReply({
+    content: `Verified as **${pending.ign}** for **${mode.label} ${pending.region}**. Your UUID and skin will be used for future website updates.${websiteSync.updated ? websiteSync.pushed ? ' Your existing website profile was updated too.' : ' Your website profile changed, but the GitHub push failed; check bot logs.' : ''}`,
+    embeds: [buildMinecraftProfileEmbed('Account Verified', pending)],
+    components: []
+  });
+}
+
+async function cancelVerification(interaction, modeKey) {
+  const key = profileKey(interaction.guildId, interaction.user.id, modeKey);
+  if (state.pendingVerifications?.[key]) {
+    delete state.pendingVerifications[key];
+    await saveState(state);
+  }
+
+  await interaction.update({
+    content: 'Verification cancelled. You can start again whenever you are ready.',
+    embeds: [],
+    components: []
   });
 }
 
@@ -1785,6 +1965,30 @@ function buildRequestButtons(modeKey) {
   );
 }
 
+function buildVerificationEmbed(mode, region, profile) {
+  return buildMinecraftProfileEmbed(`Confirm Your ${mode.label} Account`, profile)
+    .setDescription(`Is this your Minecraft account for the **${region}** region? Confirming stores its UUID so future username and skin changes stay connected to you.`);
+}
+
+function buildMinecraftProfileEmbed(title, profile) {
+  return new EmbedBuilder()
+    .setColor(0x57f287)
+    .setTitle(title)
+    .setThumbnail(minecraftAvatarUrl(profile.uuid))
+    .setImage(profile.skinUrl)
+    .addFields(
+      { name: 'Minecraft Username', value: profile.ign ?? profile.name, inline: true },
+      { name: 'UUID', value: `\`${profile.uuid}\``, inline: false }
+    );
+}
+
+function buildVerificationButtons(modeKey) {
+  return new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId(`ascend:confirmVerify:${modeKey}`).setLabel('Yes, this is me').setStyle(ButtonStyle.Success),
+    new ButtonBuilder().setCustomId(`ascend:cancelVerify:${modeKey}`).setLabel('Not me').setStyle(ButtonStyle.Secondary)
+  );
+}
+
 function buildApplicationPanelEmbed(modeKey) {
   const mode = modes[modeKey];
   return new EmbedBuilder()
@@ -2043,7 +2247,55 @@ function buildResultEmbed({ modeKey, user, ign, outcome, tier, details, testerId
 }
 
 function minecraftBustUrl(ign) {
-  return `https://render.crafty.gg/3d/bust/${encodeURIComponent(ign)}`;
+  return `https://mc-heads.net/body/${encodeURIComponent(ign)}/160`;
+}
+
+function minecraftAvatarUrl(uuid) {
+  return `https://mc-heads.net/avatar/${encodeURIComponent(uuid)}/160`;
+}
+
+function normalizeMinecraftUuid(uuid) {
+  const normalized = String(uuid ?? '').replace(/-/g, '').toLowerCase();
+  if (!/^[a-f0-9]{32}$/.test(normalized)) {
+    throw new Error('Invalid Minecraft UUID.');
+  }
+  return normalized;
+}
+
+async function getMinecraftProfileByName(ign) {
+  const response = await fetch(`${minecraftProfileLookupUrl}/name/${encodeURIComponent(ign)}`);
+  if (!response.ok) throw new Error(`Minecraft lookup failed with ${response.status}.`);
+  const identity = await response.json();
+  return getMinecraftProfileByUuid(identity.id);
+}
+
+async function getMinecraftProfileByUuid(uuid) {
+  const normalizedUuid = normalizeMinecraftUuid(uuid);
+  const response = await fetch(`${minecraftProfileLookupUrl}/${normalizedUuid}`);
+  if (!response.ok) throw new Error(`Minecraft lookup failed with ${response.status}.`);
+  const identity = await response.json();
+
+  let skinUrl = minecraftAvatarUrl(normalizedUuid);
+  try {
+    const sessionResponse = await fetch(`${minecraftSessionProfileUrl}/${normalizedUuid}`);
+    if (sessionResponse.ok) {
+      const sessionProfile = await sessionResponse.json();
+      const textureProperty = sessionProfile.properties?.find((property) => property.name === 'textures');
+      if (textureProperty?.value) {
+        const textures = JSON.parse(Buffer.from(textureProperty.value, 'base64').toString('utf8'));
+        skinUrl = textures.textures?.SKIN?.url?.replace(/^http:/, 'https:') ?? skinUrl;
+      }
+    }
+  } catch {
+    // UUID-based avatar rendering remains available when the skin service is unavailable.
+  }
+
+  return {
+    name: identity.name,
+    ign: identity.name,
+    uuid: normalizeMinecraftUuid(identity.id),
+    skinUrl
+  };
 }
 
 function formatTier(tier) {
@@ -2191,25 +2443,54 @@ async function getActiveCooldown(guildId, userId, modeKey, ign) {
   return { availableAt: Math.floor(availableTime / 1000), testedAt, cooldownDays: cooldownMs / (24 * 60 * 60 * 1000) };
 }
 
+async function syncVerifiedProfileToWebsite(userId, profile) {
+  const data = await readPlayersData();
+  const existingKey = Object.entries(data.players ?? {}).find(([, player]) =>
+    player.discordId === userId || normalizePlayerKey(player.ign ?? player.name ?? '') === normalizePlayerKey(profile.ign)
+  )?.[0];
+
+  if (!existingKey) return { updated: false, pushed: false };
+
+  const player = data.players[existingKey];
+  const nextKey = normalizePlayerKey(profile.ign);
+  const previous = JSON.stringify(player);
+  player.ign = profile.ign;
+  player.uuid = profile.uuid;
+  player.skinUrl = profile.skinUrl;
+  player.skinUpdatedAt = new Date().toISOString();
+  delete player.name;
+
+  if (existingKey !== nextKey) {
+    delete data.players[existingKey];
+  }
+  data.players[nextKey] = player;
+
+  const updated = previous !== JSON.stringify(player) || existingKey !== nextKey;
+  return { updated, pushed: updated ? await writePlayersData(data, `Verify ${profile.ign} Minecraft profile`) : false };
+}
+
 async function updateWebsitePlayer({ guildId, modeKey, userId, ign, tier, outcome }) {
   const data = await readPlayersData();
   data.players ??= {};
 
-  const key = normalizePlayerKey(ign);
+  const profile = state.profiles[profileKey(guildId, userId, modeKey)];
+  const resolvedIgn = profile?.ign ?? ign;
+  const key = normalizePlayerKey(resolvedIgn);
   const existingKey = Object.entries(data.players).find(([, player]) =>
-    player.discordId === userId || normalizePlayerKey(player.ign ?? player.name ?? '') === key
+    player.discordId === userId || normalizePlayerKey(player.ign ?? player.name ?? '') === normalizePlayerKey(ign)
   )?.[0] ?? key;
 
-  const profile = state.profiles[profileKey(guildId, userId, modeKey)];
   const player = data.players[existingKey] ?? {};
   const previousPlayer = data.players[existingKey] ? structuredClone(data.players[existingKey]) : null;
   const websiteMode = getWebsiteModeName(modeKey);
   const previousTier = player.tiers?.[websiteMode] ?? 'Unranked';
   const previous = JSON.stringify(player);
 
-  player.ign = ign;
+  player.ign = resolvedIgn;
   player.region = profile?.region ?? player.region ?? 'NA';
   player.discordId = userId;
+  if (profile?.uuid) player.uuid = profile.uuid;
+  if (profile?.skinUrl) player.skinUrl = profile.skinUrl;
   player.restricted ??= false;
   player.restrictReason ??= null;
   player.tiers ??= {};
@@ -2220,6 +2501,7 @@ async function updateWebsitePlayer({ guildId, modeKey, userId, ign, tier, outcom
 
   if (outcome === 'promoted' || outcome === 'demoted') {
     player.tiers[websiteMode] = tier;
+    if (player.retiredTiers?.[websiteMode]) delete player.retiredTiers[websiteMode];
   }
 
   if (existingKey !== key) {

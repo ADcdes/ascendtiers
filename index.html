@@ -268,7 +268,7 @@
     .board-head {
       height: 62px;
       display: grid;
-      grid-template-columns: 205px minmax(260px, 1fr) 120px minmax(420px, 1.35fr) minmax(240px, .7fr);
+      grid-template-columns: 205px minmax(260px, 1fr) 120px minmax(420px, 1.35fr);
       align-items: center;
       padding: 0 28px;
       color: #303b4d;
@@ -281,7 +281,7 @@
     .ranking-list { padding: 0 28px 12px; }
     .rank-row {
       display: grid;
-      grid-template-columns: 205px minmax(260px, 1fr) 120px minmax(420px, 1.35fr) minmax(240px, .7fr);
+      grid-template-columns: 205px minmax(260px, 1fr) 120px minmax(420px, 1.35fr);
       align-items: center;
       min-height: 98px;
       border-bottom: 2px solid #172231;
@@ -544,66 +544,62 @@
       display: none;
       align-items: center;
       justify-content: center;
-      background: rgba(0,0,0,.7);
+      background: rgba(3, 7, 12, .78);
       z-index: 100;
       padding: 20px;
     }
     .modal-overlay.open { display: flex; }
     .modal-card {
-      width: 460px;
+      width: 620px;
       max-width: 100%;
-      background: #111821;
-      border: 2px solid var(--line2);
-      border-radius: 14px;
-      padding: 24px;
+      max-height: min(900px, calc(100vh - 40px));
+      overflow-y: auto;
+      background: #0f151e;
+      border: 1px solid #25364b;
+      border-radius: 10px;
+      padding: 38px 50px 34px;
       position: relative;
-      box-shadow: 0 20px 60px rgba(0,0,0,.55);
+      box-shadow: 0 30px 80px rgba(0,0,0,.62);
     }
     .modal-close {
       position: absolute;
-      top: 12px;
-      right: 12px;
-      width: 34px;
-      height: 34px;
-      border: 1px solid var(--line2);
-      border-radius: 8px;
-      background: #172230;
-      color: #fff;
+      top: 18px;
+      right: 18px;
+      width: 58px;
+      height: 58px;
+      border: 0;
+      border-radius: 50%;
+      background: #1d2734;
+      color: #b9c5d5;
+      font-size: 3rem;
+      font-weight: 300;
+      line-height: 1;
     }
-    .modal-top { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-    .profile-hero-skin { width: 120px; height: 120px; object-fit: contain; image-rendering: pixelated; }
-    .modal-name { font-size: 1.8rem; font-weight: 900; }
-    .modal-badge { display: inline-flex; align-items: center; gap: 8px; color: var(--blue); font-weight: 800; }
+    .modal-close:hover { background: #273548; color: #fff; }
+    .modal-top { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 12px; }
+    .profile-hero-skin { width: 142px; height: 142px; object-fit: contain; image-rendering: pixelated; border: 2px solid var(--gold); border-radius: 50%; background: #17202d; }
+    .modal-name { font-size: 2.25rem; font-weight: 900; color: #d9e8ff; }
+    .modal-badge { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 22px; border-radius: 999px; background: #572235; color: #ff9dac; font-size: 1.12rem; font-weight: 800; }
     .modal-title-badge {
       width: 34px;
       height: 34px;
       object-fit: contain;
       filter: drop-shadow(0 4px 8px rgba(0,0,0,.5));
     }
-    .modal-meta, .profile-actions, .modal-stat-grid, .modal-tiers-grid { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-    .profile-action, .modal-namemc {
-      color: var(--blue);
-      border: 1px solid var(--line2);
-      border-radius: 8px;
-      padding: 8px 10px;
-      text-decoration: none;
-      background: #172230;
-      transition: transform .16s ease, background .16s ease, border-color .16s ease;
-    }
-    .profile-action:hover { transform: translateY(-2px); background: #1d2a3a; border-color: #3a4d66; }
-    .modal-stat, .modal-position {
-      background: #172230;
-      border: 1px solid var(--line2);
-      border-radius: 10px;
-      padding: 12px;
-      margin-top: 12px;
-    }
-    .modal-stat-value { font-size: 1.4rem; font-weight: 900; color: #fff; }
-    .modal-stat-label, .modal-section-title, .modal-pos-pts { color: var(--muted); font-size: .8rem; }
-    .modal-section { margin-top: 16px; }
-    .modal-tier-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .modal-tier-circle { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; background: #1b2635; }
-    .modal-tier-circle svg { width: 30px; height: 30px; display: block; }
+    .modal-region { color: #697993; font-size: 1.1rem; font-weight: 800; }
+    .modal-section { margin-top: 30px; }
+    .modal-section-title { margin-bottom: 12px; color: #9dc6ff; font-size: 1.45rem; font-weight: 800; text-transform: uppercase; }
+    .modal-position { display: grid; grid-template-columns: 116px 1fr; align-items: center; min-height: 62px; overflow: hidden; border: 2px solid #2b3c52; border-radius: 9px; background: #151e2a; }
+    .modal-position-rank { align-self: stretch; display: grid; place-items: center; color: #fff; background: linear-gradient(105deg, #f6c33c 0 76%, #d79b22 76% 100%); font-size: 2.3rem; font-style: italic; font-weight: 900; text-shadow: 0 3px 4px rgba(0,0,0,.28); clip-path: polygon(0 0, 100% 0, 84% 100%, 0 100%); }
+    .modal-position-label { display: flex; align-items: center; gap: 10px; padding: 0 20px; color: #fff; font-size: 1.45rem; font-weight: 900; }
+    .modal-position-label span { color: #9bb4d7; font-size: 1.1rem; font-weight: 600; }
+    .modal-tier-rack { display: flex; min-height: 103px; align-items: center; gap: 10px; overflow-x: auto; padding: 10px; border: 2px solid #2b3c52; border-radius: 9px; background: #151e2a; }
+    .modal-tier-chip, .modal-tier-slot { width: 47px; height: 80px; flex: 0 0 47px; border-radius: 24px; }
+    .modal-tier-chip { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #0a111a; font-size: .92rem; font-weight: 900; box-shadow: inset 0 0 0 3px rgba(12,20,32,.18); }
+    .modal-tier-chip .tiny-icon { width: 27px; height: 27px; display: grid; place-items: center; }
+    .modal-tier-chip .tiny-icon svg { width: 100%; height: 100%; }
+    .modal-tier-chip.retired { filter: grayscale(.35) brightness(.8); opacity: .86; }
+    .modal-tier-slot { border: 2px dashed #3b4d65; background: #131c28; }
     .modal-restricted { margin-top: 12px; color: #ff6975; }
 
     .loading-screen {
@@ -719,8 +715,15 @@
       .rank-card { width: 120px; height: 64px; }
       .rank-num { width: 54px; font-size: 2rem; }
       .rank-skin { right: 5px; width: 70px; height: 70px; }
-      .region-pill, .tier-slots, .retired-slots { grid-column: 2; }
+      .region-pill, .tier-slots { grid-column: 2; }
       .tier-grid { grid-template-columns: 1fr; }
+      .modal-card { padding: 32px 20px 24px; }
+      .modal-close { top: 12px; right: 12px; width: 46px; height: 46px; font-size: 2.35rem; }
+      .profile-hero-skin { width: 116px; height: 116px; }
+      .modal-name { font-size: 1.85rem; }
+      .modal-position { grid-template-columns: 92px 1fr; }
+      .modal-position-label { padding: 0 14px; font-size: 1.1rem; }
+      .modal-position-label span { font-size: .9rem; }
     }
   </style>
 </head>
@@ -815,7 +818,9 @@
       return `<span class="mode-icon">${ICONS[mode] ? ICONS[mode](44) : ''}</span>`;
     }
     function playerIgn(p) { return p.ign || p.name || ''; }
-    function bustUrl(ign) { return `https://render.crafty.gg/3d/bust/${encodeURIComponent(ign)}`; }
+    function playerIdentity(p) { return p.uuid || playerIgn(p); }
+    function bustUrl(p, size = 96) { return `https://mc-heads.net/body/${encodeURIComponent(playerIdentity(p))}/${size}`; }
+    function avatarUrl(p, size = 96) { return `https://mc-heads.net/avatar/${encodeURIComponent(playerIdentity(p))}/${size}`; }
     function playerPoints(p) {
       return Object.values(p.tiers || {}).reduce((sum, tier) => sum + (TIER_POINTS[tier] || 0), 0);
     }
@@ -926,7 +931,7 @@
         return `<div class="rank-row top-${index + 1}" onclick="showPlayerByIgn('${jsString(ign)}')">
           <div class="rank-card">
             <div class="rank-num">${index + 1}.</div>
-            <img class="rank-skin" src="${bustUrl(ign)}" loading="lazy" onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/${encodeURIComponent(ign)}/96'">
+            <img class="rank-skin" src="${bustUrl(p)}" loading="lazy" onerror="this.onerror=null;this.src='${avatarUrl(p)}'">
           </div>
           <div>
             <div class="player-name">${escapeText(ign)}</div>
@@ -995,7 +1000,7 @@
       if (updateUrl) setPlayerUrl(ign);
       document.getElementById('modal-body').innerHTML = `
         <div class="modal-top">
-          <img class="profile-hero-skin" src="${bustUrl(ign)}" loading="lazy" onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/${encodeURIComponent(ign)}/160'">
+          <img class="profile-hero-skin" src="${bustUrl(p, 160)}" loading="lazy" onerror="this.onerror=null;this.src='${avatarUrl(p, 160)}'">
           <div class="modal-name">${escapeText(ign)}</div>
           <div class="modal-badge">${titleBadge(title, 'modal-title-badge')}<span>${title}</span></div>
           <div class="modal-meta"><span class="region-pill region-${escapeText(p.region || 'NA')}">${escapeText(p.region || 'NA')}</span></div>
