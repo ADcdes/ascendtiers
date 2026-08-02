@@ -310,9 +310,7 @@
       "tiers": {
         "Vanilla": "HT3"
       },
-      "lastTestedAt": {
-        "Vanilla": "2026-06-16T16:33:45.315Z"
-      }
+      "lastTestedAt": {}
     },
     "br8ad": {
       "ign": "br8ad",
