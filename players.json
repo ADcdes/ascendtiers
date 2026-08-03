@@ -368,25 +368,6 @@
       "lastTestedTier": {
         "Vanilla": "HT3"
       }
-    },
-    "marlowww": {
-      "ign": "Marlowww",
-      "region": "NA",
-      "discordId": "155149108183695360",
-      "restricted": false,
-      "restrictReason": null,
-      "tiers": {},
-      "lastTestedAt": {
-        "SMP": "2026-08-03T18:11:40.920Z"
-      },
-      "lastTestedTier": {
-        "SMP": "HT1"
-      },
-      "retiredTiers": {
-        "SMP": "HT1"
-      },
-      "retiredAt": "2026-08-03T18:12:54.855Z",
-      "retireReason": "bros retiring"
     }
   }
 }
