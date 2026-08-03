@@ -350,6 +350,24 @@
       },
       "lastTestedAt": {},
       "lastTestedTier": {}
+    },
+    "milofv3": {
+      "ign": "milofv3",
+      "region": "EU",
+      "discordId": "1067831639301963786",
+      "uuid": "6c2f4b8cf57f418c85585cb60effaff4",
+      "skinUrl": "https://textures.minecraft.net/texture/bdcd23b937ba2bc40c623d55db46cf55fc76f9246e29a4db8d2954c6b269675a",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-08-03T02:51:22.984Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "HT3"
+      }
     }
   }
 }
