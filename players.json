@@ -368,6 +368,16 @@
       "lastTestedTier": {
         "Vanilla": "HT3"
       }
+    },
+    "marlowww": {
+      "ign": "Marlowww",
+      "discordId": "155149108183695360",
+      "region": "NA",
+      "restricted": true,
+      "restrictReason": "Hacking subhuman",
+      "restrictedAt": "2026-08-03T18:16:06.047Z",
+      "tiers": {},
+      "lastTestedAt": {}
     }
   }
 }
