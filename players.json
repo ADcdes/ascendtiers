@@ -362,12 +362,8 @@
       "tiers": {
         "Vanilla": "HT3"
       },
-      "lastTestedAt": {
-        "Vanilla": "2026-08-03T02:51:22.984Z"
-      },
-      "lastTestedTier": {
-        "Vanilla": "HT3"
-      }
+      "lastTestedAt": {},
+      "lastTestedTier": {}
     },
     "marlowww": {
       "ign": "Marlowww",
