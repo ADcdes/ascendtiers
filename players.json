@@ -147,20 +147,6 @@
       "skinUrl": "https://textures.minecraft.net/texture/e934048462c14e3c8f13100c8d32cb7b38c70202e4aefee55d03dea8142afd93",
       "skinUpdatedAt": "2026-08-10T15:41:59.159Z"
     },
-    "s33yuhispapa": {
-      "ign": "S33yuhisPAPA",
-      "region": "NA",
-      "discordId": "780617355322851338",
-      "restricted": false,
-      "restrictReason": null,
-      "tiers": {
-        "Vanilla": "HT3"
-      },
-      "lastTestedAt": {
-        "Vanilla": "2026-06-11T17:58:34.645Z"
-      },
-      "uuid": "cfa05c8e-482d-4035-be66-51b2ad54af57"
-    },
     "flickzy6": {
       "ign": "Flickzy6",
       "region": "NA",
@@ -381,23 +367,6 @@
       "skinUrl": "https://textures.minecraft.net/texture/92389ce6b6515ac495a6bae6a15e67c08437b29e07e272d56c8d0fa4625e3d9a",
       "skinUpdatedAt": "2026-08-10T15:42:10.776Z"
     },
-    "plankedmc": {
-      "ign": "PlankedMC",
-      "region": "NA",
-      "discordId": "1328007154468388963",
-      "restricted": false,
-      "restrictReason": null,
-      "tiers": {
-        "Sword": "LT4"
-      },
-      "lastTestedAt": {
-        "Sword": "2026-07-27T18:12:47.176Z"
-      },
-      "lastTestedTier": {
-        "Sword": "LT4"
-      },
-      "uuid": "6b593701-434a-4b60-a6b4-bd98d553e0f2"
-    },
     "_dtap": {
       "ign": "_dtap",
       "region": "NA",
@@ -458,6 +427,41 @@
       "lastTestedTier": {
         "Sword": "LT2"
       }
+    },
+    "3cgf": {
+      "ign": "3cgf",
+      "region": "NA",
+      "discordId": "780617355322851338",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-06-11T17:58:34.645Z"
+      },
+      "uuid": "cfa05c8e482d4035be6651b2ad54af57",
+      "skinUrl": "https://textures.minecraft.net/texture/38c94ad1bbb1c61e10929f8a86ea76db554eacb28562f3dd8ef2269eae6eb5e9",
+      "skinUpdatedAt": "2026-08-10T15:47:46.622Z"
+    },
+    "chopixmc": {
+      "ign": "ChopixMC",
+      "region": "NA",
+      "discordId": "1328007154468388963",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Sword": "LT4"
+      },
+      "lastTestedAt": {
+        "Sword": "2026-07-27T18:12:47.176Z"
+      },
+      "lastTestedTier": {
+        "Sword": "LT4"
+      },
+      "uuid": "6b593701434a4b60a6b4bd98d553e0f2",
+      "skinUrl": "https://textures.minecraft.net/texture/4a4789d97dc81dcbd6d3e85c6468f5fd025d3acc7d2e2b939a222da6e56484fd",
+      "skinUpdatedAt": "2026-08-10T15:47:57.472Z"
     }
   }
 }
