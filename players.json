@@ -158,7 +158,8 @@
       },
       "lastTestedAt": {
         "Vanilla": "2026-06-11T17:58:34.645Z"
-      }
+      },
+      "uuid": "cfa05c8e-482d-4035-be66-51b2ad54af57"
     },
     "flickzy6": {
       "ign": "Flickzy6",
@@ -394,7 +395,8 @@
       },
       "lastTestedTier": {
         "Sword": "LT4"
-      }
+      },
+      "uuid": "6b593701-434a-4b60-a6b4-bd98d553e0f2"
     },
     "_dtap": {
       "ign": "_dtap",
