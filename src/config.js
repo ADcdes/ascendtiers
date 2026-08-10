@@ -1,4 +1,5 @@
 export const migrationChannelId = process.env.MIGRATION_CHANNEL_ID ?? '1509007513557798953';
+export const testingLeaderboardChannelId = process.env.TESTING_LEADERBOARD_CHANNEL_ID ?? '1508638838384365618';
 
 // Role pinged on new application tickets (staff or tester). Testers are never pinged.
 export const supportPingRoleIds = [

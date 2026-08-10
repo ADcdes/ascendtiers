@@ -20,7 +20,7 @@ import {
   TextInputBuilder,
   TextInputStyle
 } from 'discord.js';
-import { highResultTiers, highTestTiers, migrationChannelId, modes, supportPingRoleIds, testerCommandRoleIds, tierChoices, websiteGameModes } from './config.js';
+import { highResultTiers, highTestTiers, migrationChannelId, modes, supportPingRoleIds, testerCommandRoleIds, testingLeaderboardChannelId, tierChoices, websiteGameModes } from './config.js';
 import { crystalRules, maceRules, swordRules } from './rules.js';
 import { ensureWaitlist, loadState, profileKey, saveState } from './state.js';
 
@@ -30,9 +30,11 @@ const execFileAsync = promisify(execFile);
 const gitPath = process.env.GIT_PATH ?? 'C:\\Program Files\\Git\\cmd\\git.exe';
 const highCooldownMs = 30 * 24 * 60 * 60 * 1000;
 const normalCooldownMs = 2 * 24 * 60 * 60 * 1000;
+const testingLeaderboardRefreshMs = 30 * 60 * 1000;
 const minecraftProfileLookupUrl = 'https://api.minecraftservices.com/minecraft/profile/lookup';
 const minecraftSessionProfileUrl = 'https://sessionserver.mojang.com/session/minecraft/profile';
 let githubSyncQueue = Promise.resolve();
+let testingLeaderboardQueue = Promise.resolve();
 
 if (!token || !clientId) {
   throw new Error('Missing DISCORD_TOKEN or CLIENT_ID. Copy .env.example to .env and fill it in.');
@@ -184,7 +186,10 @@ const commands = [
   new SlashCommandBuilder()
     .setName('user-refresh')
     .setDescription('Refresh a player\'s Minecraft username and skin from their stored UUID.')
-    .addUserOption((option) => option.setName('player').setDescription('Player to refresh').setRequired(true))
+    .addUserOption((option) => option.setName('player').setDescription('Player to refresh').setRequired(true)),
+  new SlashCommandBuilder()
+    .setName('refresh-testing-leaderboard')
+    .setDescription('Refresh the current monthly Crystal testing leaderboard.')
 ].map((command) => command.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(token);
@@ -199,6 +204,10 @@ for (const guildId of new Set(Object.values(modes).map((mode) => mode.guildId).f
 
 client.once(Events.ClientReady, (readyClient) => {
   console.log(`Logged in as ${readyClient.user.tag}`);
+  refreshTestingLeaderboard().catch((error) => console.error(`Could not refresh testing leaderboard: ${error.message}`));
+  setInterval(() => {
+    refreshTestingLeaderboard().catch((error) => console.error(`Could not refresh testing leaderboard: ${error.message}`));
+  }, testingLeaderboardRefreshMs);
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
@@ -304,6 +313,11 @@ async function handleCommand(interaction) {
 
   if (commandName === 'user-refresh') {
     await handleUserRefresh(interaction);
+    return;
+  }
+
+  if (commandName === 'refresh-testing-leaderboard') {
+    await handleTestingLeaderboardRefresh(interaction);
     return;
   }
 
@@ -530,6 +544,96 @@ async function handleUserRefresh(interaction) {
   });
 }
 
+async function handleTestingLeaderboardRefresh(interaction) {
+  if (!(await assertModeGuild(interaction, 'crystal'))) return;
+  if (!canUseTesterCommands(interaction.member)) {
+    await interaction.reply({ content: 'Only tester staff roles can refresh the testing leaderboard.', ephemeral: true });
+    return;
+  }
+
+  await interaction.deferReply({ ephemeral: true });
+  const leaderboard = await refreshTestingLeaderboard();
+  await interaction.editReply(`Refreshed the ${leaderboard.monthLabel} testing leaderboard with ${leaderboard.testCount} completed test${leaderboard.testCount === 1 ? '' : 's'}.`);
+}
+
+function testingLeaderboardMonth(date) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    month: 'long',
+    year: 'numeric'
+  }).formatToParts(date);
+  const month = parts.find((part) => part.type === 'month')?.value;
+  const year = parts.find((part) => part.type === 'year')?.value;
+  return { key: `${year}-${month}`, label: `${month} ${year}` };
+}
+
+function currentTestingLeaderboard() {
+  const currentMonth = testingLeaderboardMonth(new Date());
+  const totals = new Map();
+
+  for (const entry of state.resultLog ?? []) {
+    if (entry.mode !== 'crystal' || !entry.createdBy || !entry.createdAt) continue;
+    const entryDate = new Date(entry.createdAt);
+    if (Number.isNaN(entryDate.getTime()) || testingLeaderboardMonth(entryDate).key !== currentMonth.key) continue;
+    totals.set(entry.createdBy, (totals.get(entry.createdBy) ?? 0) + 1);
+  }
+
+  const testers = [...totals.entries()]
+    .sort(([, leftCount], [, rightCount]) => rightCount - leftCount)
+    .slice(0, 10);
+  const testCount = [...totals.values()].reduce((total, count) => total + count, 0);
+  return { ...currentMonth, testers, testCount };
+}
+
+function buildTestingLeaderboardEmbed(leaderboard) {
+  const lines = leaderboard.testers.length > 0
+    ? leaderboard.testers.map(([testerId, count], index) => `**${index + 1}.** <@${testerId}> - **${count}** test${count === 1 ? '' : 's'}`)
+    : ['No completed Crystal tests have been recorded this month yet.'];
+
+  return new EmbedBuilder()
+    .setColor(0xffc42e)
+    .setTitle(`Testing Leaderboard - ${leaderboard.label}`)
+    .setDescription(['**Most completed Crystal tests this month**', '', ...lines].join('\n'))
+    .setFooter({ text: 'Updates automatically after each Crystal result.' })
+    .setTimestamp();
+}
+
+function refreshTestingLeaderboard() {
+  testingLeaderboardQueue = testingLeaderboardQueue
+    .catch(() => {})
+    .then(() => updateTestingLeaderboard());
+  return testingLeaderboardQueue;
+}
+
+async function updateTestingLeaderboard() {
+  const guild = await client.guilds.fetch(modes.crystal.guildId);
+  const channel = await guild.channels.fetch(testingLeaderboardChannelId).catch(() => null);
+  if (!channel?.isTextBased()) {
+    throw new Error('Testing leaderboard channel was not found.');
+  }
+
+  const leaderboard = currentTestingLeaderboard();
+  const payload = { embeds: [buildTestingLeaderboardEmbed(leaderboard)] };
+  state.testingLeaderboard ??= {};
+  const saved = state.testingLeaderboard;
+  const existing = saved.messageId
+    ? await channel.messages.fetch(saved.messageId).catch(() => null)
+    : null;
+
+  if (existing) {
+    await existing.edit(payload);
+  } else {
+    const message = await channel.send(payload);
+    saved.messageId = message.id;
+  }
+
+  saved.channelId = channel.id;
+  saved.monthKey = leaderboard.key;
+  saved.updatedAt = new Date().toISOString();
+  await saveState(state);
+  return leaderboard;
+}
+
 async function handleResult(interaction, modeKey) {
   const mode = modes[modeKey];
   const ticketContext = getTestTicketContext(interaction.channel);
@@ -636,6 +740,10 @@ async function handleResult(interaction, modeKey) {
   });
   await saveState(state);
 
+  if (modeKey === 'crystal') {
+    await refreshTestingLeaderboard().catch((error) => console.error(`Could not refresh testing leaderboard: ${error.message}`));
+  }
+
   const syncText = syncResult.updated
     ? syncResult.pushed ? ' Website data was synced to GitHub.' : ' Website data changed, but GitHub push failed; check bot logs.'
     : ' Website tier data was unchanged.';
@@ -687,6 +795,9 @@ async function handleUndoResult(interaction) {
   state.resultLog.splice(logIndex, 1);
   const pushed = await writePlayersData(data, `Undo ${entry.ign} ${modes[entry.mode]?.label ?? entry.mode} result`);
   await saveState(state);
+  if (entry.mode === 'crystal') {
+    await refreshTestingLeaderboard().catch((error) => console.error(`Could not refresh testing leaderboard: ${error.message}`));
+  }
 
   await interaction.editReply(`Undid ${entry.ign}'s ${modes[entry.mode]?.label ?? entry.mode} ${entry.tier} result.${pushed ? ' Website data was synced to GitHub.' : ' GitHub push failed; check bot logs.'}`);
 }

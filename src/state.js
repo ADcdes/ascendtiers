@@ -7,6 +7,7 @@ const statePath = path.join(dataDir, 'bot-state.json');
 const defaultState = {
   profiles: {},
   pendingVerifications: {},
+  testingLeaderboard: {},
   waitlists: {},
   resultLog: []
 };
