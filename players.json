@@ -492,12 +492,10 @@
       "restrictReason": null,
       "tiers": {},
       "lastTestedAt": {
-        "Sword": "2026-07-20T20:25:21.015Z",
-        "Vanilla": "2026-08-10T22:24:47.003Z"
+        "Sword": "2026-07-20T20:25:21.015Z"
       },
       "lastTestedTier": {
-        "Sword": "HT4",
-        "Vanilla": "HT2"
+        "Sword": "HT4"
       },
       "uuid": "e6f69970cfe54c2eaf70afb3cc059947",
       "skinUrl": "https://textures.minecraft.net/texture/8383cab21db633a6c786614e2e0c24d8ec62893bff8b5f53c10c45a8be6e9733",
