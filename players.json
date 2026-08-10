@@ -394,13 +394,16 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Sword": "LT2"
+        "Sword": "LT2",
+        "Vanilla": "LT3"
       },
       "lastTestedAt": {
-        "Sword": "2026-08-10T01:54:25.693Z"
+        "Sword": "2026-08-10T01:54:25.693Z",
+        "Vanilla": "2026-08-10T22:14:11.935Z"
       },
       "lastTestedTier": {
-        "Sword": "LT2"
+        "Sword": "LT2",
+        "Vanilla": "LT3"
       },
       "skinUpdatedAt": "2026-08-10T21:28:56.251Z"
     },
