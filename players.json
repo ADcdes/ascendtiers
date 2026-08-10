@@ -462,6 +462,24 @@
       "uuid": "6b593701434a4b60a6b4bd98d553e0f2",
       "skinUrl": "https://textures.minecraft.net/texture/4a4789d97dc81dcbd6d3e85c6468f5fd025d3acc7d2e2b939a222da6e56484fd",
       "skinUpdatedAt": "2026-08-10T15:47:57.472Z"
+    },
+    "goldnhour": {
+      "ign": "goldnHour",
+      "region": "NA",
+      "discordId": "1387559211734667395",
+      "uuid": "d73a67dd335440fe8716840ce37cce06",
+      "skinUrl": "https://textures.minecraft.net/texture/8d4cca699a1c038b45427dd6a5316d1dcb70bc77dbcb72bb343b77318fe6208d",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-08-10T17:09:58.108Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      }
     }
   }
 }
