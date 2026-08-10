@@ -384,13 +384,13 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Sword": "LT3"
+        "Sword": "LT2"
       },
       "lastTestedAt": {
-        "Sword": "2026-05-10T01:36:59.706Z"
+        "Sword": "2026-08-10T01:54:25.693Z"
       },
       "lastTestedTier": {
-        "Sword": "LT3"
+        "Sword": "LT2"
       }
     }
   }
