@@ -31,6 +31,8 @@ const gitPath = process.env.GIT_PATH ?? 'C:\\Program Files\\Git\\cmd\\git.exe';
 const highCooldownMs = 30 * 24 * 60 * 60 * 1000;
 const normalCooldownMs = 2 * 24 * 60 * 60 * 1000;
 const testingLeaderboardRefreshMs = 30 * 60 * 1000;
+const playerProfileRefreshMs = 60 * 60 * 1000;
+const playerProfileRefreshDelayMs = 600;
 const minecraftProfileLookupUrl = 'https://api.minecraftservices.com/minecraft/profile/lookup';
 const minecraftSessionProfileUrl = 'https://sessionserver.mojang.com/session/minecraft/profile';
 let githubSyncQueue = Promise.resolve();
@@ -189,7 +191,10 @@ const commands = [
     .addUserOption((option) => option.setName('player').setDescription('Player to refresh').setRequired(true)),
   new SlashCommandBuilder()
     .setName('refresh-testing-leaderboard')
-    .setDescription('Refresh the current monthly Crystal testing leaderboard.')
+    .setDescription('Refresh the current monthly Crystal testing leaderboard.'),
+  new SlashCommandBuilder()
+    .setName('refresh-all-players')
+    .setDescription('Refresh every player\'s Minecraft username and skin from Mojang right now.')
 ].map((command) => command.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(token);
@@ -208,6 +213,11 @@ client.once(Events.ClientReady, (readyClient) => {
   setInterval(() => {
     refreshTestingLeaderboard().catch((error) => console.error(`Could not refresh testing leaderboard: ${error.message}`));
   }, testingLeaderboardRefreshMs);
+
+  refreshAllPlayerProfiles().catch((error) => console.error(`Could not auto-refresh player profiles: ${error.message}`));
+  setInterval(() => {
+    refreshAllPlayerProfiles().catch((error) => console.error(`Could not auto-refresh player profiles: ${error.message}`));
+  }, playerProfileRefreshMs);
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
@@ -318,6 +328,11 @@ async function handleCommand(interaction) {
 
   if (commandName === 'refresh-testing-leaderboard') {
     await handleTestingLeaderboardRefresh(interaction);
+    return;
+  }
+
+  if (commandName === 'refresh-all-players') {
+    await handleRefreshAllPlayers(interaction);
     return;
   }
 
@@ -554,6 +569,21 @@ async function handleTestingLeaderboardRefresh(interaction) {
   await interaction.deferReply({ ephemeral: true });
   const leaderboard = await refreshTestingLeaderboard();
   await interaction.editReply(`Refreshed the ${leaderboard.monthLabel} testing leaderboard with ${leaderboard.testCount} completed test${leaderboard.testCount === 1 ? '' : 's'}.`);
+}
+
+async function handleRefreshAllPlayers(interaction) {
+  if (!canUseTesterCommands(interaction.member)) {
+    await interaction.reply({ content: 'Only tester staff roles can refresh player data.', ephemeral: true });
+    return;
+  }
+
+  await interaction.deferReply({ ephemeral: true });
+  const changedCount = await refreshAllPlayerProfiles();
+  await interaction.editReply(
+    changedCount > 0
+      ? `Refreshed the roster. ${changedCount} player${changedCount === 1 ? '' : 's'} had a username or skin change.`
+      : 'Refreshed the roster. No usernames or skins had changed.'
+  );
 }
 
 function testingLeaderboardMonth(date) {
@@ -2407,6 +2437,72 @@ async function getMinecraftProfileByUuid(uuid) {
     uuid: normalizeMinecraftUuid(identity.id),
     skinUrl
   };
+}
+
+// Walks every player on the roster, checks Mojang for their current username/skin,
+// and updates + pushes players.json when anything changed. This is what keeps the
+// website in sync automatically instead of relying on staff running /user-refresh
+// for every player by hand.
+async function refreshAllPlayerProfiles() {
+  const data = await readPlayersData();
+  const entries = Object.entries(data.players ?? {});
+  let changedCount = 0;
+
+  for (const [key, player] of entries) {
+    const identifier = player.uuid || player.ign || player.name;
+    if (!identifier) continue;
+
+    let profile;
+    try {
+      profile = player.uuid
+        ? await getMinecraftProfileByUuid(player.uuid)
+        : await getMinecraftProfileByName(identifier);
+    } catch (error) {
+      console.error(`Could not refresh Minecraft profile for ${key}: ${error.message}`);
+      await new Promise((resolve) => setTimeout(resolve, playerProfileRefreshDelayMs));
+      continue;
+    }
+
+    const previousIgn = player.ign ?? player.name ?? null;
+    const changed = previousIgn !== profile.name || player.skinUrl !== profile.skinUrl || player.uuid !== profile.uuid;
+
+    if (changed) {
+      player.ign = profile.name;
+      player.uuid = profile.uuid;
+      player.skinUrl = profile.skinUrl;
+      player.skinUpdatedAt = new Date().toISOString();
+      delete player.name;
+      changedCount++;
+
+      const newKey = normalizePlayerKey(profile.name);
+      if (newKey !== key) {
+        data.players[newKey] = player;
+        delete data.players[key];
+      }
+
+      for (const [profileStateKey, stateProfile] of Object.entries(state.profiles)) {
+        const sameAccount = stateProfile.uuid === profile.uuid
+          || (player.discordId && (stateProfile.discordId === player.discordId || profileStateKey.includes(`:${player.discordId}:`)));
+        if (sameAccount) {
+          stateProfile.ign = profile.name;
+          stateProfile.uuid = profile.uuid;
+          stateProfile.skinUrl = profile.skinUrl;
+          stateProfile.refreshedAt = new Date().toISOString();
+        }
+      }
+    }
+
+    // Small delay between lookups so a large roster doesn't get rate limited by Mojang.
+    await new Promise((resolve) => setTimeout(resolve, playerProfileRefreshDelayMs));
+  }
+
+  if (changedCount > 0) {
+    const pushed = await writePlayersData(data, `Auto-refresh ${changedCount} player Minecraft profile${changedCount === 1 ? '' : 's'}`);
+    await saveState(state);
+    console.log(`Auto-refreshed ${changedCount} player profile(s).${pushed ? ' Synced to GitHub.' : ' GitHub push failed; check bot logs.'}`);
+  }
+
+  return changedCount;
 }
 
 function formatTier(tier) {
