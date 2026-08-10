@@ -142,8 +142,9 @@ const commands = [
     .addStringOption((option) => option.setName('reason').setDescription('Restriction reason').setRequired(false)),
   new SlashCommandBuilder()
     .setName('retire')
-    .setDescription('Retire a player and move their active tiers to their retired profile.')
+    .setDescription('Retire a player from one game mode, or all of them if no mode is given.')
     .addUserOption((option) => option.setName('player').setDescription('Player to retire').setRequired(true))
+    .addStringOption((option) => option.setName('mode').setDescription('Only retire this game mode\'s tier (omit to retire every active tier)').setRequired(false).addChoices(...modeChoices))
     .addStringOption((option) => option.setName('reason').setDescription('Optional retirement note').setRequired(false)),
   new SlashCommandBuilder()
     .setName('rules')
@@ -878,6 +879,9 @@ async function handleRetirePlayer(interaction) {
   await interaction.deferReply({ ephemeral: true });
   const discordUser = interaction.options.getUser('player', true);
   const reason = interaction.options.getString('reason')?.trim() ?? null;
+  const modeKey = interaction.options.getString('mode');
+  const websiteMode = modeKey ? getWebsiteModeName(modeKey) : null;
+
   const data = await readPlayersData();
   const key = Object.entries(data.players ?? {}).find(([, player]) => player.discordId === discordUser.id)?.[0];
   const player = key ? data.players[key] : null;
@@ -888,6 +892,26 @@ async function handleRetirePlayer(interaction) {
   }
 
   const activeTiers = player.tiers ?? {};
+
+  if (websiteMode) {
+    if (!activeTiers[websiteMode]) {
+      await interaction.editReply(`**${player.ign ?? discordUser.username}** does not have an active ${websiteMode} tier to retire.`);
+      return;
+    }
+
+    player.retiredTiers = { ...(player.retiredTiers ?? {}), [websiteMode]: activeTiers[websiteMode] };
+    delete player.tiers[websiteMode];
+    player.retiredAt = new Date().toISOString();
+    player.retireReason = reason;
+    await removeKnownTierRoleForMode(discordUser.id, modeKey);
+
+    const pushed = await writePlayersData(data, `Retire ${player.ign ?? discordUser.username}'s ${websiteMode} tier`);
+    await saveState(state);
+
+    await interaction.editReply(`Retired **${player.ign ?? discordUser.username}**'s ${websiteMode} tier and moved it to their retired profile. Their other active tiers were left untouched.${pushed ? ' Website data was synced to GitHub.' : ' Website data changed, but GitHub push failed; check bot logs.'}`);
+    return;
+  }
+
   if (Object.keys(activeTiers).length === 0) {
     await interaction.editReply(`**${player.ign ?? discordUser.username}** has no active tiers to retire.`);
     return;
@@ -2568,6 +2592,24 @@ async function removeKnownTierRoles(guild, userId) {
 async function removeKnownTierRolesEverywhere(userId) {
   const guilds = [...client.guilds.cache.values()];
   await Promise.all(guilds.map((guild) => removeKnownTierRoles(guild, userId)));
+}
+
+// Removes just one mode's tier role, in that mode's own server, for a partial /retire.
+async function removeKnownTierRoleForMode(userId, modeKey) {
+  const mode = modes[modeKey];
+  if (!mode?.guildId) return;
+  const guild = client.guilds.cache.get(mode.guildId);
+  if (!guild) return;
+
+  const member = await guild.members.fetch(userId).catch(() => null);
+  if (!member) return;
+  await guild.roles.fetch().catch(() => {});
+
+  const roleIds = new Set(Object.values(mode.tierRoles ?? {}).filter(Boolean));
+  const rolesToRemove = member.roles.cache.filter((role) => roleIds.has(role.id));
+  if (rolesToRemove.size > 0) {
+    await member.roles.remove([...rolesToRemove.keys()]).catch(() => {});
+  }
 }
 
 async function removeModeWaitlistRoles(guild, userId, mode) {
