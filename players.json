@@ -491,7 +491,7 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Vanilla": "LT4",
+        "Vanilla": "HT2",
         "Sword": "HT4",
         "UHC": "HT5",
         "Mace": "LT4",
@@ -499,10 +499,12 @@
         "Pot": "HT5"
       },
       "lastTestedAt": {
-        "Sword": "2026-07-20T20:25:21.015Z"
+        "Sword": "2026-07-20T20:25:21.015Z",
+        "Vanilla": "2026-08-10T22:24:47.003Z"
       },
       "lastTestedTier": {
-        "Sword": "HT4"
+        "Sword": "HT4",
+        "Vanilla": "HT2"
       },
       "uuid": "e6f69970cfe54c2eaf70afb3cc059947",
       "skinUrl": "https://textures.minecraft.net/texture/8383cab21db633a6c786614e2e0c24d8ec62893bff8b5f53c10c45a8be6e9733",
