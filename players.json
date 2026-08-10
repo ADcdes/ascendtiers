@@ -374,6 +374,24 @@
       "restrictedAt": "2026-08-03T18:16:06.047Z",
       "tiers": {},
       "lastTestedAt": {}
+    },
+    "mixst_": {
+      "ign": "Mixst_",
+      "region": "NA",
+      "discordId": "1256386391059726389",
+      "uuid": "171d5be4dace4a2c8b5b520e77d1b300",
+      "skinUrl": "https://textures.minecraft.net/texture/c4a8cfb7896129415afb55a4d2a1d1934c6ff932502d6961e150d608a3a48329",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Sword": "LT3"
+      },
+      "lastTestedAt": {
+        "Sword": "2026-08-10T01:36:59.706Z"
+      },
+      "lastTestedTier": {
+        "Sword": "LT3"
+      }
     }
   }
 }
