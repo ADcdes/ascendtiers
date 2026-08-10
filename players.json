@@ -396,17 +396,20 @@
       "tiers": {
         "Sword": "LT2",
         "Vanilla": "LT3",
-        "Pot": "HT3"
+        "Pot": "HT3",
+        "SMP": "LT3"
       },
       "lastTestedAt": {
         "Sword": "2026-08-10T01:54:25.693Z",
         "Vanilla": "2026-08-10T22:14:11.935Z",
-        "Pot": "2026-08-10T22:18:37.618Z"
+        "Pot": "2026-08-10T22:18:37.618Z",
+        "SMP": "2026-08-10T22:23:04.115Z"
       },
       "lastTestedTier": {
         "Sword": "LT2",
         "Vanilla": "LT3",
-        "Pot": "HT3"
+        "Pot": "HT3",
+        "SMP": "LT3"
       },
       "skinUpdatedAt": "2026-08-10T21:28:56.251Z"
     },
