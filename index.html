@@ -823,7 +823,9 @@
       const value = String(playerIdentity(p));
       return /^[a-f0-9]{32}$/i.test(value) ? value.replace(/^(........)(....)(....)(....)(............)$/, '$1-$2-$3-$4-$5') : value;
     }
-    function bustUrl(p) { return `https://render.crafty.gg/3d/bust/${encodeURIComponent(craftyIdentity(p))}`; }
+    function bustUrl(p) {
+  return `https://render.crafty.gg/3d/bust/${encodeURIComponent(p.uuid || playerIgn(p))}`;
+}
     function avatarUrl(p, size = 160) { return `https://mc-heads.net/avatar/${encodeURIComponent(playerIdentity(p))}/${size}`; }
     function playerPoints(p) {
       return Object.values(p.tiers || {}).reduce((sum, tier) => sum + (TIER_POINTS[tier] || 0), 0);
