@@ -897,12 +897,12 @@ async function handleRetirePlayer(interaction) {
   player.tiers = {};
   player.retiredAt = new Date().toISOString();
   player.retireReason = reason;
-  await removeKnownTierRoles(interaction.guild, discordUser.id);
+  await removeKnownTierRolesEverywhere(discordUser.id);
 
   const pushed = await writePlayersData(data, `Retire ${player.ign ?? discordUser.username}`);
   await saveState(state);
 
-  await interaction.editReply(`Retired **${player.ign ?? discordUser.username}** and moved ${Object.keys(activeTiers).length} active tier${Object.keys(activeTiers).length === 1 ? '' : 's'} to their retired profile.${pushed ? ' Website data was synced to GitHub.' : ' Website data changed, but GitHub push failed; check bot logs.'}`);
+  await interaction.editReply(`Retired **${player.ign ?? discordUser.username}** and moved ${Object.keys(activeTiers).length} active tier${Object.keys(activeTiers).length === 1 ? '' : 's'} to their retired profile across every game mode server.${pushed ? ' Website data was synced to GitHub.' : ' Website data changed, but GitHub push failed; check bot logs.'}`);
 }
 
 async function handleMigrateCommand(interaction) {
@@ -2559,6 +2559,15 @@ async function removeKnownTierRoles(guild, userId) {
   if (rolesToRemove.size > 0) {
     await member.roles.remove([...rolesToRemove.keys()]).catch(() => {});
   }
+}
+
+// Tier roles live in whichever mode's own server they belong to (Crystal roles only exist in the
+// Crystal server, Sword roles only exist in the Sword server, etc). Retiring a player has to walk
+// every server the bot is in, not just the one the /retire command was run from, or the player is
+// left holding stale tier roles in the other game mode servers forever.
+async function removeKnownTierRolesEverywhere(userId) {
+  const guilds = [...client.guilds.cache.values()];
+  await Promise.all(guilds.map((guild) => removeKnownTierRoles(guild, userId)));
 }
 
 async function removeModeWaitlistRoles(guild, userId, mode) {

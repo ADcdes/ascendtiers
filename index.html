@@ -445,6 +445,9 @@
     .tier-ht4, .tier-lt4 { background: #61768f; color: #06101d; }
     .tier-ht5, .tier-lt5 { background: #3d5d8e; color: #dce9ff; }
     .tier-chip.retired { filter: grayscale(.25) brightness(.92); opacity: .88; }
+    .rank-row.retired-row { filter: grayscale(.45) brightness(.9); opacity: .8; }
+    .rank-row.retired-row .rank-num { color: var(--gold, #ebb721); font-size: .9em; }
+    .board-head.retired-head { margin-top: 18px; opacity: .7; }
 
     .empty-state {
       padding: 90px 20px;
@@ -823,9 +826,7 @@
       const value = String(playerIdentity(p));
       return /^[a-f0-9]{32}$/i.test(value) ? value.replace(/^(........)(....)(....)(....)(............)$/, '$1-$2-$3-$4-$5') : value;
     }
-    function bustUrl(p) {
-  return `https://render.crafty.gg/3d/bust/${encodeURIComponent(p.uuid || playerIgn(p))}`;
-}
+    function bustUrl(p) { return `https://render.crafty.gg/3d/bust/${encodeURIComponent(craftyIdentity(p))}`; }
     function avatarUrl(p, size = 160) { return `https://mc-heads.net/avatar/${encodeURIComponent(playerIdentity(p))}/${size}`; }
     function playerPoints(p) {
       return Object.values(p.tiers || {}).reduce((sum, tier) => sum + (TIER_POINTS[tier] || 0), 0);
@@ -934,9 +935,13 @@
       if (animate) animateContent();
     }
 
-    function renderOverall(list) {
-      list = list.filter(p => Object.keys(p.tiers || {}).length > 0).sort((a,b) => playerPoints(b) - playerPoints(a));
-      if (!list.length) {
+    function renderOverall(fullList) {
+      const list = fullList.filter(p => Object.keys(p.tiers || {}).length > 0).sort((a,b) => playerPoints(b) - playerPoints(a));
+      const retiredList = fullList
+        .filter(p => Object.keys(p.tiers || {}).length === 0 && Object.keys(p.retiredTiers || {}).length > 0)
+        .sort((a,b) => playerIgn(a).localeCompare(playerIgn(b)));
+
+      if (!list.length && !retiredList.length) {
         document.getElementById('content').innerHTML = `<div class="empty-state">No players found.</div>`;
         return;
       }
@@ -957,9 +962,28 @@
           <div class="tier-slots">${tierSlots(p)}</div>
         </div>`;
       }).join('');
+      const retiredRows = retiredList.length ? `
+        <div class="board-head retired-head"><div></div><div>Retired Player</div><div>Region</div><div>Former Tiers</div></div>
+        <div class="ranking-list">${retiredList.map(p => {
+          const ign = playerIgn(p);
+          return `<div class="rank-row retired-row" onclick="showPlayerByIgn('${jsString(ign)}')">
+            <div class="rank-card">
+              <div class="rank-num">—</div>
+              <img class="rank-skin" src="${bustUrl(p)}" loading="lazy" onerror="this.onerror=null;this.src='${avatarUrl(p)}'">
+            </div>
+            <div>
+              <div class="player-name">${escapeText(ign)}</div>
+              <div class="player-title">Retired</div>
+            </div>
+            <span class="region-pill region-${escapeText(p.region || 'NA')}">${escapeText(p.region || 'NA')}</span>
+            <div class="tier-slots">${tierSlots({ tiers: p.retiredTiers })}</div>
+          </div>`;
+        }).join('')}</div>
+      ` : '';
       document.getElementById('content').innerHTML = `
         <div class="board-head"><div>#</div><div>Player</div><div>Region</div><div>Tiers</div></div>
         <div class="ranking-list">${rows}</div>
+        ${retiredRows}
       `;
     }
 
