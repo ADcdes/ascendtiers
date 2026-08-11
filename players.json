@@ -531,6 +531,24 @@
       "lastTestedTier": {
         "Vanilla": "LT3"
       }
+    },
+    "wipre": {
+      "ign": "wipre",
+      "region": "NA",
+      "discordId": "575113506421211146",
+      "uuid": "75f6eb2b66604ad09c6d27fe94012373",
+      "skinUrl": "https://textures.minecraft.net/texture/a75f5672880290abfaf217f99cb525bc0f1f628a03afbc97352b388c51e679d6",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-08-11T18:16:21.090Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      }
     }
   }
 }
