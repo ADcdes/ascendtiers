@@ -509,8 +509,8 @@
         "Mace": "LT4"
       },
       "uuid": "e6f69970cfe54c2eaf70afb3cc059947",
-      "skinUrl": "https://textures.minecraft.net/texture/de10a41f9d3607afa956235f35f46b47812a19b7566a37ea34c114bb4293acd6",
-      "skinUpdatedAt": "2026-08-12T19:15:02.955Z",
+      "skinUrl": "https://textures.minecraft.net/texture/8383cab21db633a6c786614e2e0c24d8ec62893bff8b5f53c10c45a8be6e9733",
+      "skinUpdatedAt": "2026-08-12T22:15:01.892Z",
       "retiredTiers": {},
       "retiredAt": "2026-08-10T22:29:02.406Z",
       "retireReason": null
@@ -581,7 +581,10 @@
       },
       "lastTestedTier": {
         "Vanilla": "HT3"
-      }
+      },
+      "uuid": "792792fa48d64d7594fdf3e622ec562a",
+      "skinUrl": "https://textures.minecraft.net/texture/b601e53047a8c90cb099c2564941ad072a61e5fc638bde7a4c9d3b7262c10169",
+      "skinUpdatedAt": "2026-08-12T22:15:04.861Z"
     }
   }
 }
