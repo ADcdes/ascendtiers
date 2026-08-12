@@ -278,19 +278,6 @@
       "skinUrl": "https://textures.minecraft.net/texture/1860ae333e876981297c624c4857834e620c936a9fc4c49eb1842a097aceeb1a",
       "skinUpdatedAt": "2026-08-10T15:42:06.969Z"
     },
-    "zpxva": {
-      "ign": "zpxVA",
-      "region": "NA",
-      "discordId": "1495461059811606550",
-      "restricted": false,
-      "restrictReason": null,
-      "tiers": {
-        "Vanilla": "LT2"
-      },
-      "lastTestedAt": {
-        "Vanilla": "2026-07-14T21:03:07.204Z"
-      }
-    },
     "molbit": {
       "ign": "Molbit",
       "region": "NA",
