@@ -566,6 +566,22 @@
       "lastTestedTier": {
         "Vanilla": "HT3"
       }
+    },
+    "regrettinghim": {
+      "ign": "regrettinghim",
+      "region": "NA",
+      "discordId": "1524945251104587776",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-08-12T21:59:15.581Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "HT3"
+      }
     }
   }
 }
