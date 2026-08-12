@@ -501,25 +501,27 @@
         "Vanilla": "LT4",
         "Sword": "HT4",
         "SMP": "LT4",
-        "Pot": "HT5"
+        "Pot": "HT5",
+        "UHC": "HT5"
       },
       "lastTestedAt": {
         "Sword": "2026-08-12T19:21:35.220Z",
         "Vanilla": "2026-08-10T22:30:35.148Z",
         "SMP": "2026-08-12T19:23:13.356Z",
-        "Pot": "2026-08-12T19:23:41.662Z"
+        "Pot": "2026-08-12T19:23:41.662Z",
+        "UHC": "2026-08-12T19:25:22.363Z"
       },
       "lastTestedTier": {
         "Sword": "HT4",
         "Vanilla": "LT4",
         "SMP": "LT4",
-        "Pot": "HT5"
+        "Pot": "HT5",
+        "UHC": "HT5"
       },
       "uuid": "e6f69970cfe54c2eaf70afb3cc059947",
       "skinUrl": "https://textures.minecraft.net/texture/de10a41f9d3607afa956235f35f46b47812a19b7566a37ea34c114bb4293acd6",
       "skinUpdatedAt": "2026-08-12T19:15:02.955Z",
       "retiredTiers": {
-        "UHC": "HT5",
         "Mace": "LT4"
       },
       "retiredAt": "2026-08-10T22:29:02.406Z",
