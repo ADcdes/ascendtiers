@@ -184,7 +184,7 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Vanilla": "LT2"
+        "Vanilla": "HT3"
       },
       "lastTestedAt": {
         "Vanilla": "2026-06-13T20:27:30.132Z"
