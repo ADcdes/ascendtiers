@@ -498,10 +498,11 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Vanilla": "LT4"
+        "Vanilla": "LT4",
+        "Sword": "HT4"
       },
       "lastTestedAt": {
-        "Sword": "2026-07-20T20:25:21.015Z",
+        "Sword": "2026-08-12T19:21:35.220Z",
         "Vanilla": "2026-08-10T22:30:35.148Z"
       },
       "lastTestedTier": {
@@ -512,7 +513,6 @@
       "skinUrl": "https://textures.minecraft.net/texture/de10a41f9d3607afa956235f35f46b47812a19b7566a37ea34c114bb4293acd6",
       "skinUpdatedAt": "2026-08-12T19:15:02.955Z",
       "retiredTiers": {
-        "Sword": "HT4",
         "UHC": "HT5",
         "Mace": "LT4",
         "SMP": "LT4",
