@@ -177,22 +177,6 @@
       "skinUrl": "https://textures.minecraft.net/texture/cfb21fa37a4a15e08268fa1ac6ac464e9b6e8f264aa92178c2ceeff69d72b86b",
       "skinUpdatedAt": "2026-08-13T15:41:25.712Z"
     },
-    "ogf_": {
-      "ign": "OGF_",
-      "region": "EU",
-      "discordId": "1488202649500123226",
-      "restricted": false,
-      "restrictReason": null,
-      "tiers": {
-        "Vanilla": "HT3"
-      },
-      "lastTestedAt": {
-        "Vanilla": "2026-06-13T20:27:30.132Z"
-      },
-      "uuid": "3b48f2a5667b4725b0674a41490ab1e5",
-      "skinUrl": "https://textures.minecraft.net/texture/2a2ab0011f7e2562fd129f3cb017936854e026eb6740d96444cef8c5e620c500",
-      "skinUpdatedAt": "2026-08-10T15:42:02.990Z"
-    },
     "sabiagamc2": {
       "ign": "SabiagaMC2",
       "region": "NA",
@@ -585,6 +569,22 @@
       "uuid": "792792fa48d64d7594fdf3e622ec562a",
       "skinUrl": "https://textures.minecraft.net/texture/b601e53047a8c90cb099c2564941ad072a61e5fc638bde7a4c9d3b7262c10169",
       "skinUpdatedAt": "2026-08-12T22:15:04.861Z"
+    },
+    "crystalbox_org": {
+      "ign": "Crystalbox_org",
+      "region": "EU",
+      "discordId": "1488202649500123226",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-06-13T20:27:30.132Z"
+      },
+      "uuid": "3b48f2a5667b4725b0674a41490ab1e5",
+      "skinUrl": "https://textures.minecraft.net/texture/2a2ab0011f7e2562fd129f3cb017936854e026eb6740d96444cef8c5e620c500",
+      "skinUpdatedAt": "2026-08-13T18:41:33.469Z"
     }
   }
 }
