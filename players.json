@@ -110,8 +110,8 @@
         "Vanilla": "2026-07-01T21:23:54.184Z"
       },
       "uuid": "9ad7d1c7716249da8638d3b0d7cd5372",
-      "skinUrl": "https://textures.minecraft.net/texture/92449ed8fe7f7dd8b7e05eb3c6697359b36bf614069fec752cb0d8cc07a2dd9e",
-      "skinUpdatedAt": "2026-08-14T01:16:03.673Z"
+      "skinUrl": "https://textures.minecraft.net/texture/c35de2b74303a78db2b690d8626f55a657aacbba5a206356036f8545cbaaa5e9",
+      "skinUpdatedAt": "2026-08-14T15:11:14.314Z"
     },
     "enthozic": {
       "ign": "Enthozic",
@@ -340,7 +340,7 @@
       "region": "EU",
       "discordId": "1067831639301963786",
       "uuid": "6c2f4b8cf57f418c85585cb60effaff4",
-      "skinUrl": "https://textures.minecraft.net/texture/35637a532bf5d58ecf437938e4f12da73571f95a826ebc637c3e5eeb45531109",
+      "skinUrl": "https://textures.minecraft.net/texture/ad7c4ca3979c0cc1e608a9608c94c2e57d8770acf5b40a38263ee81d68e73081",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -348,7 +348,7 @@
       },
       "lastTestedAt": {},
       "lastTestedTier": {},
-      "skinUpdatedAt": "2026-08-13T13:41:35.002Z"
+      "skinUpdatedAt": "2026-08-14T15:11:25.572Z"
     },
     "marlowww": {
       "ign": "Marlowww",
@@ -583,8 +583,8 @@
         "Vanilla": "2026-06-13T20:27:30.132Z"
       },
       "uuid": "3b48f2a5667b4725b0674a41490ab1e5",
-      "skinUrl": "https://textures.minecraft.net/texture/2a2ab0011f7e2562fd129f3cb017936854e026eb6740d96444cef8c5e620c500",
-      "skinUpdatedAt": "2026-08-13T18:41:33.469Z"
+      "skinUrl": "https://textures.minecraft.net/texture/b81390ff853c49b29afe457e919b2cbc24400a2c2a3696b8a355f902b2fca9ba",
+      "skinUpdatedAt": "2026-08-14T15:11:35.185Z"
     }
   }
 }
