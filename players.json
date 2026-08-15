@@ -429,24 +429,6 @@
         "Vanilla": "LT3"
       }
     },
-    "cascade628843743": {
-      "ign": "CASCADE628843743",
-      "region": "NA",
-      "discordId": "1071890264551071915",
-      "uuid": "1fd728c9f0364634901206fcaf48683f",
-      "skinUrl": "https://textures.minecraft.net/texture/ec9a288efd92f51d5285ea2363883bd8e4dacbf7339f19ca2c101341225e4039",
-      "restricted": false,
-      "restrictReason": null,
-      "tiers": {
-        "Vanilla": "LT3"
-      },
-      "lastTestedAt": {
-        "Vanilla": "2026-08-10T19:00:25.724Z"
-      },
-      "lastTestedTier": {
-        "Vanilla": "LT3"
-      }
-    },
     "fraktu_": {
       "ign": "Fraktu_",
       "region": "NA",
@@ -585,6 +567,25 @@
       "lastTestedAt": {},
       "lastTestedTier": {},
       "skinUpdatedAt": "2026-08-14T17:11:27.805Z"
+    },
+    "itsmattieshea": {
+      "ign": "ITSMATTIESHEA",
+      "region": "NA",
+      "discordId": "1071890264551071915",
+      "uuid": "1fd728c9f0364634901206fcaf48683f",
+      "skinUrl": "https://textures.minecraft.net/texture/b31b0646d9e4c479201e3cbde5137a878096cbd5637931211f9ca1b390e64966",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-08-10T19:00:25.724Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      },
+      "skinUpdatedAt": "2026-08-15T02:48:27.907Z"
     }
   }
 }
