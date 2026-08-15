@@ -444,10 +444,20 @@
     .tier-ht3, .tier-lt3 { background: #bf6b27; }
     .tier-ht4, .tier-lt4 { background: #61768f; color: #06101d; }
     .tier-ht5, .tier-lt5 { background: #3d5d8e; color: #dce9ff; }
-    .tier-chip.retired { filter: grayscale(.25) brightness(.92); opacity: .88; }
-    .rank-row.retired-row { filter: grayscale(.45) brightness(.9); opacity: .8; }
-    .rank-row.retired-row .rank-num { color: var(--gold, #ebb721); font-size: .9em; }
-    .board-head.retired-head { margin-top: 18px; opacity: .7; }
+    .chip-tooltip {
+      position: fixed;
+      background: #131b28;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px;
+      padding: 8px 14px;
+      white-space: nowrap;
+      text-align: center;
+      pointer-events: none;
+      z-index: 200;
+      box-shadow: 0 10px 24px rgba(0,0,0,.45);
+    }
+    .chip-tooltip-title { font-size: .82rem; font-weight: 800; color: #fff; letter-spacing: .01em; }
+    .chip-tooltip-sub { font-size: .68rem; font-weight: 600; color: #8b96a8; margin-top: 2px; }
 
     .empty-state {
       padding: 90px 20px;
@@ -601,7 +611,6 @@
     .modal-tier-chip { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #0a111a; font-size: .92rem; font-weight: 900; box-shadow: inset 0 0 0 3px rgba(12,20,32,.18); }
     .modal-tier-chip .tiny-icon { width: 27px; height: 27px; display: grid; place-items: center; }
     .modal-tier-chip .tiny-icon svg { width: 100%; height: 100%; }
-    .modal-tier-chip.retired { filter: grayscale(.35) brightness(.8); opacity: .86; }
     .modal-tier-slot { border: 2px dashed #3b4d65; background: #131c28; }
     .modal-restricted { margin-top: 12px; color: #ff6975; }
 
@@ -829,7 +838,13 @@
     function bustUrl(p) { return `https://render.crafty.gg/3d/bust/${encodeURIComponent(craftyIdentity(p))}`; }
     function avatarUrl(p, size = 160) { return `https://mc-heads.net/avatar/${encodeURIComponent(playerIdentity(p))}/${size}`; }
     function playerPoints(p) {
-      return Object.values(p.tiers || {}).reduce((sum, tier) => sum + (TIER_POINTS[tier] || 0), 0);
+      return Object.values(mergedTiers(p)).reduce((sum, tier) => sum + (TIER_POINTS[tier] || 0), 0);
+    }
+    function mergedTiers(p) {
+      return { ...(p.retiredTiers || {}), ...(p.tiers || {}) };
+    }
+    function isRetiredTierMode(p, mode) {
+      return !!(p.retiredTiers && p.retiredTiers[mode]) && !(p.tiers && p.tiers[mode]);
     }
     function bestTier(p) {
       const tiers = Object.values(p.tiers || {});
@@ -844,7 +859,7 @@
       if (points >= 10) return 'Combat Novice';
       return 'Rookie';
     }
-    function sortedPlayers() { return Object.values(players).filter(p => Object.keys(p.tiers || {}).length > 0).sort((a,b) => playerPoints(b) - playerPoints(a)); }
+    function sortedPlayers() { return Object.values(players).filter(p => Object.keys(mergedTiers(p)).length > 0).sort((a,b) => playerPoints(b) - playerPoints(a)); }
     function escapeText(value) {
       return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
     }
@@ -887,9 +902,31 @@
     }
     function onSearch() { render(false); }
 
-    function tierChip(mode, tier, extraClass = '') {
+    let activeChipTooltip = null;
+    function showChipTooltip(el, title, sub) {
+      hideChipTooltip();
+      const tip = document.createElement('div');
+      tip.className = 'chip-tooltip';
+      tip.innerHTML = `<div class="chip-tooltip-title">${escapeText(title)}</div><div class="chip-tooltip-sub">${escapeText(sub)}</div>`;
+      document.body.appendChild(tip);
+      const rect = el.getBoundingClientRect();
+      const tipRect = tip.getBoundingClientRect();
+      let left = rect.left + rect.width / 2 - tipRect.width / 2;
+      left = Math.max(6, Math.min(left, window.innerWidth - tipRect.width - 6));
+      tip.style.left = `${left}px`;
+      tip.style.top = `${rect.top - tipRect.height - 10}px`;
+      activeChipTooltip = tip;
+    }
+    function hideChipTooltip() {
+      if (activeChipTooltip) { activeChipTooltip.remove(); activeChipTooltip = null; }
+    }
+
+    function tierChip(mode, tier, extraClass = '', retired = false) {
       const cls = `tier-${tier.toLowerCase()}`;
-      return `<div class="tier-chip ${cls} ${extraClass}" title="${mode}: ${tier}">
+      const points = TIER_POINTS[tier] || 0;
+      const title = retired ? `Retired ${tier}` : tier;
+      const sub = `${points} point${points === 1 ? '' : 's'}`;
+      return `<div class="tier-chip ${cls} ${extraClass}" onmouseenter="showChipTooltip(this,'${jsString(title)}','${jsString(sub)}')" onmouseleave="hideChipTooltip()">
         <span class="tiny-icon">${ICONS[mode] ? ICONS[mode](22) : ''}</span>
         <span>${tier}</span>
       </div>`;
@@ -898,14 +935,20 @@
       return Array.from({length: count}, () => `<div class="tier-slot"></div>`).join('');
     }
     function tierSlots(p) {
-      const entries = GAME_MODES.filter(mode => p.tiers?.[mode]).map(mode => tierChip(mode, p.tiers[mode]));
+      const merged = mergedTiers(p);
+      const entries = GAME_MODES.filter(mode => merged[mode]).map(mode => tierChip(mode, merged[mode], '', isRetiredTierMode(p, mode)));
       const max = 8;
       return `${entries.slice(0, max).join('')}${emptySlots(Math.max(0, max - entries.length))}`;
     }
-    function modalTierSlots(tiers, retired = false) {
-      const entries = GAME_MODES.filter(mode => tiers?.[mode]).map(mode => {
-        const tier = tiers[mode];
-        return `<div class="modal-tier-chip tier-${tier.toLowerCase()}${retired ? ' retired' : ''}" title="${mode}: ${tier}">
+    function modalTierSlots(p) {
+      const merged = mergedTiers(p);
+      const entries = GAME_MODES.filter(mode => merged[mode]).map(mode => {
+        const tier = merged[mode];
+        const retired = isRetiredTierMode(p, mode);
+        const points = TIER_POINTS[tier] || 0;
+        const title = retired ? `Retired ${tier}` : tier;
+        const sub = `${points} point${points === 1 ? '' : 's'}`;
+        return `<div class="modal-tier-chip tier-${tier.toLowerCase()}" onmouseenter="showChipTooltip(this,'${jsString(title)}','${jsString(sub)}')" onmouseleave="hideChipTooltip()">
           <span class="tiny-icon">${ICONS[mode] ? ICONS[mode](28) : ''}</span><span>${tier}</span>
         </div>`;
       });
@@ -936,12 +979,8 @@
     }
 
     function renderOverall(fullList) {
-      const list = fullList.filter(p => Object.keys(p.tiers || {}).length > 0).sort((a,b) => playerPoints(b) - playerPoints(a));
-      const retiredList = fullList
-        .filter(p => Object.keys(p.tiers || {}).length === 0 && Object.keys(p.retiredTiers || {}).length > 0)
-        .sort((a,b) => playerIgn(a).localeCompare(playerIgn(b)));
-
-      if (!list.length && !retiredList.length) {
+      const list = fullList.filter(p => Object.keys(mergedTiers(p)).length > 0).sort((a,b) => playerPoints(b) - playerPoints(a));
+      if (!list.length) {
         document.getElementById('content').innerHTML = `<div class="empty-state">No players found.</div>`;
         return;
       }
@@ -962,45 +1001,26 @@
           <div class="tier-slots">${tierSlots(p)}</div>
         </div>`;
       }).join('');
-      const retiredRows = retiredList.length ? `
-        <div class="board-head retired-head"><div></div><div>Retired Player</div><div>Region</div><div>Former Tiers</div></div>
-        <div class="ranking-list">${retiredList.map(p => {
-          const ign = playerIgn(p);
-          return `<div class="rank-row retired-row" onclick="showPlayerByIgn('${jsString(ign)}')">
-            <div class="rank-card">
-              <div class="rank-num">—</div>
-              <img class="rank-skin" src="${bustUrl(p)}" loading="lazy" onerror="this.onerror=null;this.src='${avatarUrl(p)}'">
-            </div>
-            <div>
-              <div class="player-name">${escapeText(ign)}</div>
-              <div class="player-title">Retired</div>
-            </div>
-            <span class="region-pill region-${escapeText(p.region || 'NA')}">${escapeText(p.region || 'NA')}</span>
-            <div class="tier-slots">${tierSlots({ tiers: p.retiredTiers })}</div>
-          </div>`;
-        }).join('')}</div>
-      ` : '';
       document.getElementById('content').innerHTML = `
         <div class="board-head"><div>#</div><div>Player</div><div>Region</div><div>Tiers</div></div>
         <div class="ranking-list">${rows}</div>
-        ${retiredRows}
       `;
     }
 
     function renderMode(list, mode) {
       const cols = {1:[],2:[],3:[],4:[],5:[]};
       list.forEach(player => {
-        const tier = player.tiers?.[mode];
+        const tier = mergedTiers(player)[mode];
         if (!tier) return;
         const num = Number(tier.replace(/\D/g, ''));
-        if (cols[num]) cols[num].push({...player, tier});
+        if (cols[num]) cols[num].push({...player, tier, retired: isRetiredTierMode(player, mode)});
       });
       Object.values(cols).forEach(col => col.sort((a,b) => TIER_ORDER.indexOf(a.tier) - TIER_ORDER.indexOf(b.tier) || playerIgn(a).localeCompare(playerIgn(b))));
       const grid = Object.entries(cols).map(([tierNum, tierPlayers]) => `
         <div class="tier-col t${tierNum}">
           <div class="tier-col-head"><span>Tier ${tierNum}</span></div>
           ${tierPlayers.length ? tierPlayers.map(p => `
-            <div class="tier-person ${p.tier.startsWith('HT') ? 'high' : 'low'}" onclick="showPlayerByIgn('${jsString(playerIgn(p))}')">${escapeText(playerIgn(p))}</div>
+            <div class="tier-person ${p.tier.startsWith('HT') ? 'high' : 'low'}" onclick="showPlayerByIgn('${jsString(playerIgn(p))}')" onmouseenter="${p.retired ? `showChipTooltip(this,'${jsString('Retired ' + p.tier)}','${jsString(mode)}')` : ''}" onmouseleave="${p.retired ? 'hideChipTooltip()' : ''}">${escapeText(playerIgn(p))}</div>
           `).join('') : `<div class="tier-person">No players yet</div>`}
         </div>
       `).join('');
@@ -1053,11 +1073,7 @@
         </section>
         <section class="modal-section">
           <h2 class="modal-section-title">Tiers</h2>
-          <div class="modal-tier-rack">${modalTierSlots(p.tiers)}</div>
-        </section>
-        <section class="modal-section">
-          <h2 class="modal-section-title">Retired</h2>
-          <div class="modal-tier-rack">${modalTierSlots(p.retiredTiers, true)}</div>
+          <div class="modal-tier-rack">${modalTierSlots(p)}</div>
           ${p.retireReason ? `<div class="modal-restricted">${escapeText(p.retireReason)}</div>` : ''}
         </section>
         ${p.restricted ? `<div class="modal-restricted">Restricted${p.restrictReason ? ': ' + escapeText(p.restrictReason) : ''}</div>` : ''}
