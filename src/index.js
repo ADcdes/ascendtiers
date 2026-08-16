@@ -153,7 +153,9 @@ const commands = [
     .addStringOption((option) => option.setName('ign').setDescription('Minecraft username').setRequired(true))
     .addStringOption((option) => option.setName('outcome').setDescription('Result outcome').setRequired(true).addChoices(
       { name: 'Failed', value: 'failed' },
-      { name: 'Promoted', value: 'promoted' }
+      { name: 'Promoted', value: 'promoted' },
+      { name: 'Demoted', value: 'demoted' },
+      { name: 'Unretired', value: 'unretired' }
     ))
     .addStringOption((option) => option.setName('tier').setDescription('Tier tested').setRequired(true).addChoices(
       { name: 'HT1', value: 'HT1' },
@@ -165,6 +167,7 @@ const commands = [
     .addBooleanOption((option) => option.setName('passed-eval').setDescription('Tag this as a result that passed a prior evaluation').setRequired(false))
     .addStringOption((option) => option.setName('score').setDescription('Fight score, e.g. 3-1. Required with passed-eval.').setRequired(false))
     .addStringOption((option) => option.setName('tester').setDescription('Opposing tester name. Required with passed-eval.').setRequired(false))
+    .addStringOption((option) => option.setName('demoted-to').setDescription('Also add a "Demoted to X" note, e.g. after a failed test drops them a tier').setRequired(false).addChoices(...tierCommandChoices))
     .addStringOption((option) => option.setName('fights').setDescription('Fight lines / notes, exactly as they should appear. New lines are allowed.').setRequired(false)),
   new SlashCommandBuilder()
     .setName('forceclose')
@@ -1102,7 +1105,19 @@ const formatTierNames = {
   LT1: 'Low Tier 1',
   HT2: 'High Tier 2',
   LT2: 'Low Tier 2',
-  HT3: 'High Tier 3'
+  HT3: 'High Tier 3',
+  LT3: 'Low Tier 3',
+  HT4: 'High Tier 4',
+  LT4: 'Low Tier 4',
+  HT5: 'High Tier 5',
+  LT5: 'Low Tier 5'
+};
+
+const formatOutcomeText = {
+  promoted: 'Promoted To',
+  failed: 'Failed',
+  demoted: 'Demoted To',
+  unretired: 'Unretired and Placed at'
 };
 
 async function handleFormatCommand(interaction) {
@@ -1120,6 +1135,7 @@ async function handleFormatCommand(interaction) {
   const passedEval = interaction.options.getBoolean('passed-eval') ?? false;
   const score = interaction.options.getString('score');
   const tester = interaction.options.getString('tester');
+  const demotedTo = interaction.options.getString('demoted-to');
   const fights = interaction.options.getString('fights');
 
   if (passedEval && (!score || !tester)) {
@@ -1133,15 +1149,17 @@ async function handleFormatCommand(interaction) {
   }
 
   const tierName = formatTierNames[tier] ?? tier;
-  const headerLine = outcome === 'promoted' ? `**Promoted To ${tierName}**` : `**Failed ${tierName}**`;
+  const headerLine = `${formatOutcomeText[outcome] ?? outcome} **${tierName}**`;
 
   const evalBlock = passedEval
-    ? outcome === 'promoted'
-      ? `*Passed Evaluation*\n### __${tierName} Fight:__\n> Won ${score} ${tester}`
+    ? outcome !== 'failed'
+      ? `*Passed Evaluation*\n### __${tierName} Fight:__\n> Won ${score} vs. ${tester}`
       : `*Passed Evaluation*\n### __${tierName} Fights:__\n> Lost ${score} vs. ${tester}`
     : null;
 
-  const body = [evalBlock, fights].filter(Boolean).join('\n');
+  const demotedLine = demotedTo ? `_Demoted to **${formatTierNames[demotedTo] ?? demotedTo}**_` : null;
+
+  const body = [evalBlock, fights, demotedLine].filter(Boolean).join('\n');
   const content = `<@${player.id}> - ${ign} - ${headerLine}\n${body}`;
 
   await interaction.reply({ content, allowedMentions: { users: [player.id] } });
