@@ -436,6 +436,7 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
+        "Vanilla": "HT4",
         "Sword": "HT4",
         "SMP": "LT4",
         "Pot": "HT5",
@@ -444,7 +445,7 @@
       },
       "lastTestedAt": {
         "Sword": "2026-08-12T19:21:35.220Z",
-        "Vanilla": "2026-08-16T01:03:53.948Z",
+        "Vanilla": "2026-08-13T15:29:39.824Z",
         "SMP": "2026-08-12T19:23:13.356Z",
         "Pot": "2026-08-12T19:23:41.662Z",
         "UHC": "2026-08-12T19:25:22.363Z",
@@ -452,7 +453,7 @@
       },
       "lastTestedTier": {
         "Sword": "HT4",
-        "Vanilla": "HT3",
+        "Vanilla": "HT4",
         "SMP": "LT4",
         "Pot": "HT5",
         "UHC": "HT5",
@@ -461,10 +462,8 @@
       "uuid": "e6f69970cfe54c2eaf70afb3cc059947",
       "skinUrl": "https://textures.minecraft.net/texture/8383cab21db633a6c786614e2e0c24d8ec62893bff8b5f53c10c45a8be6e9733",
       "skinUpdatedAt": "2026-08-12T22:15:01.892Z",
-      "retiredTiers": {
-        "Vanilla": "HT3"
-      },
-      "retiredAt": "2026-08-16T01:04:49.525Z",
+      "retiredTiers": {},
+      "retiredAt": "2026-08-10T22:29:02.406Z",
       "retireReason": null
     },
     "nytsom": {
