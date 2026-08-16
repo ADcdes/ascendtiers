@@ -20,7 +20,7 @@ import {
   TextInputBuilder,
   TextInputStyle
 } from 'discord.js';
-import { highResultTiers, highTestTiers, migrationChannelId, modes, supportPingRoleIds, testerCommandRoleIds, testingLeaderboardChannelId, tierChoices, websiteGameModes } from './config.js';
+import { highTestTiers, migrationChannelId, modes, supportPingRoleIds, testerCommandRoleIds, testingLeaderboardChannelId, tierChoices, websiteGameModes } from './config.js';
 import { crystalRules, maceRules, swordRules } from './rules.js';
 import { ensureWaitlist, loadState, profileKey, saveState } from './state.js';
 
@@ -684,9 +684,12 @@ async function postTierResult({ interaction, modeKey, player, ign, outcome, tier
     return { ok: false, message };
   }
 
-  const targetChannelId = highResultTiers.has(tier) ? mode.highResultsChannelId : mode.normalResultsChannelId;
+  // Every result — including HT1-HT3 — posts to the normal results channel now.
+  // #high-results is no longer used automatically; high-tier eval results are posted
+  // manually with /format instead.
+  const targetChannelId = mode.normalResultsChannelId;
   if (!targetChannelId) {
-    return { ok: false, message: `Set ${mode.label}'s result channel IDs before posting results.` };
+    return { ok: false, message: `Set ${mode.label}'s results channel ID before posting results.` };
   }
 
   const channel = await interaction.guild.channels.fetch(targetChannelId).catch(() => null);
@@ -1873,7 +1876,7 @@ async function createQueueTestTicket(interaction, modeKey, region, userId, profi
   await channel.send({
     content: `<@${userId}> <@${interaction.user.id}>\n-# Tester: run \`/close tier:<tier>\` here when the test is done to post the result and close this ticket in one step.`,
     embeds: [buildQueueTestEmbed(modeKey, userId, profile, interaction.user.id, currentTier)],
-    allowedMentions: { users: [userId, interaction.user.id] }
+    allowedMentions: { users: [...new Set([userId, interaction.user.id])] }
   });
 
   state.testTickets ??= [];
@@ -2110,7 +2113,7 @@ async function acceptHighTest(interaction, modeKey, playerId) {
 
   await interaction.reply({
     content: `<@${interaction.user.id}> accepted this high test for <@${playerId}>.`,
-    allowedMentions: { users: [interaction.user.id, playerId] }
+    allowedMentions: { users: [...new Set([interaction.user.id, playerId])] }
   });
 }
 

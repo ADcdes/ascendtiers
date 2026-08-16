@@ -444,6 +444,8 @@
     .tier-ht3, .tier-lt3 { background: #bf6b27; }
     .tier-ht4, .tier-lt4 { background: #61768f; color: #06101d; }
     .tier-ht5, .tier-lt5 { background: #3d5d8e; color: #dce9ff; }
+    .tier-chip.retired { filter: grayscale(.55) brightness(.85); opacity: .75; }
+    .tier-chip.retired:hover { filter: grayscale(.4) brightness(.95); }
     .chip-tooltip {
       position: fixed;
       background: #131b28;
@@ -936,19 +938,19 @@
     }
     function tierSlots(p) {
       const merged = mergedTiers(p);
-      const entries = GAME_MODES.filter(mode => merged[mode]).map(mode => tierChip(mode, merged[mode], '', isRetiredTierMode(p, mode)));
+      const entries = GAME_MODES.filter(mode => merged[mode]).map(mode => {
+        const retired = isRetiredTierMode(p, mode);
+        return tierChip(mode, merged[mode], retired ? 'retired' : '', retired);
+      });
       const max = 8;
       return `${entries.slice(0, max).join('')}${emptySlots(Math.max(0, max - entries.length))}`;
     }
-    function modalTierSlots(p) {
-      const merged = mergedTiers(p);
-      const entries = GAME_MODES.filter(mode => merged[mode]).map(mode => {
-        const tier = merged[mode];
-        const retired = isRetiredTierMode(p, mode);
+    function modalTierSlots(tiers) {
+      const entries = GAME_MODES.filter(mode => tiers?.[mode]).map(mode => {
+        const tier = tiers[mode];
         const points = TIER_POINTS[tier] || 0;
-        const title = retired ? `Retired ${tier}` : tier;
         const sub = `${points} point${points === 1 ? '' : 's'}`;
-        return `<div class="modal-tier-chip tier-${tier.toLowerCase()}" onmouseenter="showChipTooltip(this,'${jsString(title)}','${jsString(sub)}')" onmouseleave="hideChipTooltip()">
+        return `<div class="modal-tier-chip tier-${tier.toLowerCase()}" onmouseenter="showChipTooltip(this,'${jsString(tier)}','${jsString(sub)}')" onmouseleave="hideChipTooltip()">
           <span class="tiny-icon">${ICONS[mode] ? ICONS[mode](28) : ''}</span><span>${tier}</span>
         </div>`;
       });
@@ -1073,9 +1075,15 @@
         </section>
         <section class="modal-section">
           <h2 class="modal-section-title">Tiers</h2>
-          <div class="modal-tier-rack">${modalTierSlots(p)}</div>
+          <div class="modal-tier-rack">${modalTierSlots(p.tiers)}</div>
+        </section>
+        ${Object.keys(p.retiredTiers || {}).length ? `
+        <section class="modal-section">
+          <h2 class="modal-section-title">Retired Tiers</h2>
+          <div class="modal-tier-rack">${modalTierSlots(p.retiredTiers)}</div>
           ${p.retireReason ? `<div class="modal-restricted">${escapeText(p.retireReason)}</div>` : ''}
         </section>
+        ` : ''}
         ${p.restricted ? `<div class="modal-restricted">Restricted${p.restrictReason ? ': ' + escapeText(p.restrictReason) : ''}</div>` : ''}
       `;
       document.getElementById('modal-overlay').classList.add('open');
