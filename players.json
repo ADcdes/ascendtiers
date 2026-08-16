@@ -437,7 +437,6 @@
       "restrictReason": null,
       "tiers": {
         "Vanilla": "HT4",
-        "Sword": "HT4",
         "SMP": "LT4",
         "Pot": "HT5",
         "UHC": "HT5",
@@ -462,9 +461,11 @@
       "uuid": "e6f69970cfe54c2eaf70afb3cc059947",
       "skinUrl": "https://textures.minecraft.net/texture/8383cab21db633a6c786614e2e0c24d8ec62893bff8b5f53c10c45a8be6e9733",
       "skinUpdatedAt": "2026-08-12T22:15:01.892Z",
-      "retiredTiers": {},
-      "retiredAt": "2026-08-10T22:29:02.406Z",
-      "retireReason": null
+      "retiredTiers": {
+        "Sword": "HT4"
+      },
+      "retiredAt": "2026-08-16T01:22:14.798Z",
+      "retireReason": "hamburger"
     },
     "nytsom": {
       "ign": "nytsom",
