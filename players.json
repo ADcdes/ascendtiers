@@ -436,7 +436,7 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Vanilla": "HT4",
+        "Vanilla": "HT3",
         "Sword": "HT4",
         "SMP": "LT4",
         "Pot": "HT5",
@@ -445,7 +445,7 @@
       },
       "lastTestedAt": {
         "Sword": "2026-08-12T19:21:35.220Z",
-        "Vanilla": "2026-08-13T15:29:39.824Z",
+        "Vanilla": "2026-08-16T01:03:53.948Z",
         "SMP": "2026-08-12T19:23:13.356Z",
         "Pot": "2026-08-12T19:23:41.662Z",
         "UHC": "2026-08-12T19:25:22.363Z",
@@ -453,7 +453,7 @@
       },
       "lastTestedTier": {
         "Sword": "HT4",
-        "Vanilla": "HT4",
+        "Vanilla": "HT3",
         "SMP": "LT4",
         "Pot": "HT5",
         "UHC": "HT5",
