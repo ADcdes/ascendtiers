@@ -303,8 +303,8 @@
       },
       "lastTestedAt": {},
       "uuid": "e997282d79a844289e0636cbcd613253",
-      "skinUrl": "https://textures.minecraft.net/texture/e4278d0b526e82ca82ed152a85ca95cae2c66cab97fbd270fa9e69067dcf5c75",
-      "skinUpdatedAt": "2026-08-17T15:38:37.920Z"
+      "skinUrl": "https://textures.minecraft.net/texture/ae14c0b28345cda2ed7b04ef32a9463d553386d716f7118406ee34693a46f867",
+      "skinUpdatedAt": "2026-08-18T01:38:45.440Z"
     },
     "br8ad": {
       "ign": "br8ad",
@@ -416,7 +416,7 @@
       "region": "NA",
       "discordId": "1387559211734667395",
       "uuid": "d73a67dd335440fe8716840ce37cce06",
-      "skinUrl": "https://textures.minecraft.net/texture/8d4cca699a1c038b45427dd6a5316d1dcb70bc77dbcb72bb343b77318fe6208d",
+      "skinUrl": "https://textures.minecraft.net/texture/b122d27682649fda20de1143c613568c1f57e13ae99760a61e0589d27eed9df0",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -427,7 +427,8 @@
       },
       "lastTestedTier": {
         "Vanilla": "LT3"
-      }
+      },
+      "skinUpdatedAt": "2026-08-18T01:38:50.995Z"
     },
     "fraktu_": {
       "ign": "Fraktu_",
