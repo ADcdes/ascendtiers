@@ -174,8 +174,8 @@
         "Vanilla": "2026-07-13T19:47:12.942Z"
       },
       "uuid": "a8c79d7f51164dec9cc5c350cd6f4a97",
-      "skinUrl": "https://textures.minecraft.net/texture/6293151cc998c0dc3ca7d43094466b03a18ef6d1f09509901983d4de2c4e00ef",
-      "skinUpdatedAt": "2026-08-15T11:28:53.597Z"
+      "skinUrl": "https://textures.minecraft.net/texture/cfb21fa37a4a15e08268fa1ac6ac464e9b6e8f264aa92178c2ceeff69d72b86b",
+      "skinUpdatedAt": "2026-08-19T19:40:08.067Z"
     },
     "sabiagamc2": {
       "ign": "SabiagaMC2",
@@ -243,8 +243,8 @@
         "Sword": "2026-07-14T04:32:04.685Z"
       },
       "uuid": "6762ac03796549d197cea50c91dd13ea",
-      "skinUrl": "https://textures.minecraft.net/texture/6bd2039a689a993d50bd0b2d68fd836f769cdf8428ef545706fdc265fdb5c7af",
-      "skinUpdatedAt": "2026-08-10T15:42:06.166Z"
+      "skinUrl": "https://textures.minecraft.net/texture/bb74873ef843dc6d7ab86705b58364601932b897c960731e4f23ad35150f6c29",
+      "skinUpdatedAt": "2026-08-19T19:40:11.110Z"
     },
     "ominousmeow": {
       "ign": "ominousmeow",
@@ -416,7 +416,7 @@
       "region": "NA",
       "discordId": "1387559211734667395",
       "uuid": "d73a67dd335440fe8716840ce37cce06",
-      "skinUrl": "https://textures.minecraft.net/texture/b122d27682649fda20de1143c613568c1f57e13ae99760a61e0589d27eed9df0",
+      "skinUrl": "https://textures.minecraft.net/texture/8d4cca699a1c038b45427dd6a5316d1dcb70bc77dbcb72bb343b77318fe6208d",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -428,7 +428,7 @@
       "lastTestedTier": {
         "Vanilla": "LT3"
       },
-      "skinUpdatedAt": "2026-08-18T01:38:50.995Z"
+      "skinUpdatedAt": "2026-08-19T19:40:19.827Z"
     },
     "fraktu_": {
       "ign": "Fraktu_",
