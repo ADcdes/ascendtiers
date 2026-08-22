@@ -491,7 +491,7 @@
       "region": "NA",
       "discordId": "575113506421211146",
       "uuid": "75f6eb2b66604ad09c6d27fe94012373",
-      "skinUrl": "https://textures.minecraft.net/texture/a75f5672880290abfaf217f99cb525bc0f1f628a03afbc97352b388c51e679d6",
+      "skinUrl": "https://textures.minecraft.net/texture/f136706535cbdceb5bebcd167fe2bdab35b8f1b5fa2b18c968dc5e407e48b5fe",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -502,7 +502,8 @@
       },
       "lastTestedTier": {
         "Vanilla": "LT3"
-      }
+      },
+      "skinUpdatedAt": "2026-08-22T00:05:53.331Z"
     },
     "5njq": {
       "ign": "5njq",
