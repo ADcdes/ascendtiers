@@ -416,7 +416,7 @@
       "region": "NA",
       "discordId": "1387559211734667395",
       "uuid": "d73a67dd335440fe8716840ce37cce06",
-      "skinUrl": "https://textures.minecraft.net/texture/8d4cca699a1c038b45427dd6a5316d1dcb70bc77dbcb72bb343b77318fe6208d",
+      "skinUrl": "https://textures.minecraft.net/texture/65ae410fcb071d21b356af6fb7134b9290549b2dea794f6fcd0861912626102b",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -428,7 +428,7 @@
       "lastTestedTier": {
         "Vanilla": "LT3"
       },
-      "skinUpdatedAt": "2026-08-19T19:40:19.827Z"
+      "skinUpdatedAt": "2026-08-28T01:28:59.196Z"
     },
     "fraktu_": {
       "ign": "Fraktu_",
