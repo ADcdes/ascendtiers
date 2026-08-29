@@ -460,8 +460,8 @@
         "Mace": "LT4"
       },
       "uuid": "e6f69970cfe54c2eaf70afb3cc059947",
-      "skinUrl": "https://textures.minecraft.net/texture/8383cab21db633a6c786614e2e0c24d8ec62893bff8b5f53c10c45a8be6e9733",
-      "skinUpdatedAt": "2026-08-28T09:28:55.761Z",
+      "skinUrl": "https://textures.minecraft.net/texture/de10a41f9d3607afa956235f35f46b47812a19b7566a37ea34c114bb4293acd6",
+      "skinUpdatedAt": "2026-08-29T01:02:12.981Z",
       "retiredTiers": {
         "Sword": "HT4"
       },
@@ -473,7 +473,7 @@
       "region": "NA",
       "discordId": "1349516034901545162",
       "uuid": "82e2bc6f4d874279b9a32aab880dac6b",
-      "skinUrl": "https://textures.minecraft.net/texture/d225ecdefa434d8cab1ed92355db690b09ada8c54209faa130387c7ed6501d3c",
+      "skinUrl": "https://textures.minecraft.net/texture/e6862a644019e777eab80849fc0284acea9432741817ac80ec7e6cf32a7b020f",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -484,7 +484,8 @@
       },
       "lastTestedTier": {
         "Vanilla": "LT3"
-      }
+      },
+      "skinUpdatedAt": "2026-08-29T01:02:13.765Z"
     },
     "wipre": {
       "ign": "wipre",
