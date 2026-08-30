@@ -590,6 +590,24 @@
       "uuid": "792792fa48d64d7594fdf3e622ec562a",
       "skinUrl": "https://textures.minecraft.net/texture/8e1d4d283e2670ddb01184312c3b61d8d7e7db3a4758512d37321f790ab48f9f",
       "skinUpdatedAt": "2026-08-21T18:06:06.116Z"
+    },
+    "thephantomtyrant": {
+      "ign": "ThePhantomTyrant",
+      "region": "NA",
+      "discordId": "1357539901721153672",
+      "uuid": "d227ea93d02b4f85be7c5c7503e150a4",
+      "skinUrl": "https://textures.minecraft.net/texture/95618bec7b140788f438ee243d26bf413ececb39e8201a597b09e6fb8a1af296",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Sword": "HT5"
+      },
+      "lastTestedAt": {
+        "Sword": "2026-08-30T21:05:36.172Z"
+      },
+      "lastTestedTier": {
+        "Sword": "HT5"
+      }
     }
   }
 }
