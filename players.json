@@ -596,7 +596,7 @@
       "region": "NA",
       "discordId": "1357539901721153672",
       "uuid": "d227ea93d02b4f85be7c5c7503e150a4",
-      "skinUrl": "https://textures.minecraft.net/texture/49d830e31c69884a0b22a796194e628107dcfca2e76c2e4ca378ea5c44f6dfe6",
+      "skinUrl": "https://textures.minecraft.net/texture/1b23531ff1f216747a0e69a4a2c6be22d4ab9585ce4ec893e10b84817dfe198c",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -608,7 +608,7 @@
       "lastTestedTier": {
         "Sword": "HT5"
       },
-      "skinUpdatedAt": "2026-08-30T23:54:49.198Z"
+      "skinUpdatedAt": "2026-08-31T00:54:57.360Z"
     }
   }
 }
