@@ -306,20 +306,6 @@
       "skinUrl": "https://textures.minecraft.net/texture/7af12c0dd7661e07076d75da06a8c8a0e4a73cba7bcdb885e0f696d341228e18",
       "skinUpdatedAt": "2026-08-29T22:02:01.415Z"
     },
-    "br8ad": {
-      "ign": "br8ad",
-      "region": "NA",
-      "discordId": "1405953954931802162",
-      "restricted": false,
-      "restrictReason": null,
-      "tiers": {
-        "Vanilla": "HT4"
-      },
-      "lastTestedAt": {},
-      "uuid": "30e5d37f131f43fea4a0c2eae2cad245",
-      "skinUrl": "https://textures.minecraft.net/texture/92389ce6b6515ac495a6bae6a15e67c08437b29e07e272d56c8d0fa4625e3d9a",
-      "skinUpdatedAt": "2026-08-10T15:42:10.776Z"
-    },
     "_dtap": {
       "ign": "_dtap",
       "region": "NA",
@@ -609,6 +595,20 @@
         "Vanilla": "LT3"
       },
       "skinUpdatedAt": "2026-09-01T02:22:10.300Z"
+    },
+    "vexweb": {
+      "ign": "VexWeb",
+      "region": "NA",
+      "discordId": "1405953954931802162",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT4"
+      },
+      "lastTestedAt": {},
+      "uuid": "30e5d37f131f43fea4a0c2eae2cad245",
+      "skinUrl": "https://textures.minecraft.net/texture/3711d23625cf2e796d7b0bc1d474965bfb53980f4541e5c258a35285fcbf838e",
+      "skinUpdatedAt": "2026-09-01T17:22:03.353Z"
     }
   }
 }
