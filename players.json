@@ -487,25 +487,6 @@
       },
       "skinUpdatedAt": "2026-08-29T01:02:13.765Z"
     },
-    "wipre": {
-      "ign": "wipre",
-      "region": "NA",
-      "discordId": "575113506421211146",
-      "uuid": "75f6eb2b66604ad09c6d27fe94012373",
-      "skinUrl": "https://textures.minecraft.net/texture/f136706535cbdceb5bebcd167fe2bdab35b8f1b5fa2b18c968dc5e407e48b5fe",
-      "restricted": false,
-      "restrictReason": null,
-      "tiers": {
-        "Vanilla": "LT3"
-      },
-      "lastTestedAt": {
-        "Vanilla": "2026-08-11T18:16:21.090Z"
-      },
-      "lastTestedTier": {
-        "Vanilla": "LT3"
-      },
-      "skinUpdatedAt": "2026-08-29T15:35:52.531Z"
-    },
     "5njq": {
       "ign": "5njq",
       "region": "NA",
@@ -609,6 +590,25 @@
         "Sword": "HT5"
       },
       "skinUpdatedAt": "2026-08-31T02:54:49.834Z"
+    },
+    "ddaisyyy": {
+      "ign": "ddaisyyy",
+      "region": "NA",
+      "discordId": "575113506421211146",
+      "uuid": "75f6eb2b66604ad09c6d27fe94012373",
+      "skinUrl": "https://textures.minecraft.net/texture/f136706535cbdceb5bebcd167fe2bdab35b8f1b5fa2b18c968dc5e407e48b5fe",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-08-11T18:16:21.090Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      },
+      "skinUpdatedAt": "2026-09-01T02:22:10.300Z"
     }
   }
 }
