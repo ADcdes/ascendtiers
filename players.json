@@ -609,6 +609,24 @@
       "uuid": "30e5d37f131f43fea4a0c2eae2cad245",
       "skinUrl": "https://textures.minecraft.net/texture/3711d23625cf2e796d7b0bc1d474965bfb53980f4541e5c258a35285fcbf838e",
       "skinUpdatedAt": "2026-09-03T19:02:21.723Z"
+    },
+    "gldnx": {
+      "ign": "GldnX",
+      "region": "NA",
+      "discordId": "933533474407723068",
+      "uuid": "aeda70d4cf1245429c0102b44fd27b96",
+      "skinUrl": "https://textures.minecraft.net/texture/38e69cee718b80153763840c17f914300587a440654a9055d30f5b00668f7217",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT4"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-09-03T20:05:21.357Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT4"
+      }
     }
   }
 }
