@@ -482,12 +482,8 @@
       "tiers": {
         "Vanilla": "HT3"
       },
-      "lastTestedAt": {
-        "Vanilla": "2026-08-12T00:05:13.554Z"
-      },
-      "lastTestedTier": {
-        "Vanilla": "HT3"
-      }
+      "lastTestedAt": {},
+      "lastTestedTier": {}
     },
     "crystalbox_org": {
       "ign": "Crystalbox_org",
