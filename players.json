@@ -510,7 +510,7 @@
       "region": "EU",
       "discordId": "1067831639301963786",
       "uuid": "6c2f4b8cf57f418c85585cb60effaff4",
-      "skinUrl": "https://mc-heads.net/avatar/6c2f4b8cf57f418c85585cb60effaff4/160",
+      "skinUrl": "https://textures.minecraft.net/texture/b9a451983dd4fe2420fc82548db3490d433fe9a8e365bf928efe62a5e0cf63be",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -518,7 +518,7 @@
       },
       "lastTestedAt": {},
       "lastTestedTier": {},
-      "skinUpdatedAt": "2026-09-03T10:22:12.892Z"
+      "skinUpdatedAt": "2026-09-03T11:22:11.356Z"
     },
     "itsmattieshea": {
       "ign": "ITSMATTIESHEA",
@@ -607,8 +607,8 @@
       },
       "lastTestedAt": {},
       "uuid": "30e5d37f131f43fea4a0c2eae2cad245",
-      "skinUrl": "https://mc-heads.net/avatar/30e5d37f131f43fea4a0c2eae2cad245/160",
-      "skinUpdatedAt": "2026-09-03T10:22:16.447Z"
+      "skinUrl": "https://textures.minecraft.net/texture/3711d23625cf2e796d7b0bc1d474965bfb53980f4541e5c258a35285fcbf838e",
+      "skinUpdatedAt": "2026-09-03T11:22:15.031Z"
     }
   }
 }
