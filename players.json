@@ -480,10 +480,14 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Vanilla": "HT3"
+        "Vanilla": "LT3"
       },
-      "lastTestedAt": {},
-      "lastTestedTier": {}
+      "lastTestedAt": {
+        "Vanilla": "2026-09-03T21:18:19.766Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      }
     },
     "crystalbox_org": {
       "ign": "Crystalbox_org",
