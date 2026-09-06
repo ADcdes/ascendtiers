@@ -206,8 +206,8 @@
         "Vanilla": "2026-06-13T21:13:47.812Z"
       },
       "uuid": "1b20b8f513204122a72af6df68d5fb6d",
-      "skinUrl": "https://textures.minecraft.net/texture/ab3e8966214d88788dacde571a9749e451046ffe59e79aed121f411ea3771126",
-      "skinUpdatedAt": "2026-08-26T23:04:06.608Z"
+      "skinUrl": "https://textures.minecraft.net/texture/1691196b6ba8426737cc932976a6872b15f34a796b1c42d7eb85a725db762f36",
+      "skinUpdatedAt": "2026-09-06T16:25:04.495Z"
     },
     "epicboogs": {
       "ign": "EpicBoogs",
@@ -227,8 +227,8 @@
         "Sword": "LT4"
       },
       "uuid": "76865df06d064a91a32a3641ac7ad5ab",
-      "skinUrl": "https://textures.minecraft.net/texture/aaff3f66383e09de7269c4ac6f536754ab715a3d8840e489a64b05ca0060a6e7",
-      "skinUpdatedAt": "2026-09-02T01:21:59.228Z"
+      "skinUrl": "https://textures.minecraft.net/texture/385d8418cc66bec0d529131832cbc06f05832b50e99e5a10ea2abef9c888ccc6",
+      "skinUpdatedAt": "2026-09-06T22:00:15.695Z"
     },
     "nexxxiu": {
       "ign": "nexxxiu",
@@ -510,7 +510,7 @@
       "region": "EU",
       "discordId": "1067831639301963786",
       "uuid": "6c2f4b8cf57f418c85585cb60effaff4",
-      "skinUrl": "https://textures.minecraft.net/texture/3205168ab9e79c2042b6ec73dae285b9a422fd989aa76077e0fe4bbcec98710a",
+      "skinUrl": "https://textures.minecraft.net/texture/fe01565087200145331eca0995fa9908d91e4ba13f7586c42d9294666a87ce7d",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -518,7 +518,7 @@
       },
       "lastTestedAt": {},
       "lastTestedTier": {},
-      "skinUpdatedAt": "2026-09-04T19:31:34.457Z"
+      "skinUpdatedAt": "2026-09-06T19:48:22.401Z"
     },
     "itsmattieshea": {
       "ign": "ITSMATTIESHEA",
@@ -563,7 +563,7 @@
       "region": "NA",
       "discordId": "1357539901721153672",
       "uuid": "d227ea93d02b4f85be7c5c7503e150a4",
-      "skinUrl": "https://textures.minecraft.net/texture/1b23531ff1f216747a0e69a4a2c6be22d4ab9585ce4ec893e10b84817dfe198c",
+      "skinUrl": "https://textures.minecraft.net/texture/95618bec7b140788f438ee243d26bf413ececb39e8201a597b09e6fb8a1af296",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -575,7 +575,7 @@
       "lastTestedTier": {
         "Sword": "HT5"
       },
-      "skinUpdatedAt": "2026-09-05T00:01:56.898Z"
+      "skinUpdatedAt": "2026-09-06T16:25:19.104Z"
     },
     "ddaisyyy": {
       "ign": "ddaisyyy",
