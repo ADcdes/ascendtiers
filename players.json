@@ -628,6 +628,24 @@
         "Vanilla": "LT4"
       },
       "skinUpdatedAt": "2026-09-05T20:20:40.170Z"
+    },
+    "toydoesnotcheat": {
+      "ign": "toyDoesNotCheat",
+      "region": "NA",
+      "discordId": "804454749986357258",
+      "uuid": "1dcaedae143140c89dbf45bdf30f0f11",
+      "skinUrl": "https://textures.minecraft.net/texture/6ffbef7a2cd04dc042adfda6451bad20ba58ee4cc4aef9620936ffff1b17aa2a",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-09-08T04:29:52.096Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      }
     }
   }
 }
