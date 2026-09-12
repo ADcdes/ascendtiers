@@ -126,8 +126,8 @@
         "Sword": "2026-07-07T00:14:59.946Z"
       },
       "uuid": "78fa2bcc8307431084d01c5c029ca9cc",
-      "skinUrl": "https://textures.minecraft.net/texture/e934048462c14e3c8f13100c8d32cb7b38c70202e4aefee55d03dea8142afd93",
-      "skinUpdatedAt": "2026-08-10T15:41:59.159Z"
+      "skinUrl": "https://textures.minecraft.net/texture/5af49e7dccdc6f50624e392e460a301c6cb2d34a57cadbaccc72c4add554f155",
+      "skinUpdatedAt": "2026-09-12T02:38:04.152Z"
     },
     "flickzy6": {
       "ign": "Flickzy6",
@@ -206,8 +206,8 @@
         "Vanilla": "2026-06-13T21:13:47.812Z"
       },
       "uuid": "1b20b8f513204122a72af6df68d5fb6d",
-      "skinUrl": "https://textures.minecraft.net/texture/1691196b6ba8426737cc932976a6872b15f34a796b1c42d7eb85a725db762f36",
-      "skinUpdatedAt": "2026-09-06T16:25:04.495Z"
+      "skinUrl": "https://textures.minecraft.net/texture/778df564e43f1167fe800e26926c2380653307b2b7d151506b79eb71bee9078e",
+      "skinUpdatedAt": "2026-09-12T02:38:07.868Z"
     },
     "epicboogs": {
       "ign": "EpicBoogs",
@@ -303,8 +303,8 @@
       },
       "lastTestedAt": {},
       "uuid": "e997282d79a844289e0636cbcd613253",
-      "skinUrl": "https://textures.minecraft.net/texture/7af12c0dd7661e07076d75da06a8c8a0e4a73cba7bcdb885e0f696d341228e18",
-      "skinUpdatedAt": "2026-08-29T22:02:01.415Z"
+      "skinUrl": "https://textures.minecraft.net/texture/eda64e80551ae151a34152eef3e1a8e8e16a75af05c8f6debcbbd95254a85639",
+      "skinUpdatedAt": "2026-09-12T02:38:12.309Z"
     },
     "_dtap": {
       "ign": "_dtap",
@@ -563,7 +563,7 @@
       "region": "NA",
       "discordId": "1357539901721153672",
       "uuid": "d227ea93d02b4f85be7c5c7503e150a4",
-      "skinUrl": "https://textures.minecraft.net/texture/cb9f2f563afb22bb64ba83a5efbc63bb5dec4d3b93ef295f01dffd40729fb8af",
+      "skinUrl": "https://textures.minecraft.net/texture/1b23531ff1f216747a0e69a4a2c6be22d4ab9585ce4ec893e10b84817dfe198c",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -575,14 +575,14 @@
       "lastTestedTier": {
         "Sword": "HT5"
       },
-      "skinUpdatedAt": "2026-09-08T04:29:45.887Z"
+      "skinUpdatedAt": "2026-09-12T02:38:22.736Z"
     },
     "ddaisyyy": {
       "ign": "ddaisyyy",
       "region": "NA",
       "discordId": "575113506421211146",
       "uuid": "75f6eb2b66604ad09c6d27fe94012373",
-      "skinUrl": "https://textures.minecraft.net/texture/f136706535cbdceb5bebcd167fe2bdab35b8f1b5fa2b18c968dc5e407e48b5fe",
+      "skinUrl": "https://textures.minecraft.net/texture/90af8983ec499aefa347eb75c173f89d6ea99418583753452e331e9ae49d5f52",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -594,7 +594,7 @@
       "lastTestedTier": {
         "Vanilla": "LT3"
       },
-      "skinUpdatedAt": "2026-09-01T02:22:10.300Z"
+      "skinUpdatedAt": "2026-09-12T02:38:23.528Z"
     },
     "vexweb": {
       "ign": "VexWeb",
