@@ -97,22 +97,6 @@
       "skinUrl": "https://textures.minecraft.net/texture/5e4931a3c5d6355542a5756406f08971159b048e934959dc1262a16e69d1de55",
       "skinUpdatedAt": "2026-08-10T15:41:57.550Z"
     },
-    "subarujaxy": {
-      "ign": "SubaruJaxy",
-      "region": "NA",
-      "discordId": "1467920577032618229",
-      "restricted": false,
-      "restrictReason": null,
-      "tiers": {
-        "Vanilla": "HT3"
-      },
-      "lastTestedAt": {
-        "Vanilla": "2026-07-01T21:23:54.184Z"
-      },
-      "uuid": "9ad7d1c7716249da8638d3b0d7cd5372",
-      "skinUrl": "https://textures.minecraft.net/texture/c35de2b74303a78db2b690d8626f55a657aacbba5a206356036f8545cbaaa5e9",
-      "skinUpdatedAt": "2026-08-14T15:11:14.314Z"
-    },
     "enthozic": {
       "ign": "Enthozic",
       "region": "NA",
@@ -647,6 +631,22 @@
       "lastTestedAt": {},
       "lastTestedTier": {},
       "skinUpdatedAt": "2026-09-14T00:22:26.455Z"
+    },
+    "rattedbytenisn3": {
+      "ign": "rattedbytenisn3",
+      "region": "NA",
+      "discordId": "1467920577032618229",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-07-01T21:23:54.184Z"
+      },
+      "uuid": "9ad7d1c7716249da8638d3b0d7cd5372",
+      "skinUrl": "https://textures.minecraft.net/texture/c35de2b74303a78db2b690d8626f55a657aacbba5a206356036f8545cbaaa5e9",
+      "skinUpdatedAt": "2026-09-14T09:22:06.108Z"
     }
   }
 }
