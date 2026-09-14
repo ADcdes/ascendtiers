@@ -582,25 +582,6 @@
       },
       "skinUpdatedAt": "2026-09-05T20:20:40.170Z"
     },
-    "toydoesnotcheat": {
-      "ign": "toyDoesNotCheat",
-      "region": "NA",
-      "discordId": "804454749986357258",
-      "uuid": "1dcaedae143140c89dbf45bdf30f0f11",
-      "skinUrl": "https://textures.minecraft.net/texture/cf4834d553fab7b7f5a10c40c07f64c4b7619c37ba043c71b68633097c7794a9",
-      "restricted": false,
-      "restrictReason": null,
-      "tiers": {
-        "Vanilla": "LT3"
-      },
-      "lastTestedAt": {
-        "Vanilla": "2026-09-08T04:29:52.096Z"
-      },
-      "lastTestedTier": {
-        "Vanilla": "LT3"
-      },
-      "skinUpdatedAt": "2026-09-14T00:22:31.596Z"
-    },
     "ogf_": {
       "ign": "OGF_",
       "region": "EU",
@@ -647,6 +628,25 @@
       "uuid": "9ad7d1c7716249da8638d3b0d7cd5372",
       "skinUrl": "https://textures.minecraft.net/texture/c35de2b74303a78db2b690d8626f55a657aacbba5a206356036f8545cbaaa5e9",
       "skinUpdatedAt": "2026-09-14T09:22:06.108Z"
+    },
+    "toyb5": {
+      "ign": "toyb5",
+      "region": "NA",
+      "discordId": "804454749986357258",
+      "uuid": "1dcaedae143140c89dbf45bdf30f0f11",
+      "skinUrl": "https://textures.minecraft.net/texture/cf4834d553fab7b7f5a10c40c07f64c4b7619c37ba043c71b68633097c7794a9",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-09-08T04:29:52.096Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      },
+      "skinUpdatedAt": "2026-09-14T18:22:27.277Z"
     }
   }
 }
