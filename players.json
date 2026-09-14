@@ -446,8 +446,8 @@
         "Mace": "LT4"
       },
       "uuid": "e6f69970cfe54c2eaf70afb3cc059947",
-      "skinUrl": "https://textures.minecraft.net/texture/de10a41f9d3607afa956235f35f46b47812a19b7566a37ea34c114bb4293acd6",
-      "skinUpdatedAt": "2026-09-12T20:38:19.687Z",
+      "skinUrl": "https://textures.minecraft.net/texture/8383cab21db633a6c786614e2e0c24d8ec62893bff8b5f53c10c45a8be6e9733",
+      "skinUpdatedAt": "2026-09-14T00:22:23.611Z",
       "retiredTiers": {
         "Sword": "HT4"
       },
@@ -488,37 +488,6 @@
       "lastTestedTier": {
         "Vanilla": "LT3"
       }
-    },
-    "crystalbox_org": {
-      "ign": "Crystalbox_org",
-      "region": "EU",
-      "discordId": "1488202649500123226",
-      "restricted": false,
-      "restrictReason": null,
-      "tiers": {
-        "Vanilla": "HT3"
-      },
-      "lastTestedAt": {
-        "Vanilla": "2026-06-13T20:27:30.132Z"
-      },
-      "uuid": "3b48f2a5667b4725b0674a41490ab1e5",
-      "skinUrl": "https://textures.minecraft.net/texture/b81390ff853c49b29afe457e919b2cbc24400a2c2a3696b8a355f902b2fca9ba",
-      "skinUpdatedAt": "2026-09-12T12:38:30.334Z"
-    },
-    "964x": {
-      "ign": "964x",
-      "region": "EU",
-      "discordId": "1067831639301963786",
-      "uuid": "6c2f4b8cf57f418c85585cb60effaff4",
-      "skinUrl": "https://textures.minecraft.net/texture/11f57081fa25d8b28506fa5f42a135a08963ca4f8f9e8cf83b9aa704c9202951",
-      "restricted": false,
-      "restrictReason": null,
-      "tiers": {
-        "Vanilla": "HT3"
-      },
-      "lastTestedAt": {},
-      "lastTestedTier": {},
-      "skinUpdatedAt": "2026-09-07T23:29:37.927Z"
     },
     "itsmattieshea": {
       "ign": "ITSMATTIESHEA",
@@ -563,7 +532,7 @@
       "region": "NA",
       "discordId": "1357539901721153672",
       "uuid": "d227ea93d02b4f85be7c5c7503e150a4",
-      "skinUrl": "https://textures.minecraft.net/texture/1b23531ff1f216747a0e69a4a2c6be22d4ab9585ce4ec893e10b84817dfe198c",
+      "skinUrl": "https://textures.minecraft.net/texture/95618bec7b140788f438ee243d26bf413ececb39e8201a597b09e6fb8a1af296",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -575,7 +544,7 @@
       "lastTestedTier": {
         "Sword": "HT5"
       },
-      "skinUpdatedAt": "2026-09-12T02:38:22.736Z"
+      "skinUpdatedAt": "2026-09-14T00:22:28.664Z"
     },
     "ddaisyyy": {
       "ign": "ddaisyyy",
@@ -634,7 +603,7 @@
       "region": "NA",
       "discordId": "804454749986357258",
       "uuid": "1dcaedae143140c89dbf45bdf30f0f11",
-      "skinUrl": "https://textures.minecraft.net/texture/6ffbef7a2cd04dc042adfda6451bad20ba58ee4cc4aef9620936ffff1b17aa2a",
+      "skinUrl": "https://textures.minecraft.net/texture/cf4834d553fab7b7f5a10c40c07f64c4b7619c37ba043c71b68633097c7794a9",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -646,7 +615,38 @@
       "lastTestedTier": {
         "Vanilla": "LT3"
       },
-      "skinUpdatedAt": "2026-09-12T10:38:33.931Z"
+      "skinUpdatedAt": "2026-09-14T00:22:31.596Z"
+    },
+    "ogf_": {
+      "ign": "OGF_",
+      "region": "EU",
+      "discordId": "1488202649500123226",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-06-13T20:27:30.132Z"
+      },
+      "uuid": "3b48f2a5667b4725b0674a41490ab1e5",
+      "skinUrl": "https://textures.minecraft.net/texture/b81390ff853c49b29afe457e919b2cbc24400a2c2a3696b8a355f902b2fca9ba",
+      "skinUpdatedAt": "2026-09-14T00:22:25.726Z"
+    },
+    "softcheaterlol": {
+      "ign": "Softcheaterlol",
+      "region": "EU",
+      "discordId": "1067831639301963786",
+      "uuid": "6c2f4b8cf57f418c85585cb60effaff4",
+      "skinUrl": "https://textures.minecraft.net/texture/142826e25223d9609cb86ed8d5c7cb30e4f45c72f329d38d5c6467c9dcef8e76",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT3"
+      },
+      "lastTestedAt": {},
+      "lastTestedTier": {},
+      "skinUpdatedAt": "2026-09-14T00:22:26.455Z"
     }
   }
 }
