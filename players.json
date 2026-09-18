@@ -290,21 +290,6 @@
       "skinUrl": "https://textures.minecraft.net/texture/eda64e80551ae151a34152eef3e1a8e8e16a75af05c8f6debcbbd95254a85639",
       "skinUpdatedAt": "2026-09-12T02:38:12.309Z"
     },
-    "nfcr": {
-      "ign": "nfcr",
-      "region": "NA",
-      "discordId": "558455731695648780",
-      "restricted": false,
-      "restrictReason": null,
-      "tiers": {
-        "Vanilla": "LT2"
-      },
-      "lastTestedAt": {},
-      "lastTestedTier": {},
-      "uuid": "529b80b07caa47429feac140a624ec37",
-      "skinUrl": "https://textures.minecraft.net/texture/fe6c8ad81e650d49ce328e2f902492eaee1d14e36691a84f86befd0443ab4640",
-      "skinUpdatedAt": "2026-08-10T15:42:12.239Z"
-    },
     "marlowww": {
       "ign": "Marlowww",
       "discordId": "155149108183695360",
@@ -644,6 +629,21 @@
         "Vanilla": "LT3"
       },
       "skinUpdatedAt": "2026-09-14T18:22:27.277Z"
+    },
+    "_dtap": {
+      "ign": "_dtap",
+      "region": "NA",
+      "discordId": "558455731695648780",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT2"
+      },
+      "lastTestedAt": {},
+      "lastTestedTier": {},
+      "uuid": "529b80b07caa47429feac140a624ec37",
+      "skinUrl": "https://textures.minecraft.net/texture/fe6c8ad81e650d49ce328e2f902492eaee1d14e36691a84f86befd0443ab4640",
+      "skinUpdatedAt": "2026-09-18T17:33:02.308Z"
     }
   }
 }
