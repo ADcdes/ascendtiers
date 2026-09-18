@@ -372,10 +372,14 @@
       "discordId": "1387559211734667395",
       "uuid": "d73a67dd335440fe8716840ce37cce06",
       "skinUrl": "https://textures.minecraft.net/texture/cd9600bde8c66bbaed24922e1c85f9f41c45dd31568ad71bf44f28f51cc88d04",
-      "restricted": true,
-      "restrictReason": "Restricted from testing.",
-      "tiers": {},
-      "lastTestedAt": {},
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-07-27T18:12:47.176Z"
+      },
       "lastTestedTier": {
         "Vanilla": "LT3"
       },
