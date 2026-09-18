@@ -290,14 +290,14 @@
       "skinUrl": "https://textures.minecraft.net/texture/eda64e80551ae151a34152eef3e1a8e8e16a75af05c8f6debcbbd95254a85639",
       "skinUpdatedAt": "2026-09-12T02:38:12.309Z"
     },
-    "_dtap": {
-      "ign": "_dtap",
+    "nfcr": {
+      "ign": "nfcr",
       "region": "NA",
       "discordId": "558455731695648780",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Vanilla": "HT3"
+        "Vanilla": "LT2"
       },
       "lastTestedAt": {},
       "lastTestedTier": {},
