@@ -660,12 +660,8 @@
       "tiers": {
         "Vanilla": "LT5"
       },
-      "lastTestedAt": {
-        "Vanilla": "2026-09-21T00:29:14.870Z"
-      },
-      "lastTestedTier": {
-        "Vanilla": "LT5"
-      },
+      "lastTestedAt": {},
+      "lastTestedTier": {},
       "skinUpdatedAt": "2026-09-21T00:34:01.837Z"
     }
   }
