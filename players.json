@@ -620,7 +620,7 @@
       "region": "NA",
       "discordId": "804454749986357258",
       "uuid": "1dcaedae143140c89dbf45bdf30f0f11",
-      "skinUrl": "https://mc-heads.net/avatar/1dcaedae143140c89dbf45bdf30f0f11/160",
+      "skinUrl": "https://textures.minecraft.net/texture/cf4834d553fab7b7f5a10c40c07f64c4b7619c37ba043c71b68633097c7794a9",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -632,7 +632,7 @@
       "lastTestedTier": {
         "Vanilla": "LT3"
       },
-      "skinUpdatedAt": "2026-09-21T10:34:04.405Z"
+      "skinUpdatedAt": "2026-09-21T11:34:16.285Z"
     },
     "_dtap": {
       "ign": "_dtap",
