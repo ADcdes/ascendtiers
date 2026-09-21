@@ -649,8 +649,8 @@
       "skinUrl": "https://textures.minecraft.net/texture/fe6c8ad81e650d49ce328e2f902492eaee1d14e36691a84f86befd0443ab4640",
       "skinUpdatedAt": "2026-09-18T17:33:02.308Z"
     },
-    "bestnaeplayer": {
-      "ign": "BestNAEPlayer",
+    "p1cxz_kisserxd": {
+      "ign": "p1cxz_kisserXD",
       "region": "NA",
       "discordId": "1472393448169537738",
       "uuid": "ff07b44c7ac14534b72066398066fd7f",
@@ -665,7 +665,8 @@
       },
       "lastTestedTier": {
         "Vanilla": "LT5"
-      }
+      },
+      "skinUpdatedAt": "2026-09-21T00:34:01.837Z"
     }
   }
 }
