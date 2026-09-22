@@ -508,12 +508,8 @@
       "tiers": {
         "Sword": "HT5"
       },
-      "lastTestedAt": {
-        "Sword": "2026-08-30T21:05:36.172Z"
-      },
-      "lastTestedTier": {
-        "Sword": "HT5"
-      },
+      "lastTestedAt": {},
+      "lastTestedTier": {},
       "skinUpdatedAt": "2026-09-15T03:22:23.572Z"
     },
     "ddaisyyy": {
