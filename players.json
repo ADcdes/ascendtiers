@@ -331,22 +331,6 @@
       },
       "skinUpdatedAt": "2026-08-10T22:28:08.492Z"
     },
-    "3cgf": {
-      "ign": "3cgf",
-      "region": "NA",
-      "discordId": "780617355322851338",
-      "restricted": false,
-      "restrictReason": null,
-      "tiers": {
-        "Vanilla": "HT3"
-      },
-      "lastTestedAt": {
-        "Vanilla": "2026-06-11T17:58:34.645Z"
-      },
-      "uuid": "cfa05c8e482d4035be6651b2ad54af57",
-      "skinUrl": "https://textures.minecraft.net/texture/f2bc492c7adb14668df6c7cc763e8c03e06902c13df1e8ca05183cba31a267c2",
-      "skinUpdatedAt": "2026-09-22T03:33:55.934Z"
-    },
     "chopixmc": {
       "ign": "ChopixMC",
       "region": "NA",
@@ -659,6 +643,22 @@
       "uuid": "529b80b07caa47429feac140a624ec37",
       "skinUrl": "https://textures.minecraft.net/texture/aaa8a5a3789fe9add5f33c4a7a11b567d096f38a7b8bd30e2f7a453d3e3a226b",
       "skinUpdatedAt": "2026-09-22T02:34:01.491Z"
+    },
+    "fantasvictim": {
+      "ign": "FantasVictim",
+      "region": "NA",
+      "discordId": "780617355322851338",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-06-11T17:58:34.645Z"
+      },
+      "uuid": "cfa05c8e482d4035be6651b2ad54af57",
+      "skinUrl": "https://textures.minecraft.net/texture/c224b2889074b8374b46e156cb40c437b58ce268cbf82ae7f482153a3d392195",
+      "skinUpdatedAt": "2026-09-23T02:19:36.584Z"
     }
   }
 }
