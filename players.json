@@ -659,6 +659,24 @@
         "Vanilla": "LT3"
       },
       "skinUpdatedAt": "2026-09-24T19:38:12.294Z"
+    },
+    "daddy0909": {
+      "ign": "Daddy0909",
+      "region": "NA",
+      "discordId": "1257737512521306182",
+      "uuid": "d80a2314ffcc472da934de58d61468de",
+      "skinUrl": "https://textures.minecraft.net/texture/9f3f7de769c3f2f90c8df9d290c43b9646d477369cd5f9fa6902ea146182d7d7",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT4"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-09-25T23:23:19.549Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "HT4"
+      }
     }
   }
 }
