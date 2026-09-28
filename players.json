@@ -347,8 +347,8 @@
         "Sword": "LT4"
       },
       "uuid": "6b593701434a4b60a6b4bd98d553e0f2",
-      "skinUrl": "https://mc-heads.net/avatar/6b593701434a4b60a6b4bd98d553e0f2/160",
-      "skinUpdatedAt": "2026-09-28T08:00:03.557Z"
+      "skinUrl": "https://textures.minecraft.net/texture/4a4789d97dc81dcbd6d3e85c6468f5fd025d3acc7d2e2b939a222da6e56484fd",
+      "skinUpdatedAt": "2026-09-28T09:00:03.661Z"
     },
     "goldnhour": {
       "ign": "goldnHour",
@@ -467,7 +467,7 @@
       "region": "NA",
       "discordId": "1357539901721153672",
       "uuid": "d227ea93d02b4f85be7c5c7503e150a4",
-      "skinUrl": "https://mc-heads.net/avatar/d227ea93d02b4f85be7c5c7503e150a4/160",
+      "skinUrl": "https://textures.minecraft.net/texture/35f240c7f8529adbdba0eb0ab41d1764a83885d29a1b89c0b6425bc070f7d89e",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -475,7 +475,7 @@
       },
       "lastTestedAt": {},
       "lastTestedTier": {},
-      "skinUpdatedAt": "2026-09-28T08:00:07.726Z"
+      "skinUpdatedAt": "2026-09-28T09:00:07.971Z"
     },
     "ddaisyyy": {
       "ign": "ddaisyyy",
@@ -507,15 +507,15 @@
       },
       "lastTestedAt": {},
       "uuid": "30e5d37f131f43fea4a0c2eae2cad245",
-      "skinUrl": "https://mc-heads.net/avatar/30e5d37f131f43fea4a0c2eae2cad245/160",
-      "skinUpdatedAt": "2026-09-28T08:00:09.097Z"
+      "skinUrl": "https://textures.minecraft.net/texture/3711d23625cf2e796d7b0bc1d474965bfb53980f4541e5c258a35285fcbf838e",
+      "skinUpdatedAt": "2026-09-28T09:00:09.411Z"
     },
     "gldnx": {
       "ign": "GldnX",
       "region": "NA",
       "discordId": "933533474407723068",
       "uuid": "aeda70d4cf1245429c0102b44fd27b96",
-      "skinUrl": "https://mc-heads.net/avatar/aeda70d4cf1245429c0102b44fd27b96/160",
+      "skinUrl": "https://textures.minecraft.net/texture/38e69cee718b80153763840c17f914300587a440654a9055d30f5b00668f7217",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -527,7 +527,7 @@
       "lastTestedTier": {
         "Vanilla": "LT4"
       },
-      "skinUpdatedAt": "2026-09-28T08:00:09.808Z"
+      "skinUpdatedAt": "2026-09-28T09:00:10.125Z"
     },
     "ogf_": {
       "ign": "OGF_",
@@ -550,7 +550,7 @@
       "region": "EU",
       "discordId": "1067831639301963786",
       "uuid": "6c2f4b8cf57f418c85585cb60effaff4",
-      "skinUrl": "https://mc-heads.net/avatar/6c2f4b8cf57f418c85585cb60effaff4/160",
+      "skinUrl": "https://textures.minecraft.net/texture/342e0eac62346caf4ce8b5aee2b1db40ce6eb7cabbaed7d2dc12ae6af651623d",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -558,7 +558,7 @@
       },
       "lastTestedAt": {},
       "lastTestedTier": {},
-      "skinUpdatedAt": "2026-09-28T08:00:11.266Z"
+      "skinUpdatedAt": "2026-09-28T09:00:11.571Z"
     },
     "rattedbytenisn3": {
       "ign": "rattedbytenisn3",
@@ -600,7 +600,7 @@
       "region": "NA",
       "discordId": "1472393448169537738",
       "uuid": "ff07b44c7ac14534b72066398066fd7f",
-      "skinUrl": "https://mc-heads.net/avatar/ff07b44c7ac14534b72066398066fd7f/160",
+      "skinUrl": "https://textures.minecraft.net/texture/723e51156e58d1b25e42e0c28ca1c4f0dc705edf9e71bdfce7059fa4efe0626c",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -608,7 +608,7 @@
       },
       "lastTestedAt": {},
       "lastTestedTier": {},
-      "skinUpdatedAt": "2026-09-28T08:00:13.416Z"
+      "skinUpdatedAt": "2026-09-28T09:00:13.827Z"
     },
     "bindkey": {
       "ign": "Bindkey",
