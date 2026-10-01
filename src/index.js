@@ -140,7 +140,7 @@ const commands = [
     .addStringOption((option) => option.setName('details').setDescription('Fight lines / extra notes. New lines are allowed.').setRequired(false)),
   new SlashCommandBuilder()
     .setName('passeval')
-    .setDescription('Player passed their eval (3-1 or better) — opens a High Test ticket for them to fight for the tier.')
+    .setDescription('Player passed their eval — awards LT3, assigns the role, and updates the tierlist.')
     .addUserOption((option) => option.setName('user').setDescription('Player who passed the eval').setRequired(true)),
   new SlashCommandBuilder()
     .setName('add')
@@ -814,9 +814,10 @@ async function handleCloseTestTicket(interaction) {
   await interaction.channel.delete('Tier test closed with result').catch(() => {});
 }
 
-// A regular tester ran an informal eval match (best of 4/5) with the candidate outside the bot.
-// If the candidate won 3-1 or better, /passeval just opens a High Test ticket for them to fight
-// the real HT3 test in — it does not post any result or assign any tier itself.
+// A tester ran an eval with the candidate and they passed. This awards LT3 straight away:
+// assigns the LT3 role, syncs the website tierlist, posts the result embed, and logs it so
+// /undo-result can revert it. Players already at LT3 or higher are left alone so a pass can
+// never lower someone's tier.
 async function handlePassEval(interaction) {
   const modeKey = resolveModeKeyForGuild(interaction.guildId);
   if (!modeKey) {
@@ -837,10 +838,31 @@ async function handlePassEval(interaction) {
     return;
   }
 
-  const member = await interaction.guild.members.fetch(targetUser.id).catch(() => null);
-  const currentTier = member ? getHighestHighTier(member, mode) : null;
+  await interaction.deferReply({ ephemeral: true });
 
-  await createHighTestTicket(interaction, modeKey, profile, currentTier, targetUser, 'Passed Evaluation Tests');
+  const tier = 'LT3';
+  const currentTier = await getPlayerCurrentTier(targetUser.id, profile.ign, modeKey);
+  if (currentTier && tierChoices.indexOf(currentTier) <= tierChoices.indexOf(tier)) {
+    await interaction.editReply(`${targetUser} is already ${currentTier} in ${mode.label}, so there is nothing to award.`);
+    return;
+  }
+
+  const result = await postTierResult({
+    interaction,
+    modeKey,
+    player: targetUser,
+    ign: profile.ign,
+    outcome: 'promoted',
+    tier,
+    details: 'Passed Evaluation Tests'
+  });
+
+  if (!result.ok) {
+    await interaction.editReply(result.message);
+    return;
+  }
+
+  await interaction.editReply(`Awarded ${targetUser} **${tier}** in ${mode.label} and posted the result in <#${result.channel.id}>.${result.syncText}`);
 }
 
 async function handleUndoResult(interaction) {
