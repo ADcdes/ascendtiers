@@ -107,11 +107,11 @@ const commands = [
     .addStringOption((option) => option.setName('mode').setDescription('Ruleset').setRequired(true).addChoices(...modeChoices)),
   new SlashCommandBuilder()
     .setName('migrate')
-    .setDescription('Post a tier migration for a player in the migrations channel.')
+    .setDescription('Give a player a migrated tier (assigns the role, updates the tierlist, posts in migrations).')
     .addUserOption((option) => option.setName('player').setDescription('Discord user migrating').setRequired(true))
     .addStringOption((option) => option.setName('mode').setDescription('Mode they hold the tier in').setRequired(true).addChoices(...modeChoices))
     .addStringOption((option) => option.setName('tier').setDescription('Tier being migrated').setRequired(true).addChoices(...tierCommandChoices))
-    .addStringOption((option) => option.setName('source').setDescription('Where they migrated from').setRequired(true)),
+    .addStringOption((option) => option.setName('source').setDescription('Where the tier came from (server, community, or link)').setRequired(true).setMaxLength(200)),
   new SlashCommandBuilder()
     .setName('cdreset')
     .setDescription('Clear a player\'s testing cooldown silently (no result message posted).')
@@ -140,7 +140,7 @@ const commands = [
     .addStringOption((option) => option.setName('details').setDescription('Fight lines / extra notes. New lines are allowed.').setRequired(false)),
   new SlashCommandBuilder()
     .setName('passeval')
-    .setDescription('Player passed their eval — awards LT3, assigns the role, and updates the tierlist.')
+    .setDescription('Player passed their eval — awards LT3, updates the tierlist, and opens a High Test ticket.')
     .addUserOption((option) => option.setName('user').setDescription('Player who passed the eval').setRequired(true)),
   new SlashCommandBuilder()
     .setName('skip')
@@ -842,10 +842,10 @@ async function handleSkipTestTicket(interaction) {
   await interaction.channel.delete(`Tier test skipped by ${interaction.user.tag}`).catch(() => {});
 }
 
-// A tester ran an eval with the candidate and they passed. This awards LT3 straight away:
-// assigns the LT3 role, syncs the website tierlist, posts the result embed, and logs it so
-// /undo-result can revert it. Players already at LT3 or higher are left alone so a pass can
-// never lower someone's tier.
+// A tester ran an eval with the candidate and they passed. This awards LT3 straight away
+// (role, website tierlist, result embed, result log so /undo-result works) and then opens a
+// High Test ticket so they can go on to fight for HT3. Players already at LT3 or higher keep
+// their tier (a pass never lowers anyone) but still get the High Test ticket.
 async function handlePassEval(interaction) {
   const modeKey = resolveModeKeyForGuild(interaction.guildId);
   if (!modeKey) {
@@ -868,29 +868,35 @@ async function handlePassEval(interaction) {
 
   await interaction.deferReply({ ephemeral: true });
 
+  const member = await interaction.guild.members.fetch(targetUser.id).catch(() => null);
+  const currentHighTier = member ? getHighestHighTier(member, mode) : null;
+
   const tier = 'LT3';
   const currentTier = await getPlayerCurrentTier(targetUser.id, profile.ign, modeKey);
+  let note = '';
+
   if (currentTier && tierChoices.indexOf(currentTier) <= tierChoices.indexOf(tier)) {
-    await interaction.editReply(`${targetUser} is already ${currentTier} in ${mode.label}, so there is nothing to award.`);
-    return;
+    note = `${targetUser} is already ${currentTier}, so their tier was left as is.\n`;
+  } else {
+    const result = await postTierResult({
+      interaction,
+      modeKey,
+      player: targetUser,
+      ign: profile.ign,
+      outcome: 'promoted',
+      tier,
+      details: 'Passed Evaluation Tests'
+    });
+
+    if (!result.ok) {
+      await interaction.editReply(result.message);
+      return;
+    }
+
+    note = `Awarded ${targetUser} **${tier}** and posted the result in <#${result.channel.id}>.${result.syncText}\n`;
   }
 
-  const result = await postTierResult({
-    interaction,
-    modeKey,
-    player: targetUser,
-    ign: profile.ign,
-    outcome: 'promoted',
-    tier,
-    details: 'Passed Evaluation Tests'
-  });
-
-  if (!result.ok) {
-    await interaction.editReply(result.message);
-    return;
-  }
-
-  await interaction.editReply(`Awarded ${targetUser} **${tier}** in ${mode.label} and posted the result in <#${result.channel.id}>.${result.syncText}`);
+  await createHighTestTicket(interaction, modeKey, profile, currentHighTier, targetUser, 'Passed Evaluation Tests', note);
 }
 
 async function handleUndoResult(interaction) {
@@ -1040,11 +1046,34 @@ async function handleRetirePlayer(interaction) {
   await interaction.editReply(`Retired **${player.ign ?? discordUser.username}** and moved ${Object.keys(activeTiers).length} active tier${Object.keys(activeTiers).length === 1 ? '' : 's'} to their retired profile across every game mode server.${pushed ? ' Website data was synced to GitHub.' : ' Website data changed, but GitHub push failed; check bot logs.'}`);
 }
 
+// Finds the Minecraft username for a migrating player. The migrated mode's own server profile
+// wins, then any other profile for that mode, any profile at all, and finally their existing
+// website record.
+async function findMigratingIgn(userId, modeKey) {
+  const mode = modes[modeKey];
+  const exact = state.profiles[profileKey(mode.guildId, userId, modeKey)];
+  if (exact?.ign) return exact.ign;
+
+  const entries = Object.entries(state.profiles);
+  const sameMode = entries.find(([key]) => key.endsWith(`:${userId}:${modeKey}`));
+  if (sameMode?.[1]?.ign) return sameMode[1].ign;
+
+  const anyMode = entries.find(([key]) => key.split(':')[1] === userId);
+  if (anyMode?.[1]?.ign) return anyMode[1].ign;
+
+  const data = await readPlayersData().catch(() => null);
+  const record = Object.values(data?.players ?? {}).find((player) => player.discordId === userId);
+  return record?.ign ?? null;
+}
+
+// Tester-only. Gives the player the tier they hold elsewhere: assigns the tier role in that
+// mode's server, updates the website tierlist (without starting a cooldown), and posts the
+// migration in the migrations channel with where the tier came from.
 async function handleMigrateCommand(interaction) {
   if (!(await assertModeGuild(interaction, 'crystal'))) return;
 
   if (!canUseTesterCommands(interaction.member)) {
-    await interaction.reply({ content: 'Only tester staff roles can post migrations.', ephemeral: true });
+    await interaction.reply({ content: 'Only tester staff roles can migrate tiers.', ephemeral: true });
     return;
   }
 
@@ -1053,8 +1082,14 @@ async function handleMigrateCommand(interaction) {
   const player = interaction.options.getUser('player', true);
   const modeKeyOpt = interaction.options.getString('mode', true);
   const tier = interaction.options.getString('tier', true);
-  const source = interaction.options.getString('source', true);
-  const modeLabel = modes[modeKeyOpt]?.label ?? modeKeyOpt;
+  const source = interaction.options.getString('source', true).trim();
+  const mode = modes[modeKeyOpt];
+  const modeLabel = mode?.label ?? modeKeyOpt;
+
+  if (!mode) {
+    await interaction.editReply('Unknown game mode.');
+    return;
+  }
 
   const channel = await interaction.guild.channels.fetch(migrationChannelId).catch(() => null);
   if (!channel?.isTextBased()) {
@@ -1062,20 +1097,73 @@ async function handleMigrateCommand(interaction) {
     return;
   }
 
-  await channel.send({ embeds: [buildMigrationRequestEmbed(player.id, modeLabel, tier, source)] });
+  const ign = await findMigratingIgn(player.id, modeKeyOpt);
+  if (!ign) {
+    await interaction.editReply(`I don't know ${player}'s Minecraft username yet. They need to verify in a server first so the tierlist can be updated.`);
+    return;
+  }
+
+  // The tier role lives in the migrated mode's own server, which may not be this one.
+  const notes = [];
+  let roleAssigned = false;
+  let previousTierRoleIds = [];
+  const targetGuild = mode.guildId
+    ? (interaction.guildId === mode.guildId ? interaction.guild : await client.guilds.fetch(mode.guildId).catch(() => null))
+    : null;
+
+  if (!targetGuild) {
+    notes.push(`I couldn't reach the ${modeLabel} server, so no role was assigned.`);
+  } else {
+    previousTierRoleIds = await getMemberModeTierRoleIds(targetGuild, player.id, mode);
+    try {
+      await assignTierRole(targetGuild, player.id, mode, tier);
+      roleAssigned = true;
+    } catch (error) {
+      notes.push(`Could not assign the ${modeLabel} ${tier} role: ${error.message}`);
+    }
+  }
+
+  const syncResult = await updateWebsitePlayer({
+    guildId: mode.guildId || interaction.guildId,
+    modeKey: modeKeyOpt,
+    userId: player.id,
+    ign,
+    tier,
+    outcome: 'promoted',
+    recordTest: false,
+    migratedFrom: source,
+    commitMessage: `Migrate ${ign}'s ${modeLabel} ${tier}`
+  });
+
+  await channel.send({
+    embeds: [buildMigrationRequestEmbed(player.id, modeLabel, tier, source, {
+      approvedBy: interaction.user.id,
+      previousTier: syncResult.previousTier
+    })]
+  });
 
   state.migrationLog ??= [];
   state.migrationLog.push({
     userId: player.id,
+    ign,
     mode: modeKeyOpt,
     tier,
     source,
+    previousTier: syncResult.previousTier,
+    previousTierRoleIds,
+    roleAssigned,
     postedBy: interaction.user.id,
     createdAt: new Date().toISOString()
   });
   await saveState(state);
 
-  await interaction.editReply(`Migration posted in <#${migrationChannelId}> for ${player}.`);
+  const syncText = syncResult.updated
+    ? syncResult.pushed ? ' Website data was synced to GitHub.' : ' Website data changed, but GitHub push failed; check bot logs.'
+    : ' Website tier data was unchanged.';
+  const roleText = roleAssigned ? ` Gave them the ${modeLabel} ${tier} role.` : '';
+  const noteText = notes.length ? `\n${notes.join('\n')}` : '';
+
+  await interaction.editReply(`Migrated ${player} (**${ign}**) to **${modeLabel} ${tier}** from ${source}.${roleText}${syncText} Posted in <#${migrationChannelId}>.${noteText}`);
 }
 
 async function handleCooldownReset(interaction) {
@@ -2096,15 +2184,15 @@ async function ensureTicketCategory(guild, name) {
 // currentTier is the high tier the player already holds (self-service re-test), so by default
 // the ticket goes under a category named for that tier (e.g. "HT2 Tests"). /passeval overrides
 // categoryLabel to "Passed Evaluation Tests" since a fresh eval-passer has no high tier role yet.
-async function createHighTestTicket(interaction, modeKey, profile, currentTier, targetUser = interaction.user, categoryLabel = currentTier ? `${currentTier} Tests` : 'Passed Evaluation Tests') {
+async function createHighTestTicket(interaction, modeKey, profile, currentTier, targetUser = interaction.user, categoryLabel = currentTier ? `${currentTier} Tests` : 'Passed Evaluation Tests', extraNote = '') {
   const mode = modes[modeKey];
   const isSelfService = targetUser.id === interaction.user.id;
-  await interaction.deferReply({ ephemeral: true });
+  if (!interaction.deferred && !interaction.replied) await interaction.deferReply({ ephemeral: true });
   await interaction.guild.roles.fetch();
 
   const existing = await findExistingHighTestTicket(interaction.guild, targetUser.id, modeKey);
   if (existing) {
-    await interaction.editReply(isSelfService ? `You already have a high-test ticket: <#${existing.id}>.` : `${targetUser} already has a high-test ticket: <#${existing.id}>.`);
+    await interaction.editReply(`${extraNote}${isSelfService ? `You already have a high-test ticket: <#${existing.id}>.` : `${targetUser} already has a high-test ticket: <#${existing.id}>.`}`);
     return;
   }
 
@@ -2163,7 +2251,7 @@ async function createHighTestTicket(interaction, modeKey, profile, currentTier, 
     components: [buildHighTestButtons(modeKey, targetUser.id)]
   });
 
-  await interaction.editReply(isSelfService ? `Created your private high-test ticket: <#${channel.id}>.` : `Opened a high-test ticket for ${targetUser}: <#${channel.id}>.`);
+  await interaction.editReply(`${extraNote}${isSelfService ? `Created your private high-test ticket: <#${channel.id}>.` : `Opened a high-test ticket for ${targetUser}: <#${channel.id}>.`}`);
 }
 
 async function acceptHighTest(interaction, modeKey, playerId) {
@@ -2401,10 +2489,10 @@ function buildQueueButtons(modeKey, region) {
   );
 }
 
-function buildMigrationRequestEmbed(userId, mode, tier, source) {
-  return new EmbedBuilder()
+function buildMigrationRequestEmbed(userId, mode, tier, source, { approvedBy = null, previousTier = null } = {}) {
+  const embed = new EmbedBuilder()
     .setColor(0xffd166)
-    .setTitle('Migration Request')
+    .setTitle(approvedBy ? 'Migration Completed' : 'Migration Request')
     .addFields(
       { name: 'Player', value: `<@${userId}>`, inline: false },
       { name: 'Mode', value: mode, inline: true },
@@ -2412,6 +2500,15 @@ function buildMigrationRequestEmbed(userId, mode, tier, source) {
       { name: 'Migrated From', value: source, inline: false }
     )
     .setTimestamp();
+
+  if (approvedBy) {
+    embed.addFields(
+      { name: 'Previous Rank', value: previousTier ?? 'Unranked', inline: true },
+      { name: 'Approved By', value: `<@${approvedBy}>`, inline: true }
+    );
+  }
+
+  return embed;
 }
 
 function buildHighTestEmbed(modeKey, userId, ign, region, currentTier) {
@@ -2830,7 +2927,7 @@ async function syncVerifiedProfileToWebsite(userId, profile) {
   return { updated, pushed: updated ? await writePlayersData(data, `Verify ${profile.ign} Minecraft profile`) : false };
 }
 
-async function updateWebsitePlayer({ guildId, modeKey, userId, ign, tier, outcome }) {
+async function updateWebsitePlayer({ guildId, modeKey, userId, ign, tier, outcome, recordTest = true, migratedFrom = null, commitMessage = null }) {
   const data = await readPlayersData();
   data.players ??= {};
 
@@ -2856,13 +2953,21 @@ async function updateWebsitePlayer({ guildId, modeKey, userId, ign, tier, outcom
   player.restrictReason ??= null;
   player.tiers ??= {};
   player.lastTestedAt ??= {};
-  player.lastTestedAt[websiteMode] = new Date().toISOString();
   player.lastTestedTier ??= {};
-  player.lastTestedTier[websiteMode] = tier;
+  // Migrations are not tests, so they must not start a cooldown.
+  if (recordTest) {
+    player.lastTestedAt[websiteMode] = new Date().toISOString();
+    player.lastTestedTier[websiteMode] = tier;
+  }
 
   if (outcome === 'promoted' || outcome === 'demoted') {
     player.tiers[websiteMode] = tier;
     if (player.retiredTiers?.[websiteMode]) delete player.retiredTiers[websiteMode];
+  }
+
+  if (migratedFrom) {
+    player.migratedFrom ??= {};
+    player.migratedFrom[websiteMode] = migratedFrom;
   }
 
   if (existingKey !== key) {
@@ -2883,7 +2988,7 @@ async function updateWebsitePlayer({ guildId, modeKey, userId, ign, tier, outcom
     };
   }
 
-  const pushed = await writePlayersData(data, `Update ${ign} ${modes[modeKey].label} result`);
+  const pushed = await writePlayersData(data, commitMessage ?? `Update ${ign} ${modes[modeKey].label} result`);
   return {
     updated: true,
     pushed,
