@@ -675,6 +675,24 @@
         "Vanilla": "LT4"
       },
       "skinUpdatedAt": "2026-10-01T01:31:23.566Z"
+    },
+    "lowtiertwo": {
+      "ign": "LowTierTwo",
+      "region": "NA",
+      "discordId": "761017387558371338",
+      "uuid": "790183d8ff52489985ed27fb5473fbc7",
+      "skinUrl": "https://textures.minecraft.net/texture/ee9348f04a55df9da288ed00c7b57f8c43e30175d3519aef2712e09addeb58ac",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-10-01T02:32:22.723Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      }
     }
   }
 }
