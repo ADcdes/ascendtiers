@@ -143,6 +143,9 @@ const commands = [
     .setDescription('Player passed their eval — awards LT3, assigns the role, and updates the tierlist.')
     .addUserOption((option) => option.setName('user').setDescription('Player who passed the eval').setRequired(true)),
   new SlashCommandBuilder()
+    .setName('skip')
+    .setDescription('Close this test ticket without awarding a tier or changing the player\'s cooldown.'),
+  new SlashCommandBuilder()
     .setName('add')
     .setDescription('Add a user to this ticket channel.')
     .addUserOption((option) => option.setName('user').setDescription('User to add to the ticket').setRequired(true)),
@@ -352,6 +355,11 @@ async function handleCommand(interaction) {
 
   if (commandName === 'passeval') {
     await handlePassEval(interaction);
+    return;
+  }
+
+  if (commandName === 'skip') {
+    await handleSkipTestTicket(interaction);
   }
 }
 
@@ -812,6 +820,26 @@ async function handleCloseTestTicket(interaction) {
 
   await interaction.editReply(`Posted ${mode.label} ${tier} result (${outcome}) in <#${result.channel.id}>.${result.syncText} Closing this ticket...`);
   await interaction.channel.delete('Tier test closed with result').catch(() => {});
+}
+
+// Closes a tier test ticket with no result: no tier, no role change, no website update, no
+// result embed, and no cooldown (cooldowns come from lastTestedAt, which this never touches).
+// Only works inside a real tier test ticket (topic "test:...").
+async function handleSkipTestTicket(interaction) {
+  const ticketContext = getTestTicketContext(interaction.channel);
+  if (!ticketContext) {
+    await interaction.reply({ content: 'This is not a tier test ticket. /skip only works inside a ticket created from the queue.', ephemeral: true });
+    return;
+  }
+
+  const mode = modes[ticketContext.modeKey];
+  if (!canUseTesterCommands(interaction.member)) {
+    await interaction.reply({ content: `Only tester staff roles can skip ${mode.label} test tickets.`, ephemeral: true });
+    return;
+  }
+
+  await interaction.reply({ content: `Skipped <@${ticketContext.userId}>'s ${mode.label} test. No tier was given and their cooldown was not changed. Closing this ticket...`, ephemeral: true });
+  await interaction.channel.delete(`Tier test skipped by ${interaction.user.tag}`).catch(() => {});
 }
 
 // A tester ran an eval with the candidate and they passed. This awards LT3 straight away:
