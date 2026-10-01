@@ -400,11 +400,7 @@
       "uuid": "e6f69970cfe54c2eaf70afb3cc059947",
       "skinUrl": "https://textures.minecraft.net/texture/de10a41f9d3607afa956235f35f46b47812a19b7566a37ea34c114bb4293acd6",
       "skinUpdatedAt": "2026-09-27T18:00:05.490Z",
-      "retiredTiers": {
-        "Sword": "HT4"
-      },
-      "retiredAt": "2026-08-16T01:22:14.798Z",
-      "retireReason": "hamburger"
+      "restrictedAt": "2026-09-15T14:28:47.797Z"
     },
     "nytsom": {
       "ign": "nytsom",
