@@ -650,13 +650,13 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Vanilla": "HT4"
+        "Vanilla": "LT3"
       },
       "lastTestedAt": {
-        "Vanilla": "2026-09-25T23:23:19.549Z"
+        "Vanilla": "2026-10-01T02:18:04.030Z"
       },
       "lastTestedTier": {
-        "Vanilla": "HT4"
+        "Vanilla": "LT3"
       }
     },
     "ozyxv": {
