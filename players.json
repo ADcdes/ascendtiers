@@ -743,6 +743,24 @@
       "lastTestedTier": {
         "Vanilla": "LT3"
       }
+    },
+    "mcthundercheeks": {
+      "ign": "McThunderCheeks",
+      "region": "NA",
+      "discordId": "1125535390967795814",
+      "uuid": "ef0e4560cc7549779875e1ff011dfe84",
+      "skinUrl": "https://textures.minecraft.net/texture/bff2e816b8cca693264ccc059572ca64e3dc2ac66a30f7b5fa921351a1997dfc",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-10-02T01:07:20.150Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      }
     }
   }
 }
