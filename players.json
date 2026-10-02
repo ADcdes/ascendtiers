@@ -779,6 +779,24 @@
       "lastTestedTier": {
         "Vanilla": "LT4"
       }
+    },
+    "geekitygoo": {
+      "ign": "geekitygoo",
+      "region": "NA",
+      "discordId": "1138214520783900782",
+      "uuid": "e29610dc9b954b7c82d6451417d43ced",
+      "skinUrl": "https://textures.minecraft.net/texture/76be112983ea8e52d45540ffb87ab3caa07777bd1b7e60ad9e5628b08f858ca2",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-10-02T02:51:26.397Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      }
     }
   }
 }
