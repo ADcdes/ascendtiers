@@ -689,6 +689,24 @@
       "lastTestedTier": {
         "Vanilla": "LT3"
       }
+    },
+    "fduw": {
+      "ign": "fduw",
+      "region": "NA",
+      "discordId": "1467991313763930163",
+      "uuid": "4fbf45cce9a741859012a3e161882815",
+      "skinUrl": "https://textures.minecraft.net/texture/9e95204307fec3fb17a6cc05d10740757e29c4f00a8bad4c13faad63bcafd6bf",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-10-02T00:23:44.440Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      }
     }
   }
 }
