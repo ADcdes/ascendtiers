@@ -707,6 +707,24 @@
       "lastTestedTier": {
         "Vanilla": "LT3"
       }
+    },
+    "okisada": {
+      "ign": "Okisada",
+      "region": "NA",
+      "discordId": "1356420456995098724",
+      "uuid": "6de1da28afc249ebb447a24ad0bb58c6",
+      "skinUrl": "https://textures.minecraft.net/texture/ebb16e467a8e7b96b611b6cfe26b896ba372cd5205bc39f7f659fb542ed8c4c4",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-10-02T00:36:44.909Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      }
     }
   }
 }
