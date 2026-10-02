@@ -462,7 +462,7 @@
       "region": "NA",
       "discordId": "575113506421211146",
       "uuid": "75f6eb2b66604ad09c6d27fe94012373",
-      "skinUrl": "https://textures.minecraft.net/texture/fe9e2f06bfd85a485dd222fb5b3033d1f120960a7c3bbf68749f7d3eebd31574",
+      "skinUrl": "https://textures.minecraft.net/texture/a48f78f537f12c9ab43568df1d20ac942f69bc598fb83804c8b4a1705d2704a4",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -474,7 +474,7 @@
       "lastTestedTier": {
         "Vanilla": "LT3"
       },
-      "skinUpdatedAt": "2026-10-02T16:27:31.434Z"
+      "skinUpdatedAt": "2026-10-02T21:27:27.006Z"
     },
     "vexweb": {
       "ign": "VexWeb",
@@ -644,7 +644,7 @@
       "region": "NA",
       "discordId": "933533474407723068",
       "uuid": "aeda70d4cf1245429c0102b44fd27b96",
-      "skinUrl": "https://textures.minecraft.net/texture/51182cf65d180ecf08fab2311abed0cfcee960e6df5a3ba528f7ea47cc41f0a2",
+      "skinUrl": "https://textures.minecraft.net/texture/b84f6df8a1495bee700e5cd3fdfc1427a6fa23513486b7ed6dd5c1ceb7901792",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -656,7 +656,7 @@
       "lastTestedTier": {
         "Vanilla": "LT4"
       },
-      "skinUpdatedAt": "2026-10-01T01:31:23.566Z"
+      "skinUpdatedAt": "2026-10-02T21:27:35.325Z"
     },
     "lowtiertwo": {
       "ign": "LowTierTwo",
