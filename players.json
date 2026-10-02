@@ -725,6 +725,24 @@
       "lastTestedTier": {
         "Vanilla": "LT3"
       }
+    },
+    "il0vewhitetoes": {
+      "ign": "IL0veWhiteToes",
+      "region": "NA",
+      "discordId": "1275547025609326708",
+      "uuid": "a1178de81180491cb923bd0532600dc8",
+      "skinUrl": "https://textures.minecraft.net/texture/5725b57a88ac7ea379dcedbedc8ebb5f2fb6f8c0f7d162bf1ee5a6dd018fc3e8",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-10-02T00:54:22.166Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      }
     }
   }
 }
