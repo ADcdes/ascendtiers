@@ -761,6 +761,24 @@
       "lastTestedTier": {
         "Vanilla": "LT3"
       }
+    },
+    "swiifo": {
+      "ign": "Swiifo",
+      "region": "NA",
+      "discordId": "1353881456161853573",
+      "uuid": "be187369819e46f9adce8359bd60c634",
+      "skinUrl": "https://textures.minecraft.net/texture/4029017adc1b54504a3331c9a1659f1f17883d8a5a9662e121bc6438c642efaa",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT4"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-10-02T02:01:25.811Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT4"
+      }
     }
   }
 }
