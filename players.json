@@ -782,8 +782,12 @@
       "tiers": {
         "Vanilla": "LT3"
       },
-      "lastTestedAt": {},
-      "lastTestedTier": {}
+      "lastTestedAt": {
+        "Vanilla": "2026-10-03T22:25:12.552Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "HT3"
+      }
     },
     "7dollarfootlong": {
       "ign": "7dollarfootlong",
