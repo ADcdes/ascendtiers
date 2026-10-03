@@ -872,6 +872,24 @@
       "lastTestedTier": {
         "Vanilla": "LT3"
       }
+    },
+    "hayden173": {
+      "ign": "hayden173",
+      "region": "NA",
+      "discordId": "1252697634603536498",
+      "uuid": "92baf86820724cf78bace8a75d0ec43a",
+      "skinUrl": "https://textures.minecraft.net/texture/347265fafde1d134343d34dbaa6c741ef53df251bfbe84b0317798b7168376fc",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT4"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-10-03T02:21:35.139Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "HT4"
+      }
     }
   }
 }
