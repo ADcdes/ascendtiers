@@ -868,8 +868,12 @@
       "tiers": {
         "Vanilla": "LT3"
       },
-      "lastTestedAt": {},
-      "lastTestedTier": {}
+      "lastTestedAt": {
+        "Vanilla": "2026-10-03T22:09:36.148Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      }
     },
     "hayden173": {
       "ign": "hayden173",
