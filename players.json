@@ -854,6 +854,24 @@
       "lastTestedTier": {
         "Vanilla": "LT3"
       }
+    },
+    "glitcheddrive": {
+      "ign": "GlitchedDrive",
+      "region": "NA",
+      "discordId": "946807243762970704",
+      "uuid": "7c0c3b939845490e85abf570c3ba9663",
+      "skinUrl": "https://textures.minecraft.net/texture/1100d121953a5f71aba89ac41735f7be7f2e1d4d5be5b4e6f7973b77a8ded5df",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-10-03T01:54:39.164Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      }
     }
   }
 }
