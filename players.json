@@ -815,6 +815,23 @@
       "lastTestedTier": {
         "Vanilla": "LT3"
       }
+    },
+    "4x9e": {
+      "ign": "4x9e",
+      "region": "NA",
+      "discordId": "1263990190003851336",
+      "uuid": "da68124fa26b4e3e85331dfd5bee0352",
+      "skinUrl": "https://textures.minecraft.net/texture/ae40cc3c6d274964a4ab4c47bd7837a02355be84d69898026f53f7968e41ff8",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "HT3"
+      },
+      "lastTestedAt": {},
+      "lastTestedTier": {},
+      "migratedFrom": {
+        "Vanilla": "VTL"
+      }
     }
   }
 }
