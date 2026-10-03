@@ -832,6 +832,24 @@
       "migratedFrom": {
         "Vanilla": "VTL"
       }
+    },
+    "balenciagarep": {
+      "ign": "balenciagarep",
+      "region": "NA",
+      "discordId": "1491843088342323302",
+      "uuid": "6e2500b2d19b4ebbbc0e948e767381c6",
+      "skinUrl": "https://textures.minecraft.net/texture/bdd3dc1a65b8e1c162f3f4fa5448410d474d6383d38dee60ee1079857d02a3b",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-10-03T00:44:02.349Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      }
     }
   }
 }
