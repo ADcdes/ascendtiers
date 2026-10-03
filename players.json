@@ -891,6 +891,23 @@
       "lastTestedTier": {
         "Vanilla": "HT4"
       }
+    },
+    "treecpvp": {
+      "ign": "TreeCPVP",
+      "region": "NA",
+      "discordId": "1132900183487815730",
+      "uuid": "be38867ec32f4d65a892bdd7ec4ce4d5",
+      "skinUrl": "https://textures.minecraft.net/texture/210720d6b800ead46ea33075ed5e3ba6c60345fc49c96d0d0621dfa1b15ae36f",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {},
+      "lastTestedTier": {},
+      "migratedFrom": {
+        "Vanilla": "SolaceTiers"
+      }
     }
   }
 }
