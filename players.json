@@ -709,12 +709,8 @@
       "tiers": {
         "Vanilla": "LT3"
       },
-      "lastTestedAt": {
-        "Vanilla": "2026-10-02T00:36:44.909Z"
-      },
-      "lastTestedTier": {
-        "Vanilla": "LT3"
-      }
+      "lastTestedAt": {},
+      "lastTestedTier": {}
     },
     "il0vewhitetoes": {
       "ign": "IL0veWhiteToes",
