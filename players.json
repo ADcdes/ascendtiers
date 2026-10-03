@@ -797,6 +797,24 @@
       "uuid": "e997282d79a844289e0636cbcd613253",
       "skinUrl": "https://textures.minecraft.net/texture/f2701c730ee27bad910a9a9d1b7b2f5839664798cf0100f1f0f4df230233608a",
       "skinUpdatedAt": "2026-10-02T12:27:19.859Z"
+    },
+    "euuy": {
+      "ign": "euuy",
+      "region": "EU",
+      "discordId": "1238607640955719812",
+      "uuid": "fd67055b2715454e8961b121be06ebdc",
+      "skinUrl": "https://textures.minecraft.net/texture/bae402be80fca68c5bb71450541bd221aaa965ec4a4e76cb2e639fa57adf4942",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-10-03T00:29:08.684Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      }
     }
   }
 }
