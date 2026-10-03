@@ -345,13 +345,13 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Vanilla": "LT3"
+        "Vanilla": "HT3"
       },
       "lastTestedAt": {
-        "Vanilla": "2026-07-27T18:12:47.176Z"
+        "Vanilla": "2026-10-03T15:01:35.111Z"
       },
       "lastTestedTier": {
-        "Vanilla": "LT3"
+        "Vanilla": "HT3"
       },
       "skinUpdatedAt": "2026-10-02T15:27:21.578Z",
       "restrictedAt": "2026-09-15T14:28:47.797Z"
