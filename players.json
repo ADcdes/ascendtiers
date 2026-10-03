@@ -826,7 +826,7 @@
       "region": "NA",
       "discordId": "1263990190003851336",
       "uuid": "da68124fa26b4e3e85331dfd5bee0352",
-      "skinUrl": "https://mc-heads.net/avatar/da68124fa26b4e3e85331dfd5bee0352/160",
+      "skinUrl": "https://textures.minecraft.net/texture/ae40cc3c6d274964a4ab4c47bd7837a02355be84d69898026f53f7968e41ff8",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -837,7 +837,7 @@
       "migratedFrom": {
         "Vanilla": "VTL"
       },
-      "skinUpdatedAt": "2026-10-03T19:27:30.578Z"
+      "skinUpdatedAt": "2026-10-03T20:27:30.548Z"
     },
     "balenciagarep": {
       "ign": "balenciagarep",
