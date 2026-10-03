@@ -727,8 +727,12 @@
       "tiers": {
         "Vanilla": "LT3"
       },
-      "lastTestedAt": {},
-      "lastTestedTier": {}
+      "lastTestedAt": {
+        "Vanilla": "2026-10-03T22:18:28.388Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "HT3"
+      }
     },
     "mcthundercheeks": {
       "ign": "McThunderCheeks",
