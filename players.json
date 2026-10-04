@@ -804,7 +804,7 @@
       "region": "EU",
       "discordId": "1238607640955719812",
       "uuid": "fd67055b2715454e8961b121be06ebdc",
-      "skinUrl": "https://textures.minecraft.net/texture/bae402be80fca68c5bb71450541bd221aaa965ec4a4e76cb2e639fa57adf4942",
+      "skinUrl": "https://mc-heads.net/avatar/fd67055b2715454e8961b121be06ebdc/160",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -815,7 +815,8 @@
       },
       "lastTestedTier": {
         "Vanilla": "LT3"
-      }
+      },
+      "skinUpdatedAt": "2026-10-04T21:32:08.744Z"
     },
     "4x9e": {
       "ign": "4x9e",
