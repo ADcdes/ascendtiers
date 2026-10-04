@@ -844,7 +844,7 @@
       "region": "NA",
       "discordId": "1491843088342323302",
       "uuid": "6e2500b2d19b4ebbbc0e948e767381c6",
-      "skinUrl": "https://textures.minecraft.net/texture/bdd3dc1a65b8e1c162f3f4fa5448410d474d6383d38dee60ee1079857d02a3b",
+      "skinUrl": "https://textures.minecraft.net/texture/a0c4e1a4e423e69f36799b97e6d238dcbf98d7ca8ac549d598b6c9cfed0462b0",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -855,7 +855,8 @@
       },
       "lastTestedTier": {
         "Vanilla": "LT3"
-      }
+      },
+      "skinUpdatedAt": "2026-10-04T02:27:26.517Z"
     },
     "glitcheddrive": {
       "ign": "GlitchedDrive",
