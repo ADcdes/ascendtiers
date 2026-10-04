@@ -567,12 +567,8 @@
       "tiers": {
         "Vanilla": "LT3"
       },
-      "lastTestedAt": {
-        "Vanilla": "2026-10-03T00:57:10.456Z"
-      },
-      "lastTestedTier": {
-        "Vanilla": "LT3"
-      },
+      "lastTestedAt": {},
+      "lastTestedTier": {},
       "skinUpdatedAt": "2026-09-28T09:00:13.827Z"
     },
     "bindkey": {
