@@ -906,6 +906,24 @@
       "migratedFrom": {
         "Vanilla": "SolaceTiers"
       }
+    },
+    "uwu_kitten_uwu": {
+      "ign": "Uwu_Kitten_Uwu",
+      "region": "NA",
+      "discordId": "1245385596516700181",
+      "uuid": "f0c151abcecf45aaa1fec6d7e1f202c5",
+      "skinUrl": "https://textures.minecraft.net/texture/fd52344f4ea04fa6a7605c2c83986a4ee1c15e2386ff84e28a4db398d4a1b04d",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-10-04T16:27:30.407Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      }
     }
   }
 }
