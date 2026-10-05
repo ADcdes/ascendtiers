@@ -921,6 +921,24 @@
       "lastTestedTier": {
         "Vanilla": "LT3"
       }
+    },
+    "overtonight": {
+      "ign": "overtonight",
+      "region": "NA",
+      "discordId": "1375652650678353993",
+      "uuid": "2c86752c662449e89ed5995994d55ad5",
+      "skinUrl": "https://textures.minecraft.net/texture/571799771c05502152ebfd6429144367f88037960f96022c76d6b2e0080a0ed3",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-10-05T18:20:19.704Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      }
     }
   }
 }
