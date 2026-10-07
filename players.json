@@ -930,7 +930,7 @@
       "region": "NA",
       "discordId": "1375652650678353993",
       "uuid": "2c86752c662449e89ed5995994d55ad5",
-      "skinUrl": "https://textures.minecraft.net/texture/571799771c05502152ebfd6429144367f88037960f96022c76d6b2e0080a0ed3",
+      "skinUrl": "https://mc-heads.net/avatar/2c86752c662449e89ed5995994d55ad5/160",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -941,7 +941,8 @@
       },
       "lastTestedTier": {
         "Vanilla": "LT3"
-      }
+      },
+      "skinUpdatedAt": "2026-10-07T01:53:40.772Z"
     }
   }
 }
