@@ -875,7 +875,7 @@
       "region": "NA",
       "discordId": "1252697634603536498",
       "uuid": "92baf86820724cf78bace8a75d0ec43a",
-      "skinUrl": "https://mc-heads.net/avatar/92baf86820724cf78bace8a75d0ec43a/160",
+      "skinUrl": "https://textures.minecraft.net/texture/347265fafde1d134343d34dbaa6c741ef53df251bfbe84b0317798b7168376fc",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -887,7 +887,7 @@
       "lastTestedTier": {
         "Vanilla": "HT4"
       },
-      "skinUpdatedAt": "2026-10-08T01:52:39.090Z"
+      "skinUpdatedAt": "2026-10-08T02:52:37.018Z"
     },
     "treecpvp": {
       "ign": "TreeCPVP",
