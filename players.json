@@ -565,10 +565,14 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Vanilla": "LT3"
+        "Vanilla": "HT3"
       },
-      "lastTestedAt": {},
-      "lastTestedTier": {},
+      "lastTestedAt": {
+        "Vanilla": "2026-10-09T01:13:18.910Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "HT3"
+      },
       "skinUpdatedAt": "2026-09-28T09:00:13.827Z"
     },
     "bindkey": {
