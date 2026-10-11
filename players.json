@@ -363,7 +363,7 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Vanilla": "HT4",
+        "Vanilla": "HT5",
         "SMP": "LT4",
         "Pot": "HT5",
         "UHC": "HT5",
@@ -374,14 +374,16 @@
         "SMP": "2026-08-12T19:23:13.356Z",
         "Pot": "2026-08-12T19:23:41.662Z",
         "UHC": "2026-08-16T01:27:55.846Z",
-        "Mace": "2026-08-12T19:26:10.636Z"
+        "Mace": "2026-08-12T19:26:10.636Z",
+        "Vanilla": "2026-10-11T02:54:59.906Z"
       },
       "lastTestedTier": {
         "Sword": "HT4",
         "SMP": "LT4",
         "Pot": "HT5",
         "UHC": "HT5",
-        "Mace": "LT4"
+        "Mace": "LT4",
+        "Vanilla": "HT5"
       },
       "uuid": "e6f69970cfe54c2eaf70afb3cc059947",
       "skinUrl": "https://textures.minecraft.net/texture/de10a41f9d3607afa956235f35f46b47812a19b7566a37ea34c114bb4293acd6",
