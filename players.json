@@ -347,12 +347,8 @@
       "tiers": {
         "Vanilla": "HT3"
       },
-      "lastTestedAt": {
-        "Vanilla": "2026-10-03T15:09:53.787Z"
-      },
-      "lastTestedTier": {
-        "Vanilla": "HT3"
-      },
+      "lastTestedAt": {},
+      "lastTestedTier": {},
       "skinUpdatedAt": "2026-10-04T15:27:05.033Z",
       "restrictedAt": "2026-09-15T14:28:47.797Z"
     },
