@@ -626,13 +626,13 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Vanilla": "LT3"
+        "Vanilla": "HT5"
       },
       "lastTestedAt": {
-        "Vanilla": "2026-10-01T02:18:04.030Z"
+        "Vanilla": "2026-10-11T23:51:35.595Z"
       },
       "lastTestedTier": {
-        "Vanilla": "LT3"
+        "Vanilla": "HT5"
       }
     },
     "ozyxv": {
