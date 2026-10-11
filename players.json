@@ -950,6 +950,24 @@
         "Vanilla": "LT3"
       },
       "skinUpdatedAt": "2026-10-10T22:40:31.674Z"
+    },
+    "krankovich19": {
+      "ign": "Krankovich19",
+      "region": "NA",
+      "discordId": "1321875153432346695",
+      "uuid": "cbe93261b7404770a3c47f9e22a751c9",
+      "skinUrl": "https://textures.minecraft.net/texture/7af6aa9d397adb84a728c14d9721ef983be10e361629419d7eacfc348217e0c8",
+      "restricted": false,
+      "restrictReason": null,
+      "tiers": {
+        "Vanilla": "LT3"
+      },
+      "lastTestedAt": {
+        "Vanilla": "2026-10-11T14:56:52.440Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      }
     }
   }
 }
