@@ -768,7 +768,7 @@
       "region": "NA",
       "discordId": "1138214520783900782",
       "uuid": "e29610dc9b954b7c82d6451417d43ced",
-      "skinUrl": "https://mc-heads.net/avatar/e29610dc9b954b7c82d6451417d43ced/160",
+      "skinUrl": "https://textures.minecraft.net/texture/76be112983ea8e52d45540ffb87ab3caa07777bd1b7e60ad9e5628b08f858ca2",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -780,7 +780,7 @@
       "lastTestedTier": {
         "Vanilla": "HT3"
       },
-      "skinUpdatedAt": "2026-10-12T02:14:45.927Z"
+      "skinUpdatedAt": "2026-10-12T03:14:45.716Z"
     },
     "7dollarfootlong": {
       "ign": "7dollarfootlong",
@@ -801,7 +801,7 @@
       "region": "EU",
       "discordId": "1238607640955719812",
       "uuid": "fd67055b2715454e8961b121be06ebdc",
-      "skinUrl": "https://mc-heads.net/avatar/fd67055b2715454e8961b121be06ebdc/160",
+      "skinUrl": "https://textures.minecraft.net/texture/bae402be80fca68c5bb71450541bd221aaa965ec4a4e76cb2e639fa57adf4942",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -813,7 +813,7 @@
       "lastTestedTier": {
         "Vanilla": "LT3"
       },
-      "skinUpdatedAt": "2026-10-12T02:14:47.380Z"
+      "skinUpdatedAt": "2026-10-12T03:14:47.221Z"
     },
     "4x9e": {
       "ign": "4x9e",
@@ -947,7 +947,7 @@
       "region": "NA",
       "discordId": "1321875153432346695",
       "uuid": "cbe93261b7404770a3c47f9e22a751c9",
-      "skinUrl": "https://textures.minecraft.net/texture/7af6aa9d397adb84a728c14d9721ef983be10e361629419d7eacfc348217e0c8",
+      "skinUrl": "https://mc-heads.net/avatar/cbe93261b7404770a3c47f9e22a751c9/160",
       "restricted": false,
       "restrictReason": null,
       "tiers": {
@@ -958,7 +958,8 @@
       },
       "lastTestedTier": {
         "Vanilla": "LT3"
-      }
+      },
+      "skinUpdatedAt": "2026-10-12T03:14:53.147Z"
     }
   }
 }
