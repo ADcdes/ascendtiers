@@ -628,12 +628,8 @@
       "tiers": {
         "Vanilla": "HT5"
       },
-      "lastTestedAt": {
-        "Vanilla": "2026-10-11T23:51:35.595Z"
-      },
-      "lastTestedTier": {
-        "Vanilla": "HT5"
-      }
+      "lastTestedAt": {},
+      "lastTestedTier": {}
     },
     "ozyxv": {
       "ign": "ozyxv",
