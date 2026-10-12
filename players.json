@@ -713,10 +713,14 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Vanilla": "LT3"
+        "Vanilla": "HT3"
       },
-      "lastTestedAt": {},
-      "lastTestedTier": {}
+      "lastTestedAt": {
+        "Vanilla": "2026-10-12T18:43:46.943Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "HT3"
+      }
     },
     "mcthundercheeks": {
       "ign": "McThunderCheeks",
