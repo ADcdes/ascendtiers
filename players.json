@@ -857,10 +857,14 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Vanilla": "LT3"
+        "Vanilla": "HT3"
       },
-      "lastTestedAt": {},
-      "lastTestedTier": {},
+      "lastTestedAt": {
+        "Vanilla": "2026-10-12T18:25:17.025Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "HT3"
+      },
       "skinUpdatedAt": "2026-10-06T02:19:16.206Z"
     },
     "hayden173": {
