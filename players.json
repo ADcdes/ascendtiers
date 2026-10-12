@@ -626,10 +626,14 @@
       "restricted": false,
       "restrictReason": null,
       "tiers": {
-        "Vanilla": "HT5"
+        "Vanilla": "LT3"
       },
-      "lastTestedAt": {},
-      "lastTestedTier": {}
+      "lastTestedAt": {
+        "Vanilla": "2026-10-12T18:46:17.052Z"
+      },
+      "lastTestedTier": {
+        "Vanilla": "LT3"
+      }
     },
     "ozyxv": {
       "ign": "ozyxv",
